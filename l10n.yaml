@@ -1,0 +1,5 @@
+arb-dir: assets/translations
+output-dir: lib/generated
+template-arb-file: ru.arb
+output-localization-file: app_localizations.dart
+untranslated-messages-file: lib/generated/untranslated-messages.txt

@@ -1,0 +1,308 @@
+{
+  "@@locale": "ru",
+
+  "appTitle": "Заявки на материалы",
+  "@appTitle": { "description": "Название приложения в списке задач системы" },
+
+  "actionBack": "Назад",
+  "@actionBack": { "description": "Подпись кнопки «назад» для скринридера" },
+  "actionClose": "Закрыть",
+  "actionClearSearch": "Очистить поиск",
+  "actionSave": "Сохранить",
+  "actionCancel": "Отмена",
+  "actionDelete": "Удалить",
+  "actionSend": "Отправить",
+  "actionEditShort": "Изм.",
+  "@actionEditShort": { "description": "Кнопка правки в строке справочника; коротко, потому что стоит в одной строке с названием" },
+  "actionRemove": "Удалить запись",
+  "@actionRemove": { "description": "Подпись крестика удаления для скринридера" },
+  "actionRetry": "Повторить",
+  "actionBackspace": "Стереть",
+  "@actionBackspace": { "description": "Подпись клавиши стирания на цифровой клавиатуре" },
+
+  "navRequests": "Заявки",
+  "navCatalog": "Справочник",
+
+  "statusDraft": "Черновик",
+  "statusSaved": "Сохранена",
+  "statusSent": "Отправлена",
+
+  "unitPiece": "шт.",
+  "unitMeter": "м.п.",
+  "unitSet": "комплект",
+
+  "requestsTitle": "Заявки",
+  "requestsSubtitle": "{count, plural, one{{count} заявка} few{{count} заявки} many{{count} заявок} other{{count} заявки}}",
+  "@requestsSubtitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestsSearchHint": "Поиск по заявкам",
+  "requestsFilterAll": "Все",
+  "requestsFilterDrafts": "Черновики",
+  "requestsFilterSaved": "Сохранённые",
+  "requestsFilterSent": "Отправленные",
+  "requestsFoldersLabel": "Папки",
+  "requestsFolderNew": "Папка",
+  "@requestsFolderNew": { "description": "Кнопка «+ Папка»: плюс рисует иконка, слово приходит отсюда" },
+  "requestsListAll": "Все заявки · {count}",
+  "@requestsListAll": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestsListInFolder": "Заявки в папке · {count}",
+  "@requestsListInFolder": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestsEmpty": "Ничего не найдено.\nИзмените запрос или фильтр.",
+  "@requestsEmpty": { "description": "Перенос строки намеренный: вторая строка — подсказка действия" },
+  "requestsCreate": "Создать заявку",
+  "requestPositions": "{count, plural, one{{count} позиция} few{{count} позиции} many{{count} позиций} other{{count} позиции}}",
+  "@requestPositions": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestPositionsWord": "{count, plural, one{позиция} few{позиции} many{позиций} other{позиции}}",
+  "@requestPositionsWord": {
+    "description": "Только слово: число рядом с ним рисуется моноширинным шрифтом и потому стоит отдельным текстом",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "dateFormatShort": "dd.MM.yyyy",
+  "@dateFormatShort": { "description": "Шаблон intl для даты заявки. В ARB, потому что порядок частей даты — свойство локали" },
+  "requestFolderCount": "{count}",
+  "@requestFolderCount": {
+    "description": "Счётчик заявок в строке папки — моноширинный, без слова",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "requestDetailTitle": "Заявка",
+  "requestNameLabel": "Название заявки",
+  "requestMaterialsLabel": "Материалы · {count}",
+  "@requestMaterialsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "requestItemsEmpty": "В заявке пока нет материалов.\nНажмите «Добавить материал».",
+  "requestAddMaterial": "Добавить материал",
+  "requestIncreaseQuantity": "Увеличить количество",
+  "requestDecreaseQuantity": "Уменьшить количество",
+
+  "requestItemTitle": "Позиция заявки",
+  "requestItemReplaceMaterial": "Заменить материал",
+
+  "pickTitle": "Добавить материал",
+  "pickSubtitle": "Категория, материал и количество",
+  "pickSearchHint": "Поиск по материалам",
+  "pickHintTree": "Категория → подкатегория → материал",
+  "pickHintFound": "Найдено · {count}",
+  "@pickHintFound": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "pickAddToRequest": "Добавить в заявку",
+  "pickCollapseMark": "−",
+  "@pickCollapseMark": { "description": "Метка раскрытой строки дерева вместо счётчика" },
+  "pickSearching": "Ищем…",
+  "@pickSearching": { "description": "Подпись над списком, пока первый поиск ещё идёт" },
+  "pickNothingFound": "Ничего не найдено.\nПроверьте запрос или откройте дерево.",
+  "@pickNothingFound": { "description": "Пустой результат поиска по справочнику" },
+  "pickScrollTop": "Наверх",
+  "@pickScrollTop": { "description": "Возврат к строке поиска из глубины длинного списка" },
+  "pickCategoryMeta": "{subcategories} подкат. · {materials} мат.",
+  "@pickCategoryMeta": {
+    "description": "Счётчики свёрнутой категории. Число материалов важнее числа подкатегорий: по нему видно, что в ППР дерево листать не стоит",
+    "placeholders": {
+      "subcategories": { "type": "int" },
+      "materials": { "type": "int" }
+    }
+  },
+  "pickSubcategoriesShort": "{count} подкат.",
+  "@pickSubcategoriesShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "pickMaterialsShort": "{count} мат.",
+  "@pickMaterialsShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "quantityLabel": "Количество",
+  "quantityHint": "Единица из справочника",
+  "quantityEmpty": "0",
+  "@quantityEmpty": { "description": "Заглушка на табло, пока количество не введено" },
+
+  "catalogTitle": "Справочник",
+  "catalogSubtitle": "Категории, подкатегории и материалы",
+  "catalogTabCategories": "Категории",
+  "catalogTabMaterials": "Материалы",
+  "catalogCategoriesLabel": "Категории · {count}",
+  "@catalogCategoriesLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogMaterialsLabel": "Материалы · {count}",
+  "@catalogMaterialsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogSubcategoriesLabel": "Подкатегории · {count}",
+  "@catalogSubcategoriesLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogCategoryMeta": "{count} подкат. · {names}",
+  "@catalogCategoryMeta": {
+    "placeholders": { "count": { "type": "int" }, "names": { "type": "String" } }
+  },
+  "catalogMaterialsInCategory": "{count, plural, one{{count} материал в категории} few{{count} материала в категории} many{{count} материалов в категории} other{{count} материала в категории}}",
+  "@catalogMaterialsInCategory": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogMaterialsCount": "{count, plural, one{{count} материал} few{{count} материала} many{{count} материалов} other{{count} материала}}",
+  "@catalogMaterialsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogCategoriesEmpty": "В справочнике нет категорий.\nЗагрузите прайс или добавьте категорию.",
+  "catalogSubcategoriesEmpty": "В категории нет подкатегорий.\nНажмите «+ Подкатегория».",
+  "catalogMaterialsEmpty": "В подкатегории нет материалов.\nНажмите «+ Материал».",
+
+  "catalogImportTitle": "Обновить справочник",
+  "catalogImportSubtitle": "Импорт из файла прайса",
+  "catalogImportOpen": "Загрузить прайс",
+  "@catalogImportOpen": { "description": "Подпись кнопки-иконки в шапке справочника для скринридера" },
+  "catalogImportIntro": "Справочник целиком берётся из файла прайса заказчика. Выберите файл — приложение разберёт его и покажет, что именно загрузится.",
+  "catalogImportFormats": "Excel (.xlsx), лист «Материал». Колонки: категория, подкатегория, материал, единица измерения.",
+  "catalogImportPickFile": "Выбрать файл",
+  "catalogImportPickAnother": "Выбрать другой файл",
+  "catalogImportParsing": "Разбираем файл…",
+  "catalogImportFileLabel": "Файл",
+  "catalogImportStatsLabel": "Будет загружено",
+  "catalogImportCategories": "Категории",
+  "catalogImportSubcategories": "Подкатегории",
+  "catalogImportMaterials": "Материалы",
+  "catalogImportWarningsLabel": "Предупреждения",
+  "catalogImportDuplicates": "{count, plural, one{Удалён {count} полный дубль строки} few{Удалено {count} полных дубля строк} many{Удалено {count} полных дублей строк} other{Удалено {count} полных дубля строк}}",
+  "@catalogImportDuplicates": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogImportTrimmed": "{count, plural, one{В {count} строке убраны лишние пробелы} few{В {count} строках убраны лишние пробелы} many{В {count} строках убраны лишние пробелы} other{В {count} строках убраны лишние пробелы}}",
+  "@catalogImportTrimmed": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogImportSkipped": "{count, plural, one{Пропущена {count} строка без названия или категории} few{Пропущено {count} строки без названия или категории} many{Пропущено {count} строк без названия или категории} other{Пропущено {count} строки без названия или категории}}",
+  "@catalogImportSkipped": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "catalogImportUnknownUnits": "Неизвестные единицы измерения: {units}. Допустимы только шт., м.п. и комплект — такие строки не загрузятся.",
+  "@catalogImportUnknownUnits": {
+    "placeholders": { "units": { "type": "String" } }
+  },
+  "catalogImportReplaceNote": "Импорт заменяет справочник целиком. Заявки не изменятся: в них лежат копии материалов на момент добавления.",
+  "catalogImportApply": "Заменить справочник",
+  "catalogImportRetry": "Повторить",
+  "confirmImportTitle": "Заменить справочник?",
+  "confirmImportText": "Текущие {count} материалов будут удалены и заменены содержимым файла.",
+  "@confirmImportText": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "confirmImportAction": "Заменить",
+  "snackCatalogImported": "Справочник обновлён: {count} материалов",
+  "@snackCatalogImported": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "catalogNewCategory": "Категория",
+  "catalogNewSubcategory": "Подкатегория",
+  "catalogNewMaterial": "Материал",
+  "catalogMaterialMeta": "{path} · {unit}",
+  "@catalogMaterialMeta": {
+    "description": "Вторая строка материала в плоском списке справочника",
+    "placeholders": { "path": { "type": "String" }, "unit": { "type": "String" } }
+  },
+
+  "materialPath": "{category} → {subcategory}",
+  "@materialPath": {
+    "description": "Путь материала. Стрелка — часть строки, а не склейка в коде",
+    "placeholders": { "category": { "type": "String" }, "subcategory": { "type": "String" } }
+  },
+  "materialQuantity": "{value}",
+  "@materialQuantity": {
+    "description": "Количество в карточке позиции: целое число, моноширинно",
+    "placeholders": { "value": { "type": "int" } }
+  },
+
+  "formTitleCategory": "Категория",
+  "formTitleSubcategory": "Подкатегория",
+  "formTitleMaterial": "Материал",
+  "formTitleFolder": "Папка",
+  "formSubtitleNew": "Новая запись",
+  "formSubtitleEdit": "Редактирование",
+  "formNameLabel": "Название",
+  "formNameHint": "Например, Труба ⌀100/2000",
+  "formCategoryLabel": "Категория",
+  "formSubcategoryLabel": "Подкатегория",
+  "formUnitLabel": "Единица измерения",
+  "formNameRequired": "Введите название",
+  "formSubcategoryRequired": "Выберите подкатегорию",
+
+  "sendSheetTitle": "Отправить заявку",
+  "sendSheetSubtitle": "Выберите формат вложения",
+  "sendFormatXml": "XML",
+  "sendFormatPdf": "PDF",
+  "sendFormatBoth": "XML и PDF",
+
+  "confirmDeleteRequestTitle": "Удалить заявку?",
+  "confirmDeleteRequestText": "Заявка «{name}» и все её {count} позиций будут удалены с устройства.",
+  "@confirmDeleteRequestText": {
+    "placeholders": { "name": { "type": "String" }, "count": { "type": "int" } }
+  },
+  "confirmDeleteCategoryTitle": "Удалить категорию?",
+  "confirmDeleteCategoryText": "Категория «{name}» удалится вместе со всеми подкатегориями и материалами внутри. Заявки не изменятся.",
+  "@confirmDeleteCategoryText": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "confirmDeleteSubcategoryTitle": "Удалить подкатегорию?",
+  "confirmDeleteSubcategoryText": "Подкатегория «{name}» удалится вместе с материалами внутри. Заявки не изменятся.",
+  "@confirmDeleteSubcategoryText": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "confirmDeleteMaterialTitle": "Удалить материал?",
+  "confirmDeleteMaterialText": "Материал «{name}» удалится из справочника. В заявках он останется: там хранятся копии.",
+  "@confirmDeleteMaterialText": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "catalogMaterialsEmptyAll": "В справочнике нет материалов.\nЗагрузите прайс или добавьте материал.",
+  "confirmDeleteItemTitle": "Удалить материал?",
+  "confirmDeleteItemText": "Позиция будет удалена из заявки.",
+
+  "snackQuantityRequired": "Укажите количество",
+  "snackQuantityUpdated": "Количество обновлено",
+  "snackMaterialAdded": "{name} · {quantity} {unit} — добавлено",
+  "@snackMaterialAdded": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "quantity": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "snackMaterialReplaced": "Материал заменён на {name}",
+  "@snackMaterialReplaced": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "snackMaterialRemovedFromRequest": "Материал удалён из заявки",
+  "snackSavedToDevice": "Сохранено на устройство: XML и PDF",
+  "snackSent": "Отправлено · {format}",
+  "@snackSent": {
+    "placeholders": { "format": { "type": "String" } }
+  },
+  "snackRequestDeleted": "Заявка удалена",
+  "snackFolderCreated": "Папка создана",
+  "snackCategorySaved": "Категория сохранена",
+  "snackSubcategorySaved": "Подкатегория сохранена",
+  "snackMaterialSaved": "Материал сохранён",
+  "snackCategoryRemoved": "Категория удалена",
+  "snackSubcategoryRemoved": "Подкатегория удалена",
+  "snackMaterialRemovedFromCatalog": "Материал удалён из справочника",
+
+  "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",
+  "routeNotFoundAction": "К заявкам",
+
+  "errorTimeout": "Сервер не ответил вовремя. Попробуйте ещё раз.",
+  "errorConnection": "Нет связи с сервером. Проверьте подключение.",
+  "errorCertificate": "Не удалось проверить сертификат сервера.",
+  "errorFormat": "Сервер ответил в неожиданном формате.",
+  "errorStorage": "Не удалось прочитать данные на устройстве.",
+  "errorPlatform": "Устройство отклонило операцию.",
+  "errorUnknown": "Что-то пошло не так. Попробуйте ещё раз."
+}

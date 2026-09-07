@@ -1,0 +1,30 @@
+include: package:flutter_lints/flutter.yaml
+
+# Плагин ловит строковые литералы, попавшие в виджеты мимо ARB.
+#
+# Две ловушки, обе молчаливые:
+#   1. Запускать только `dart analyze` из корня проекта. `flutter analyze`
+#      плагины не поднимает, а запуск с подкаталогом (`dart analyze lib`)
+#      делает корнем контекста каталог без pubspec.yaml — плагин не
+#      резолвится, и отчёт бодро сообщает «No issues found».
+#   2. Диагностики, не перечисленные здесь, включены со severity `info`.
+#      prefixed_identifier и method_invocation при этом ругаются на сам
+#      `l10n.foo` и `l10n.foo(count)` — то есть ровно на правильный код,
+#      поэтому выключены явно.
+plugins:
+  markup_analyzer:
+    version: ^4.1.1
+    diagnostics:
+      simple_string: error
+      string_interpolation: error
+      adjacent_strings: error
+      binary_string_literal: error
+      binary_expression: info
+      prefixed_identifier: false
+      method_invocation: false
+      simple_identifier: false
+      function_invocation: false
+
+analyzer:
+  exclude:
+    - lib/generated/**

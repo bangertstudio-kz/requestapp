@@ -1,0 +1,34 @@
+name: request
+description: "Заявки на материалы: подбор материала из справочника и количество на одном экране."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # Дизайн-система живёт отдельным пакетом: она не знает ни про фичи,
+  # ни про сеть, и собирается/смотрится независимо от приложения.
+  request_ui:
+    path: packages/request_ui
+  # Даты и склонения — только через intl. Рукописные таблицы месяцев
+  # ломаются на первой же смене локали.
+  intl: any
+  # Типизированные маршруты: deep link на заявку должен открываться без
+  # редиректов, а имена маршрутов — проверяться компилятором.
+  go_router: ^18.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  go_router_builder: ^4.5.0
+  build_runner: ^2.15.1
+
+flutter:
+  uses-material-design: true
+  generate: true
