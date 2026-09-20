@@ -1,20 +1,28 @@
 import '../../../core/domain/described_exception.dart';
-import '../../catalog/domain/entities/material_unit.dart';
+import '../../catalog/domain/entities/item_unit.dart';
 import '../domain/entities/material_request.dart';
 import '../domain/entities/request_filter.dart';
 import '../domain/entities/request_folder.dart';
+import '../domain/entities/request_document.dart';
 import '../domain/entities/request_item.dart';
 import '../domain/entities/request_list.dart';
 import '../domain/entities/request_status.dart';
 import '../domain/entities/requests_params.dart';
 import '../domain/entities/send_format.dart';
+import 'request_documents.dart';
 import 'request_repository.dart';
 
 /// Заявки в памяти. Второй полноправный вход в приложение: сценарий
 /// «создать → добавить материал → сохранить → отправить → поправить»
 /// проходится целиком, вместе с возвратом в черновик после правки.
 class MockRequestRepository implements RequestRepository {
-  MockRequestRepository();
+  MockRequestRepository({RequestDocuments? documents})
+    : documents = documents ?? FileRequestDocuments();
+
+  /// Файлы мок собирает настоящие: иначе сценарий «отправить» проходится
+  /// до экрана предпросмотра и упирается в пустоту — а мок обязан
+  /// проходиться целиком.
+  final RequestDocuments documents;
 
   static const Duration _latency = Duration(milliseconds: 220);
 
@@ -38,35 +46,35 @@ class MockRequestRepository implements RequestRepository {
       items: const [
         RequestItem(
           id: 'r1-1',
+          itemId: 'c1-s1-m12',
           name: 'Труба ⌀100/2000',
-          categoryName: 'Канализация',
-          subcategoryName: 'Труба',
+          path: ['Канализация', 'Труба'],
           quantity: 24,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
         RequestItem(
           id: 'r1-2',
+          itemId: 'c1-s2-m4',
           name: 'Отвод ⌀100',
-          categoryName: 'Канализация',
-          subcategoryName: 'Отвод',
+          path: ['Канализация', 'Отвод'],
           quantity: 16,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
         RequestItem(
           id: 'r1-3',
+          itemId: 'c1-s4-m3',
           name: 'Тройник ⌀100/100/90°',
-          categoryName: 'Канализация',
-          subcategoryName: 'Тройник',
+          path: ['Канализация', 'Тройник'],
           quantity: 8,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
         RequestItem(
           id: 'r1-4',
+          itemId: 'c1-s10-m2',
           name: 'Клипс ⌀100',
-          categoryName: 'Канализация',
-          subcategoryName: 'Клипс',
+          path: ['Канализация', 'Клипс'],
           quantity: 40,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
       ],
     ),
@@ -79,27 +87,27 @@ class MockRequestRepository implements RequestRepository {
       items: const [
         RequestItem(
           id: 'r2-1',
+          itemId: 'c4-s13-m2',
           name: 'Труба ⌀25',
-          categoryName: 'ППР',
-          subcategoryName: 'Труба',
+          path: ['ППР', 'Труба'],
           quantity: 45,
-          unit: MaterialUnit.meter,
+          unit: ItemUnit.meter,
         ),
         RequestItem(
           id: 'r2-2',
+          itemId: 'c4-s5-m1',
           name: 'Кран пластиковый ⌀20',
-          categoryName: 'ППР',
-          subcategoryName: 'Кран',
+          path: ['ППР', 'Кран'],
           quantity: 6,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
         RequestItem(
           id: 'r2-3',
+          itemId: 'c2-s1-m1',
           name: 'Кран ⌀½" н.р./в.р.',
-          categoryName: 'Металлический фитинг',
-          subcategoryName: 'Кран',
+          path: ['Металлический фитинг', 'Кран'],
           quantity: 4,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
       ],
     ),
@@ -112,19 +120,21 @@ class MockRequestRepository implements RequestRepository {
       items: const [
         RequestItem(
           id: 'r3-1',
+          itemId: 'c6-s4-m1',
           name: 'Саморез по дереву 41',
-          categoryName: 'Расходный материал',
-          subcategoryName: 'Саморез',
+          path: ['Расходный материал', 'Саморез'],
           quantity: 300,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
+        // Без `itemId`: материал удалили из справочника уже после того,
+        // как заявку собрали. Демонстрирует, как выглядит такая позиция —
+        // состояние, до которого иначе не добраться руками.
         RequestItem(
           id: 'r3-2',
           name: 'Бур ⌀10',
-          categoryName: 'Расходный материал',
-          subcategoryName: 'Бур',
+          path: ['Расходный материал', 'Бур'],
           quantity: 5,
-          unit: MaterialUnit.piece,
+          unit: ItemUnit.piece,
         ),
       ],
     ),
@@ -201,7 +211,7 @@ class MockRequestRepository implements RequestRepository {
   @override
   Future<MaterialRequest> update(MaterialRequest request) => _delayed(() {
     // Любая правка возвращает заявку в черновик: сохранённые на устройство
-    // XML и PDF после неё уже не соответствуют содержимому, и статус
+    // Таблица и PDF после неё уже не соответствуют содержимому, и статус
     // «Сохранена» стал бы враньём.
     final draft = MaterialRequest(
       id: request.id,
@@ -216,12 +226,44 @@ class MockRequestRepository implements RequestRepository {
   });
 
   @override
+  Future<MaterialRequest> moveToFolder(String id, String? folderId) =>
+      _delayed(() {
+        if (folderId != null && !_folders.any((f) => f.id == folderId)) {
+          throw const DescribedFailure(
+            'Папка не найдена. Возможно, её удалили.',
+          );
+        }
+        final request = _find(id);
+        // Статус переносится как есть: папка не часть документа, и
+        // сохранённая заявка после переезда остаётся сохранённой.
+        final moved = MaterialRequest(
+          id: request.id,
+          name: request.name,
+          createdAt: request.createdAt,
+          status: request.status,
+          folderId: folderId,
+          items: request.items,
+        );
+        _replace(moved);
+        return moved;
+      });
+
+  @override
   Future<void> delete(String id) =>
       _delayed(() => _requests.removeWhere((r) => r.id == id));
 
   @override
-  Future<MaterialRequest> save(String id) =>
-      _delayed(() => _withStatus(_find(id), RequestStatus.saved));
+  Future<List<RequestDocument>> prepare(String id, SendFormat format) async {
+    final request = await _delayed(() => _find(id));
+    return documents.build(request, format);
+  }
+
+  @override
+  Future<MaterialRequest> save(String id) async {
+    final request = await _delayed(() => _find(id));
+    await documents.save(request);
+    return _withStatus(request, RequestStatus.saved);
+  }
 
   @override
   Future<MaterialRequest> send(String id, SendFormat format) =>

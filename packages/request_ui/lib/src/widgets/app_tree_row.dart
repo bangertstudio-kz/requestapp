@@ -7,9 +7,9 @@ import 'hover_builder.dart';
 
 /// Строка дерева «категория → подкатегория → материал».
 ///
-/// Дерево разворачивается на месте, а не уводит на отдельный экран: путь до
-/// материала — три уровня, и три перехода туда-обратно ради одной трубы
-/// стоят дороже, чем отступ слева.
+/// Дерево разворачивается на месте, а не уводит на отдельный экран: переходы
+/// туда-обратно ради одной трубы стоят дороже, чем отступ слева. Глубина
+/// не ограничена — сдвиг вложенных уровней задаёт экран через `extraIndent`.
 class AppTreeRow extends StatelessWidget {
   const AppTreeRow._(
     this._level, {
@@ -45,12 +45,16 @@ class AppTreeRow extends StatelessWidget {
           selected: false,
         );
 
+  /// Вложенная ветка. [extraIndent] добавляется к базовому отступу: дерево
+  /// глубже двух уровней рисуется этой же строкой, а сдвиг задаёт экран —
+  /// он один знает, сколько места осталось под название.
   const AppTreeRow.subcategory({
     Key? key,
     required String title,
     required String meta,
     required VoidCallback onTap,
     bool expanded = false,
+    double extraIndent = 0,
   }) : this._(
           _TreeLevel.subcategory,
           key: key,
@@ -58,7 +62,7 @@ class AppTreeRow extends StatelessWidget {
           subtitle: null,
           meta: meta,
           onTap: onTap,
-          indent: AppDimens.space14,
+          indent: AppDimens.space14 + extraIndent,
           height: AppDimens.rowHeightSubcategory,
           expanded: expanded,
           selected: false,
@@ -74,6 +78,7 @@ class AppTreeRow extends StatelessWidget {
     String? subtitle,
     bool selected = false,
     bool nested = true,
+    double extraIndent = 0,
   }) : this._(
           _TreeLevel.material,
           key: key,
@@ -81,7 +86,7 @@ class AppTreeRow extends StatelessWidget {
           subtitle: subtitle,
           meta: meta,
           onTap: onTap,
-          indent: nested ? 28 : 0,
+          indent: (nested ? 28 : 0) + extraIndent,
           // Со вторым рядом строка выше: в плоском результате поиска путь
           // обязателен — «Труба ⌀25» есть и в ППР, и в металлопластике,
           // и без пути выбор между ними — угадывание.

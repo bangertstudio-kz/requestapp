@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:request_ui/request_ui.dart';
 
 import '../../../generated/app_localizations.dart';
-import '../../catalog/presentation/material_unit_label.dart';
+import '../../catalog/presentation/item_path_label.dart';
+import '../../catalog/presentation/item_unit_label.dart';
 import '../domain/entities/request_item.dart';
 
 /// Позиция заявки: материал, путь, количество и три действия под чертой.
@@ -30,6 +31,12 @@ class RequestItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final tokens = context.request;
+    // Материал удалили из справочника: позиция осталась документом, но
+    // названия у неё больше нет. Подпись выбирает экран — в слое данных
+    // её было бы неоткуда взять на языке читателя.
+    final itemName = item.itemId == null
+        ? l10n.itemDeletedFromCatalog
+        : item.name;
 
     return AppCard(
       padding: const EdgeInsets.fromLTRB(
@@ -52,15 +59,13 @@ class RequestItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(item.name, style: tokens.text.itemTitle),
+                      Text(itemName, style: tokens.text.itemTitle),
                       const SizedBox(height: 3),
-                      Text(
-                        l10n.materialPath(
-                          item.categoryName,
-                          item.subcategoryName,
+                      if (item.path.isNotEmpty)
+                        Text(
+                          itemPathLabel(l10n, item.path),
+                          style: tokens.text.caption,
                         ),
-                        style: tokens.text.caption,
-                      ),
                     ],
                   ),
                 ),
@@ -76,7 +81,7 @@ class RequestItemCard extends StatelessWidget {
                     ),
                     const SizedBox(width: AppDimens.space4),
                     Text(
-                      materialUnitLabel(l10n, item.unit),
+                      itemUnitLabel(l10n, item.unit),
                       style: tokens.text.quantityValueUnit,
                     ),
                   ],

@@ -8,8 +8,7 @@ import 'package:request/core/dependencies/container/mock_dependency_factory.dart
 import 'package:request/core/navigation/app_routes.dart';
 import 'package:request/feature/catalog/presentation/catalog_import_page.dart';
 import 'package:request/feature/catalog/presentation/catalog_page.dart';
-import 'package:request/feature/catalog/presentation/material_pick_page.dart';
-import 'package:request/feature/catalog/presentation/subcategory_page.dart';
+import 'package:request/feature/catalog/presentation/item_pick_page.dart';
 import 'package:request/feature/requests/presentation/request_detail_page.dart';
 import 'package:request/feature/requests/presentation/request_item_page.dart';
 import 'package:request/feature/requests/presentation/requests_page.dart';
@@ -49,9 +48,8 @@ void main() {
       '/requests/detail/r1/item/r1-2',
     );
     expect(
-      const SubcategoryRoute(categoryId: 'c1', subcategoryId: 'c1-s1')
-          .location,
-      '/catalog/category/c1/subcategory/c1-s1',
+      const CategoryRoute(categoryId: 'c1').location,
+      '/catalog/category/c1',
     );
   });
 
@@ -81,8 +79,8 @@ void main() {
 
     router.go('/requests/detail/r1/pick?replace-item-id=r1-2');
     await _settle(tester);
-    final pick = tester.widget<MaterialPickPage>(
-      find.byType(MaterialPickPage),
+    final pick = tester.widget<ItemPickPage>(
+      find.byType(ItemPickPage),
     );
     expect(pick.requestId, 'r1');
     expect(pick.replaceItemId, 'r1-2');
@@ -95,10 +93,11 @@ void main() {
     await _settle(tester);
     expect(find.byType(CatalogPage), findsOneWidget);
 
-    router.go('/catalog/category/c1/subcategory/c1-s1');
+    // Вложенная категория открывается тем же маршрутом, что и корневая:
+    // отдельного экрана подкатегории больше нет.
+    router.go('/catalog/category/c1');
     await _settle(tester);
-    expect(find.byType(SubcategoryPage), findsOneWidget);
-    expect(find.text('Труба'), findsWidgets);
+    expect(find.text('Канализация'), findsWidgets);
 
     router.go('/catalog/import');
     await _settle(tester);
@@ -121,11 +120,10 @@ void main() {
       '/catalog',
       '/catalog/import',
       '/catalog/category-form',
-      '/catalog/subcategory-form?category-id=c1',
-      '/catalog/material-form',
-      '/catalog/material-form?material-id=c1-s1-m1',
+      '/catalog/item-form',
+      '/catalog/item-form?item-id=c1-s1-m1',
       '/catalog/category/c1',
-      '/catalog/category/c1/subcategory/c1-s1',
+      '/catalog/category-form?parent-id=c1',
     ];
 
     for (final location in routes) {

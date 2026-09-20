@@ -1,4 +1,4 @@
-import '../../../catalog/domain/entities/material_unit.dart';
+import '../../../catalog/domain/entities/item_unit.dart';
 
 /// Позиция заявки: материал и количество.
 ///
@@ -8,31 +8,45 @@ import '../../../catalog/domain/entities/material_unit.dart';
 class RequestItem {
   const RequestItem({
     required this.id,
+    this.itemId,
     required this.name,
-    required this.categoryName,
-    required this.subcategoryName,
+    required this.path,
     required this.quantity,
     required this.unit,
   });
 
   final String id;
+
+  /// Материал справочника, из которого позиция взята. `null` — материал
+  /// оттуда удалили: заявка остаётся документом и теряет только ссылку,
+  /// а не количество и не своё место в списке.
+  ///
+  /// Отдельно от [id], потому что один и тот же материал можно добавить
+  /// дважды — например, на два стояка, — и у этих позиций разные [id].
+  final String? itemId;
+
   final String name;
-  final String categoryName;
-  final String subcategoryName;
+
+  /// Путь до материала на момент добавления — названия категорий от корня.
+  ///
+  /// Список, а не пара строк: справочник — дерево любой глубины. Снимок,
+  /// а не ссылка, по той же причине, что и название: заявка — документ
+  /// на момент отправки.
+  final List<String> path;
 
   /// Только целые: половину трубы со склада не выдают.
   final int quantity;
 
-  final MaterialUnit unit;
+  final ItemUnit unit;
 }
 
 /// Правка количества как операция над позицией.
 extension RequestItemQuantity on RequestItem {
   RequestItem withQuantity(int value) => RequestItem(
     id: id,
+    itemId: itemId,
     name: name,
-    categoryName: categoryName,
-    subcategoryName: subcategoryName,
+    path: path,
     quantity: value,
     unit: unit,
   );

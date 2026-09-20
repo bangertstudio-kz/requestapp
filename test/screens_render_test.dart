@@ -1,18 +1,20 @@
 // Временная проверка вёрстки: рендерим каждый экран и ловим overflow.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request/core/widgets/confirm_sheet.dart';
 import 'package:request/core/widgets/name_form_screen.dart';
 import 'package:request/feature/catalog/domain/entities/catalog_category.dart';
 import 'package:request/feature/catalog/domain/entities/catalog_import_summary.dart';
-import 'package:request/feature/catalog/domain/entities/catalog_material.dart';
-import 'package:request/feature/catalog/domain/entities/catalog_subcategory.dart';
-import 'package:request/feature/catalog/domain/entities/material_unit.dart';
+import 'package:request/feature/catalog/domain/entities/catalog_item.dart';
+import 'package:request/feature/catalog/domain/entities/item_unit.dart';
 import 'package:request/feature/catalog/presentation/catalog_import_screen.dart';
 import 'package:request/feature/catalog/presentation/catalog_list_screen.dart';
 import 'package:request/feature/catalog/presentation/catalog_row.dart';
-import 'package:request/feature/catalog/presentation/material_form_screen.dart';
-import 'package:request/feature/catalog/presentation/material_pick_screen.dart';
+import 'package:request/feature/catalog/presentation/category_pick_sheet.dart';
+import 'package:request/feature/catalog/presentation/item_form_screen.dart';
+import 'package:request/feature/catalog/presentation/item_pick_screen.dart';
 import 'package:request/feature/catalog/presentation/quantity_controller.dart';
 import 'package:request/feature/requests/domain/entities/material_request.dart';
 import 'package:request/feature/requests/domain/entities/request_filter.dart';
@@ -20,7 +22,10 @@ import 'package:request/feature/requests/domain/entities/request_folder.dart';
 import 'package:request/feature/requests/domain/entities/request_item.dart';
 import 'package:request/feature/requests/domain/entities/request_status.dart';
 import 'package:request/feature/requests/presentation/request_detail_screen.dart';
+import 'package:request/feature/requests/domain/entities/request_document.dart';
+import 'package:request/feature/requests/data/request_xlsx.dart';
 import 'package:request/feature/requests/presentation/request_item_screen.dart';
+import 'package:request/feature/requests/presentation/request_preview_screen.dart';
 import 'package:request/feature/requests/presentation/requests_screen.dart';
 import 'package:request/feature/requests/presentation/send_request_sheet.dart';
 import 'package:request/generated/app_localizations.dart';
@@ -28,33 +33,32 @@ import 'package:request/core/dependencies/container/mock_dependency_factory.dart
 import 'package:request/main.dart';
 import 'package:request_ui/request_ui.dart';
 
-final _material = CatalogMaterial(
+const _catalogItem = CatalogItem(
   id: 'm1',
   name: 'Труба ⌀100/2000',
-  unit: MaterialUnit.piece,
-  categoryName: 'Канализация',
-  subcategoryName: 'Труба',
+  unit: ItemUnit.piece,
+  path: ['Канализация', 'Труба'],
 );
 
 final _categories = [
   CatalogCategory(
     id: 'c1',
     name: 'Канализация',
-    subcategories: [
-      CatalogSubcategory(id: 's1', name: 'Труба', materials: [_material]),
-      const CatalogSubcategory(id: 's2', name: 'Отвод', materials: []),
+    categories: [
+      CatalogCategory(id: 's1', name: 'Труба', parentId: 'c1', items: [_catalogItem]),
+      const CatalogCategory(id: 's2', name: 'Отвод', parentId: 'c1'),
     ],
   ),
-  const CatalogCategory(id: 'c2', name: 'ППР', subcategories: []),
+  const CatalogCategory(id: 'c2', name: 'ППР'),
 ];
 
-final _item = RequestItem(
+const _item = RequestItem(
   id: 'i1',
+  itemId: 'm1',
   name: 'Труба ⌀100/2000',
-  categoryName: 'Канализация',
-  subcategoryName: 'Труба',
+  path: ['Канализация', 'Труба'],
   quantity: 24,
-  unit: MaterialUnit.piece,
+  unit: ItemUnit.piece,
 );
 
 final _request = MaterialRequest(
@@ -75,11 +79,17 @@ const _catalogRowMeta = '13 подкат. · Труба, Отвод, Тройн�
 const _catalogFab = 'Категория';
 const _catalogEmpty = 'В справочнике нет категорий.';
 const _folderTitle = 'Папка';
-const _materialName = 'Труба ⌀100/2000';
+const _itemName = 'Труба ⌀100/2000';
+const _folderName = 'Котельные';
+const _categoryPath = 'Канализация → Труба';
+const _parentLabel = 'Внутри';
+const _importTarget = 'Канализация';
+const _importApply = 'Добавить в справочник';
+const _pickedCategoryId = 'c1';
+const _previewFileName = 'zayavka-2026-09-04.xlsx';
 const _confirmTitle = 'Удалить заявку?';
 const _confirmMessage = 'Заявка «ЖК Северный» и все её 4 позиций будут удалены.';
 const _confirmAction = 'Удалить';
-const _subcategoryId = 's1';
 const _importFile = 'Прайс сантехника-SergeyM 2.xlsx';
 const _importError = 'Не удалось прочитать файл.';
 
@@ -161,10 +171,12 @@ void main() {
     await _render(
       tester,
       RequestDetailScreen(
+        folderName: _folderName,
+        onChangeFolder: () {},
         request: _request,
         nameController: TextEditingController(text: _request.name),
         onNameChanged: (_) {},
-        onAddMaterial: () {},
+        onAddItem: () {},
         onItemOpened: (_) {},
         onItemIncrement: (_) {},
         onItemDecrement: (_) {},
@@ -179,6 +191,96 @@ void main() {
     expect(find.text('24'), findsNWidgets(2));
   });
 
+  testWidgets('category pick: длинный список прокручивается', (tester) async {
+    // Полсотни категорий — обычный размер прайса заказчика. Раньше шторка
+    // отдавала списку неограниченную высоту: список не прокручивался,
+    // а переполнял её. В ограниченной высоте это видно как overflow,
+    // на который тест и падает.
+    final options = [
+      for (var index = 1; index <= 50; index++)
+        (
+          category: CatalogCategory(id: 'c$index', name: 'Категория $index'),
+          path: <String>['Категория $index'],
+        ),
+    ];
+
+    await _render(
+      tester,
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: SizedBox(
+          // Столько высоты шторке оставляет showModalBottomSheet.
+          height: 360,
+          child: CategoryPickSheet(
+            options: options,
+            selectedId: _pickedCategoryId,
+            onSelected: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    final before = tester.getTopLeft(find.text('Категория 1')).dy;
+    await tester.drag(find.text('Категория 3'), const Offset(0, -600));
+    await tester.pump();
+
+    // Список уехал вверх — значит прокрутился, а не обрезался.
+    expect(tester.getTopLeft(find.text('Категория 1')).dy, lessThan(before));
+    // Заголовок остаётся на месте: он вне прокручиваемой части.
+    expect(find.text(_parentLabel), findsOneWidget);
+  });
+
+  testWidgets('request preview: excel', (tester) async {
+    // Экран читает книгу с диска, поэтому и файл настоящий. PDF здесь не
+    // проверяем: его отрисовка идёт через плагин печати, которого
+    // в тестовом окружении нет.
+    //
+    // Всё — внутри `runAsync`, включая построение виджета. В обычном теле
+    // `testWidgets` время поддельное, и `Future` от dart:io не завершается:
+    // экран навсегда остаётся на спиннере, а тест висит до таймаута.
+    tester.view.physicalSize = const Size(412, 892) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    late final Directory directory;
+    await tester.runAsync(() async {
+      directory = await Directory.systemTemp.createTemp('preview');
+      final file = File('${directory.path}/$_previewFileName');
+      await file.writeAsBytes(requestToXlsx(_request));
+
+      await tester.pumpWidget(
+        _host(
+          RequestPreviewScreen(
+            requestName: _request.name,
+            documents: [
+              RequestDocument(
+                format: DocumentFormat.xlsx,
+                name: _previewFileName,
+                path: file.path,
+                sizeBytes: await file.length(),
+              ),
+            ],
+            onShare: () {},
+            onBack: () {},
+          ),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+    addTearDown(() => directory.deleteSync(recursive: true));
+
+    await _settle(tester);
+
+    expect(find.text(_previewFileName), findsOneWidget);
+    expect(
+      find.byType(CircularProgressIndicator),
+      findsNothing,
+      reason: 'книга должна быть прочитана',
+    );
+    // В заявке-образце две позиции с одним материалом — в книге тоже две.
+    expect(find.text(_itemName), findsNWidgets(_request.items.length));
+  });
+
   testWidgets('request item', (tester) async {
     await _render(
       tester,
@@ -186,7 +288,7 @@ void main() {
         item: _item,
         requestName: _request.name,
         quantityController: QuantityController.fromQuantity(24),
-        onReplaceMaterial: () {},
+        onReplaceItem: () {},
         onSave: () {},
         onDelete: () {},
         onBack: () {},
@@ -195,10 +297,10 @@ void main() {
     expect(find.text('Заменить материал'), findsOneWidget);
   });
 
-  testWidgets('material pick: tree', (tester) async {
+  testWidgets('item pick: tree', (tester) async {
     await _render(
       tester,
-      MaterialPickScreen(
+      ItemPickScreen(
         categories: _categories,
         searchResults: null,
         searchLoading: false,
@@ -216,16 +318,16 @@ void main() {
     expect(find.text('Труба'), findsOneWidget);
   });
 
-  testWidgets('material pick: selected shows sheet', (tester) async {
+  testWidgets('item pick: selected shows sheet', (tester) async {
     await _render(
       tester,
-      MaterialPickScreen(
+      ItemPickScreen(
         categories: _categories,
-        searchResults: [_material],
+        searchResults: [_catalogItem],
         searchLoading: false,
         searchController: TextEditingController(text: 'труба'),
         onSearchChanged: (_) {},
-        selected: _material,
+        selected: _catalogItem,
         onSelected: (_) {},
         onSelectionCleared: () {},
         quantityController: QuantityController.fromQuantity(12),
@@ -277,19 +379,16 @@ void main() {
     expect(find.text('Новая запись'), findsOneWidget);
   });
 
-  testWidgets('material form', (tester) async {
+  testWidgets('item form', (tester) async {
     await _render(
       tester,
-      MaterialFormScreen(
+      ItemFormScreen(
         editing: true,
-        categories: _categories,
-        selectedCategory: _categories.first,
-        selectedSubcategoryId: _subcategoryId,
-        selectedUnit: MaterialUnit.meter,
-        nameController: TextEditingController(text: _materialName),
+        categoryLabel: _categoryPath,
+        selectedUnit: ItemUnit.meter,
+        nameController: TextEditingController(text: _itemName),
         formKey: GlobalKey<FormState>(),
-        onCategorySelected: (_) {},
-        onSubcategorySelected: (_) {},
+        onCategoryTap: () {},
         onUnitSelected: (_) {},
         onSave: () {},
         onCancel: () {},
@@ -329,13 +428,18 @@ void main() {
         ),
       ),
     );
-    expect(find.text('XML и PDF'), findsOneWidget);
+    expect(find.text('Excel и PDF'), findsOneWidget);
   });
 
   testWidgets('catalog import: all states', (tester) async {
     await _render(
       tester,
       CatalogImportScreen(
+        targetLabel: _importTarget,
+        targetIsRoot: false,
+        onPickTarget: () {},
+        onPickRoot: () {},
+        onCopyPrompt: () {},
         summary: null,
         parsing: false,
         errorMessage: null,
@@ -349,6 +453,11 @@ void main() {
     await _render(
       tester,
       CatalogImportScreen(
+        targetLabel: _importTarget,
+        targetIsRoot: false,
+        onPickTarget: () {},
+        onPickRoot: () {},
+        onCopyPrompt: () {},
         summary: null,
         parsing: true,
         errorMessage: null,
@@ -362,6 +471,11 @@ void main() {
     await _render(
       tester,
       CatalogImportScreen(
+        targetLabel: _importTarget,
+        targetIsRoot: false,
+        onPickTarget: () {},
+        onPickRoot: () {},
+        onCopyPrompt: () {},
         summary: null,
         parsing: false,
         errorMessage: _importError,
@@ -375,11 +489,17 @@ void main() {
     await _render(
       tester,
       CatalogImportScreen(
+        targetLabel: _importTarget,
+        targetIsRoot: false,
+        onPickTarget: () {},
+        onPickRoot: () {},
+        onCopyPrompt: () {},
         summary: const CatalogImportSummary(
           fileName: _importFile,
-          categories: 6,
-          subcategories: 51,
-          materials: 326,
+          targetPath: ['Канализация'],
+          itemsAdded: 326,
+          itemsUpdated: 12,
+          categoriesCreated: 51,
           duplicatesRemoved: 6,
           rowsTrimmed: 14,
           rowsSkipped: 2,
@@ -393,13 +513,13 @@ void main() {
       ),
     );
     expect(find.text('326'), findsOneWidget);
-    expect(find.text('Заменить справочник'), findsOneWidget);
+    expect(find.text(_importApply), findsOneWidget);
   });
 
-  testWidgets('material pick: nothing found', (tester) async {
+  testWidgets('item pick: nothing found', (tester) async {
     await _render(
       tester,
-      MaterialPickScreen(
+      ItemPickScreen(
         categories: _categories,
         searchResults: const [],
         searchLoading: false,

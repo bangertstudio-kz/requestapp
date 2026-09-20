@@ -5,7 +5,7 @@ import '../../../core/presentation/content_column.dart';
 import '../../../generated/app_localizations.dart';
 
 /// Раздел корневого экрана справочника.
-enum CatalogTab { categories, materials }
+enum CatalogTab { categories, items }
 
 /// Список справочника: категории, подкатегории или материалы.
 ///
@@ -92,7 +92,7 @@ class CatalogListScreen extends StatelessWidget {
                             label: switch (value) {
                               CatalogTab.categories =>
                                 l10n.catalogTabCategories,
-                              CatalogTab.materials => l10n.catalogTabMaterials,
+                              CatalogTab.items => l10n.catalogTabMaterials,
                             },
                             selected: value == currentTab,
                             onTap: () => onTabSelected?.call(value),

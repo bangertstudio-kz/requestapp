@@ -5,11 +5,10 @@ import '../../generated/app_localizations.dart';
 import '../presentation/content_column.dart';
 import 'form_action_bar.dart';
 
-/// Форма из одного поля: категория, подкатегория, папка.
+/// Форма с названием: категория, папка.
 ///
-/// Один экран на три сущности, а не три одинаковых: у них нет ничего своего,
-/// кроме заголовка. Отдельные файлы-обёртки над этим экраном были бы теми
-/// самыми прослойками, которые только пробрасывают вызов.
+/// Один экран на обе сущности, а не два одинаковых: у них нет ничего своего,
+/// кроме заголовка и, у категории, вопроса о месте — он приезжает в [extra].
 class NameFormScreen extends StatelessWidget {
   const NameFormScreen({
     super.key,
@@ -20,6 +19,7 @@ class NameFormScreen extends StatelessWidget {
     required this.onSave,
     required this.onCancel,
     this.hintText,
+    this.extra = const <Widget>[],
   });
 
   final String title;
@@ -37,6 +37,11 @@ class NameFormScreen extends StatelessWidget {
   final VoidCallback onSave;
   final VoidCallback onCancel;
   final String? hintText;
+
+  /// Поля ниже названия — например, выбор места для категории. Список,
+  /// а не отдельный экран: у формы категории всё то же самое плюс один
+  /// вопрос, и копия вёрстки разошлась бы на первой правке отступа.
+  final List<Widget> extra;
 
   @override
   Widget build(BuildContext context) {
@@ -67,15 +72,21 @@ class NameFormScreen extends StatelessWidget {
                       AppDimens.screenPadding,
                       AppDimens.space26,
                     ),
-                    child: AppLabeledField(
-                      label: l10n.formNameLabel,
-                      controller: controller,
-                      hintText: hintText,
-                      textInputAction: TextInputAction.done,
-                      validator: (value) =>
-                          (value == null || value.trim().isEmpty)
-                          ? l10n.formNameRequired
-                          : null,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppLabeledField(
+                          label: l10n.formNameLabel,
+                          controller: controller,
+                          hintText: hintText,
+                          textInputAction: TextInputAction.done,
+                          validator: (value) =>
+                              (value == null || value.trim().isEmpty)
+                              ? l10n.formNameRequired
+                              : null,
+                        ),
+                        ...extra,
+                      ],
                     ),
                   ),
                 ),

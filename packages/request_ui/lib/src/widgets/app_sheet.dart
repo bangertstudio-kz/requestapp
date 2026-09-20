@@ -8,6 +8,9 @@ import '../tokens/dimens.dart';
 /// Кладётся в `showModalBottomSheet` или прямо в `Stack` экрана. Внутренний
 /// отступ снизу учитывает системную зону жестов — шторка обязана касаться
 /// края экрана, но её кнопки — нет.
+///
+/// Содержимое получает ограниченную высоту: шторка со списком прокручивает
+/// его сама, если внутри есть `Flexible` со скроллом.
 class AppSheet extends StatelessWidget {
   const AppSheet({super.key, required this.child, this.padding});
 
@@ -52,7 +55,11 @@ class AppSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              child,
+              // `Flexible`, а не голый `child`: `Column` с `mainAxisSize.min`
+              // отдаёт обычному ребёнку неограниченную высоту, и прокрутка
+              // внутри шторки перестаёт работать — длинный список вместо
+              // этого переполняет её и обрезается.
+              Flexible(child: child),
             ],
           ),
         ),

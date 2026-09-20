@@ -64,6 +64,15 @@ class UpdateRequestParams extends Params {
   final MaterialRequest request;
 }
 
+/// Перенос заявки в папку. `folderId == null` — вне папок; отдельного
+/// признака не нужно, объект параметров собирается на каждый вызов заново.
+class MoveRequestParams extends Params {
+  const MoveRequestParams({required this.id, this.folderId});
+
+  final String id;
+  final String? folderId;
+}
+
 class CreateFolderParams extends Params {
   const CreateFolderParams(this.name);
 

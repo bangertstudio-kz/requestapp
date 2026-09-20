@@ -137,11 +137,12 @@
   "@catalogMaterialsLabel": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "catalogSubcategoriesLabel": "Подкатегории · {count}",
-  "@catalogSubcategoriesLabel": {
+  "catalogInsideLabel": "Внутри · {count}",
+  "@catalogInsideLabel": {
+    "description": "Подпись над списком внутри категории: там и вложенные категории, и материалы",
     "placeholders": { "count": { "type": "int" } }
   },
-  "catalogCategoryMeta": "{count} подкат. · {names}",
+  "catalogCategoryMeta": "{count} внутри · {names}",
   "@catalogCategoryMeta": {
     "placeholders": { "count": { "type": "int" }, "names": { "type": "String" } }
   },
@@ -154,23 +155,35 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "catalogCategoriesEmpty": "В справочнике нет категорий.\nЗагрузите прайс или добавьте категорию.",
-  "catalogSubcategoriesEmpty": "В категории нет подкатегорий.\nНажмите «+ Подкатегория».",
-  "catalogMaterialsEmpty": "В подкатегории нет материалов.\nНажмите «+ Материал».",
+  "catalogInsideEmpty": "Здесь пока пусто.\nДобавьте категорию или материал.",
+  "catalogMaterialsEmpty": "В категории нет материалов.\nНажмите «+ Материал».",
 
   "catalogImportTitle": "Обновить справочник",
-  "catalogImportSubtitle": "Импорт из файла прайса",
-  "catalogImportOpen": "Загрузить прайс",
+  "catalogImportSubtitle": "Импорт материалов из Excel",
+  "catalogImportOpen": "Загрузить материалы",
   "@catalogImportOpen": { "description": "Подпись кнопки-иконки в шапке справочника для скринридера" },
-  "catalogImportIntro": "Справочник целиком берётся из файла прайса заказчика. Выберите файл — приложение разберёт его и покажет, что именно загрузится.",
-  "catalogImportFormats": "Excel (.xlsx), лист «Материал». Колонки: категория, подкатегория, материал, единица измерения.",
+  "catalogImportHowTitle": "Как подготовить файл",
+  "catalogImportHowStep1": "Попросите чат — ChatGPT, Claude и подобные — собрать ваш прайс в файл Excel. Промт ниже.",
+  "catalogImportHowStep2": "Скачайте готовый .xlsx из чата. Если чат не умеет файлы — он выведет таблицу: скопируйте её в пустой лист Excel и сохраните как .xlsx.",
+  "catalogImportHowStep3": "Вернитесь сюда, выберите категорию и файл.",
+  "catalogImportPromptShow": "Показать промт",
+  "catalogImportPromptHide": "Скрыть промт",
+  "catalogImportPromptCopy": "Скопировать промт",
+  "catalogImportPromptCopied": "Промт скопирован",
+  "catalogImportPrompt": "Собери мой список материалов в файл Excel (.xlsx) и дай его скачать.\n\nВ файле один лист с названием «Материалы» и три колонки; первая строка — заголовок:\n1) Путь   2) Материал   3) Единица\n\nПравила:\n- «Путь» — вложенные категории через « / », например: Труба / Чугунная. Если материал кладётся прямо в выбранную категорию — оставь пусто.\n- «Материал» — название целиком, как в прайсе, вместе с типоразмером.\n- «Единица» — строго одно из: шт., м.п., комплект. Если в исходнике другая единица — выбери ближайшую из этих трёх.\n- Одна строка — один материал. Ничего не придумывай: чего нет в исходнике, оставь пусто.\n- Никаких лишних листов, колонок, итогов и пояснений внутри файла.\n\nЕсли сделать файл не можешь — выведи ту же таблицу текстом, колонки раздели табуляцией: её можно вставить в пустой лист Excel и сохранить как .xlsx.\n\nВот список:\n",
+  "@catalogImportPrompt": { "description": "Готовый промт для чата: просит собрать произвольный прайс в .xlsx нужного формата" },
+  "catalogImportTargetLabel": "Куда загрузить",
+  "catalogImportTargetRoot": "В корень справочника",
+  "catalogImportTargetHint": "Пути из файла считаются от выбранной категории",
+  "catalogImportRootNote": "В корне справочника материал лежать не может: строки с пустым путём будут пропущены.",
   "catalogImportPickFile": "Выбрать файл",
   "catalogImportPickAnother": "Выбрать другой файл",
   "catalogImportParsing": "Разбираем файл…",
   "catalogImportFileLabel": "Файл",
-  "catalogImportStatsLabel": "Будет загружено",
-  "catalogImportCategories": "Категории",
-  "catalogImportSubcategories": "Подкатегории",
-  "catalogImportMaterials": "Материалы",
+  "catalogImportStatsLabel": "Что изменится",
+  "catalogImportAdded": "Новых материалов",
+  "catalogImportUpdated": "Обновится",
+  "catalogImportCategoriesCreated": "Новых категорий",
   "catalogImportWarningsLabel": "Предупреждения",
   "catalogImportDuplicates": "{count, plural, one{Удалён {count} полный дубль строки} few{Удалено {count} полных дубля строк} many{Удалено {count} полных дублей строк} other{Удалено {count} полных дубля строк}}",
   "@catalogImportDuplicates": {
@@ -180,7 +193,7 @@
   "@catalogImportTrimmed": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "catalogImportSkipped": "{count, plural, one{Пропущена {count} строка без названия или категории} few{Пропущено {count} строки без названия или категории} many{Пропущено {count} строк без названия или категории} other{Пропущено {count} строки без названия или категории}}",
+  "catalogImportSkipped": "{count, plural, one{Пропущена {count} строка: нет названия, неизвестна единица или некуда положить} few{Пропущено {count} строки: нет названия, неизвестна единица или некуда положить} many{Пропущено {count} строк: нет названия, неизвестна единица или некуда положить} other{Пропущено {count} строки: нет названия, неизвестна единица или некуда положить}}",
   "@catalogImportSkipped": {
     "placeholders": { "count": { "type": "int" } }
   },
@@ -188,22 +201,25 @@
   "@catalogImportUnknownUnits": {
     "placeholders": { "units": { "type": "String" } }
   },
-  "catalogImportReplaceNote": "Импорт заменяет справочник целиком. Заявки не изменятся: в них лежат копии материалов на момент добавления.",
-  "catalogImportApply": "Заменить справочник",
+  "catalogImportReplaceNote": "Импорт дополняет справочник: материал с таким же названием в той же ветке обновится, остальные добавятся. Заявки не изменятся — в них лежат копии материалов на момент добавления.",
+  "catalogImportApply": "Добавить в справочник",
   "catalogImportRetry": "Повторить",
-  "confirmImportTitle": "Заменить справочник?",
-  "confirmImportText": "Текущие {count} материалов будут удалены и заменены содержимым файла.",
+  "confirmImportTitle": "Добавить в справочник?",
+  "confirmImportText": "В справочник будет записано {count} материалов из файла.",
   "@confirmImportText": {
     "placeholders": { "count": { "type": "int" } }
   },
-  "confirmImportAction": "Заменить",
-  "snackCatalogImported": "Справочник обновлён: {count} материалов",
+  "confirmImportAction": "Добавить",
+  "snackCatalogImported": "Загружено материалов: {count}",
   "@snackCatalogImported": {
     "placeholders": { "count": { "type": "int" } }
   },
 
   "catalogNewCategory": "Категория",
-  "catalogNewSubcategory": "Подкатегория",
+  "catalogAdd": "Добавить",
+  "catalogAddTitle": "Что добавить",
+  "catalogAddCategory": "Категорию",
+  "catalogAddItem": "Материал",
   "catalogNewMaterial": "Материал",
   "catalogMaterialMeta": "{path} · {unit}",
   "@catalogMaterialMeta": {
@@ -211,10 +227,9 @@
     "placeholders": { "path": { "type": "String" }, "unit": { "type": "String" } }
   },
 
-  "materialPath": "{category} → {subcategory}",
-  "@materialPath": {
-    "description": "Путь материала. Стрелка — часть строки, а не склейка в коде",
-    "placeholders": { "category": { "type": "String" }, "subcategory": { "type": "String" } }
+  "pathSeparator": " → ",
+  "@pathSeparator": {
+    "description": "Разделитель звеньев пути. В строке, а не в коде: длина пути теперь любая, а знак зависит от языка"
   },
   "materialQuantity": "{value}",
   "@materialQuantity": {
@@ -223,24 +238,47 @@
   },
 
   "formTitleCategory": "Категория",
-  "formTitleSubcategory": "Подкатегория",
+
   "formTitleMaterial": "Материал",
   "formTitleFolder": "Папка",
+  "formPlacementLabel": "Где разместить",
+  "formPlacementRoot": "На верхнем уровне",
+  "formPlacementInside": "Внутри другой категории",
+  "formParentLabel": "Внутри",
+  "formParentEmpty": "Выберите категорию",
   "formSubtitleNew": "Новая запись",
   "formSubtitleEdit": "Редактирование",
   "formNameLabel": "Название",
   "formNameHint": "Например, Труба ⌀100/2000",
   "formCategoryLabel": "Категория",
-  "formSubcategoryLabel": "Подкатегория",
   "formUnitLabel": "Единица измерения",
   "formNameRequired": "Введите название",
-  "formSubcategoryRequired": "Выберите подкатегорию",
+  "formCategoryRequired": "Выберите категорию",
+
+  "folderSheetTitle": "Перенести заявку",
+  "folderSheetCurrent": "Сейчас: {name}",
+  "@folderSheetCurrent": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "folderSheetHere": "здесь",
+  "folderOutside": "Вне папок",
+  "folderNew": "Новая папка…",
+  "requestFolderLabel": "Папка",
+
+  "previewTitle": "Проверьте файлы",
+  "previewFileSize": "{size} КБ",
+  "@previewFileSize": {
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "previewPdfFailed": "Не удалось показать страницы PDF",
+  "previewSheetFailed": "Не удалось прочитать таблицу",
+  "itemDeletedFromCatalog": "Материал удалён",
 
   "sendSheetTitle": "Отправить заявку",
   "sendSheetSubtitle": "Выберите формат вложения",
-  "sendFormatXml": "XML",
+  "sendFormatExcel": "Excel",
   "sendFormatPdf": "PDF",
-  "sendFormatBoth": "XML и PDF",
+  "sendFormatBoth": "Excel и PDF",
 
   "confirmDeleteRequestTitle": "Удалить заявку?",
   "confirmDeleteRequestText": "Заявка «{name}» и все её {count} позиций будут удалены с устройства.",
@@ -250,11 +288,6 @@
   "confirmDeleteCategoryTitle": "Удалить категорию?",
   "confirmDeleteCategoryText": "Категория «{name}» удалится вместе со всеми подкатегориями и материалами внутри. Заявки не изменятся.",
   "@confirmDeleteCategoryText": {
-    "placeholders": { "name": { "type": "String" } }
-  },
-  "confirmDeleteSubcategoryTitle": "Удалить подкатегорию?",
-  "confirmDeleteSubcategoryText": "Подкатегория «{name}» удалится вместе с материалами внутри. Заявки не изменятся.",
-  "@confirmDeleteSubcategoryText": {
     "placeholders": { "name": { "type": "String" } }
   },
   "confirmDeleteMaterialTitle": "Удалить материал?",
@@ -287,12 +320,16 @@
     "placeholders": { "format": { "type": "String" } }
   },
   "snackRequestDeleted": "Заявка удалена",
+  "snackNothingToSend": "В заявке нет позиций — отправлять нечего",
+  "snackMovedToFolder": "Заявка перенесена в «{name}»",
+  "@snackMovedToFolder": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "snackMovedOutOfFolders": "Заявка вынесена из папок",
   "snackFolderCreated": "Папка создана",
   "snackCategorySaved": "Категория сохранена",
-  "snackSubcategorySaved": "Подкатегория сохранена",
   "snackMaterialSaved": "Материал сохранён",
   "snackCategoryRemoved": "Категория удалена",
-  "snackSubcategoryRemoved": "Подкатегория удалена",
   "snackMaterialRemovedFromCatalog": "Материал удалён из справочника",
 
   "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",

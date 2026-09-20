@@ -10,15 +10,16 @@ import '../../../core/widgets/request_view.dart';
 import '../../../core/widgets/tab_shell.dart';
 import '../../../generated/app_localizations.dart';
 import '../domain/entities/catalog_category.dart';
-import '../domain/entities/catalog_material.dart';
+import '../domain/entities/catalog_item.dart';
 import '../domain/entities/catalog_params.dart';
 import 'catalog_flatten.dart';
 import 'catalog_list_screen.dart';
 import 'catalog_notifier.dart';
 import 'catalog_row.dart';
 import 'delete_category_notifier.dart';
-import 'delete_material_notifier.dart';
-import 'material_unit_label.dart';
+import 'delete_item_notifier.dart';
+import 'item_path_label.dart';
+import 'item_unit_label.dart';
 
 /// Корневой экран справочника: категории или все материалы.
 class CatalogPage extends StatefulWidget {
@@ -65,7 +66,7 @@ class _CatalogPageState extends State<CatalogPage> {
     _load();
   }
 
-  Future<void> _deleteMaterial(String id, String name) async {
+  Future<void> _deleteItem(String id, String name) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmSheet.show(
       context,
@@ -75,7 +76,7 @@ class _CatalogPageState extends State<CatalogPage> {
     );
     if (!confirmed || !mounted) return;
 
-    final notifier = NotifierScope.read<DeleteMaterialNotifier>(context);
+    final notifier = NotifierScope.read<DeleteItemNotifier>(context);
     final snack = NotifierScope.read<SnackNotifier>(context);
     await notifier.run(CatalogEntryParams(id));
     if (!mounted) return;
@@ -94,16 +95,16 @@ class _CatalogPageState extends State<CatalogPage> {
         state: notifier.value,
         onRetry: _load,
         builder: (context, categories) {
-          final materials = _tab == CatalogTab.materials
-              ? flattenMaterials(categories)
-              : const <CatalogMaterial>[];
+          final items = _tab == CatalogTab.items
+              ? flattenItems(categories)
+              : const <CatalogItem>[];
 
           return CatalogListScreen(
             title: l10n.catalogTitle,
             subtitle: l10n.catalogSubtitle,
             label: _tab == CatalogTab.categories
                 ? l10n.catalogCategoriesLabel(categories.length)
-                : l10n.catalogMaterialsLabel(materials.length),
+                : l10n.catalogMaterialsLabel(items.length),
             tab: _tab,
             onTabSelected: (value) => setState(() => _tab = value),
             actions: [
@@ -117,7 +118,7 @@ class _CatalogPageState extends State<CatalogPage> {
             ],
             itemCount: _tab == CatalogTab.categories
                 ? categories.length
-                : materials.length,
+                : items.length,
             emptyMessage: _tab == CatalogTab.categories
                 ? l10n.catalogCategoriesEmpty
                 : l10n.catalogMaterialsEmptyAll,
@@ -127,8 +128,11 @@ class _CatalogPageState extends State<CatalogPage> {
                 return CatalogRow(
                   name: category.name,
                   meta: l10n.catalogCategoryMeta(
-                    category.subcategories.length,
-                    category.subcategories.map((s) => s.name).join(', '),
+                    category.categories.length + category.items.length,
+                    [
+                      ...category.categories.map((item) => item.name),
+                      ...category.items.map((item) => item.name),
+                    ].join(', '),
                   ),
                   onOpen: () => _openRoute(
                     () => CategoryRoute(
@@ -144,27 +148,24 @@ class _CatalogPageState extends State<CatalogPage> {
                 );
               }
 
-              final material = materials[index];
+              final item = items[index];
               return CatalogRow(
-                name: material.name,
+                name: item.name,
                 meta: l10n.catalogMaterialMeta(
-                  l10n.materialPath(
-                    material.categoryName,
-                    material.subcategoryName,
-                  ),
-                  materialUnitLabel(l10n, material.unit),
+                  itemPathLabel(l10n, item.path),
+                  itemUnitLabel(l10n, item.unit),
                 ),
                 onOpen: () => _openRoute(
-                  () => MaterialFormRoute(
-                    materialId: material.id,
+                  () => ItemFormRoute(
+                    itemId: item.id,
                   ).push<void>(context),
                 ),
                 onEdit: () => _openRoute(
-                  () => MaterialFormRoute(
-                    materialId: material.id,
+                  () => ItemFormRoute(
+                    itemId: item.id,
                   ).push<void>(context),
                 ),
-                onRemove: () => _deleteMaterial(material.id, material.name),
+                onRemove: () => _deleteItem(item.id, item.name),
               );
             },
             fabLabel: _tab == CatalogTab.categories
@@ -173,7 +174,7 @@ class _CatalogPageState extends State<CatalogPage> {
             onFabPressed: () => _openRoute(
               () => _tab == CatalogTab.categories
                   ? const CategoryFormRoute().push<void>(context)
-                  : const MaterialFormRoute().push<void>(context),
+                  : const ItemFormRoute().push<void>(context),
             ),
           );
         },

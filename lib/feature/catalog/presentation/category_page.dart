@@ -8,14 +8,24 @@ import '../../../core/widgets/confirm_sheet.dart';
 import '../../../core/widgets/request_view.dart';
 import '../../../generated/app_localizations.dart';
 import '../domain/entities/catalog_category.dart';
+import '../domain/entities/catalog_item.dart';
 import '../domain/entities/catalog_params.dart';
-import '../domain/entities/catalog_subcategory.dart';
+import 'catalog_add_sheet.dart';
+import 'catalog_flatten.dart';
 import 'catalog_list_screen.dart';
 import 'catalog_notifier.dart';
 import 'catalog_row.dart';
-import 'delete_subcategory_notifier.dart';
+import 'delete_category_notifier.dart';
+import 'delete_item_notifier.dart';
+import 'item_path_label.dart';
+import 'item_unit_label.dart';
 
-/// Подкатегории внутри категории.
+/// Содержимое категории: вложенные категории и материалы одним списком.
+///
+/// Экран сам на себя и ссылается — уровней столько, сколько завели. Отдельной
+/// страницы «подкатегория» больше нет: она отличалась только тем, что
+/// показывала материалы вместо категорий, а теперь показывать нужно и то,
+/// и другое на любом уровне.
 class CategoryPage extends StatefulWidget {
   const CategoryPage({super.key, required this.categoryId});
 
@@ -32,6 +42,14 @@ class _CategoryPageState extends State<CategoryPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
+  @override
+  void didUpdateWidget(covariant CategoryPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // go_router переиспользует State при переходе с категории на вложенную:
+    // тип виджета тот же, и initState больше не вызовут.
+    if (oldWidget.categoryId != widget.categoryId) _load();
+  }
+
   void _load() {
     if (!mounted) return;
     NotifierScope.read<CatalogNotifier>(context).request(null);
@@ -42,21 +60,55 @@ class _CategoryPageState extends State<CategoryPage> {
     _load();
   }
 
-  Future<void> _delete(CatalogSubcategory subcategory) async {
+  Future<void> _add(CatalogCategory category) async {
+    final addition = await CatalogAddSheet.show(context);
+    if (addition == null || !mounted) return;
+
+    await _open(
+      () => switch (addition) {
+        CatalogAddition.category =>
+          CategoryFormRoute(parentId: category.id).push<void>(context),
+        CatalogAddition.item =>
+          ItemFormRoute(categoryId: category.id).push<void>(context),
+        CatalogAddition.import =>
+          CatalogImportRoute(categoryId: category.id).push<void>(context),
+      },
+    );
+  }
+
+  Future<void> _deleteCategory(CatalogCategory category) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmSheet.show(
       context,
-      title: l10n.confirmDeleteSubcategoryTitle,
-      message: l10n.confirmDeleteSubcategoryText(subcategory.name),
+      title: l10n.confirmDeleteCategoryTitle,
+      message: l10n.confirmDeleteCategoryText(category.name),
       confirmLabel: l10n.actionDelete,
     );
     if (!confirmed || !mounted) return;
 
-    final notifier = NotifierScope.read<DeleteSubcategoryNotifier>(context);
+    final notifier = NotifierScope.read<DeleteCategoryNotifier>(context);
     final snack = NotifierScope.read<SnackNotifier>(context);
-    await notifier.run(CatalogEntryParams(subcategory.id));
+    await notifier.run(CatalogEntryParams(category.id));
     if (!mounted) return;
-    snack.show(notifier.failure ?? l10n.snackSubcategoryRemoved);
+    snack.show(notifier.failure ?? l10n.snackCategoryRemoved);
+    _load();
+  }
+
+  Future<void> _deleteItem(CatalogItem item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await ConfirmSheet.show(
+      context,
+      title: l10n.confirmDeleteMaterialTitle,
+      message: l10n.confirmDeleteMaterialText(item.name),
+      confirmLabel: l10n.actionDelete,
+    );
+    if (!confirmed || !mounted) return;
+
+    final notifier = NotifierScope.read<DeleteItemNotifier>(context);
+    final snack = NotifierScope.read<SnackNotifier>(context);
+    await notifier.run(CatalogEntryParams(item.id));
+    if (!mounted) return;
+    snack.show(notifier.failure ?? l10n.snackMaterialRemovedFromCatalog);
     _load();
   }
 
@@ -73,55 +125,84 @@ class _CategoryPageState extends State<CategoryPage> {
       placeholderTitle: l10n.catalogTitle,
       onBack: () => Navigator.of(context).pop(),
       builder: (context, categories) {
-        final category = categories
-            .where((item) => item.id == widget.categoryId)
-            .firstOrNull;
+        final category = findCategory(categories, widget.categoryId);
         if (category == null) {
           // Категорию удалили с другого экрана: показывать её содержимое
           // нечем, и честнее закрыться, чем рисовать пустой список.
           return const SizedBox.shrink();
         }
 
-        final materialCount = category.subcategories.fold<int>(
-          0,
-          (sum, item) => sum + item.materials.length,
-        );
+        // Сначала вложенные категории, потом материалы: папки выше файлов —
+        // тот порядок, к которому человек привык у себя на компьютере.
+        final children = category.categories;
+        final items = category.items;
 
         return CatalogListScreen(
           title: category.name,
-          subtitle: l10n.catalogMaterialsInCategory(materialCount),
-          label: l10n.catalogSubcategoriesLabel(category.subcategories.length),
+          subtitle: itemPathLabel(l10n, _pathOf(categories, category)),
+          label: l10n.catalogInsideLabel(children.length + items.length),
           onBack: () => Navigator.of(context).pop(),
-          itemCount: category.subcategories.length,
-          emptyMessage: l10n.catalogSubcategoriesEmpty,
+          itemCount: children.length + items.length,
+          emptyMessage: l10n.catalogInsideEmpty,
           itemBuilder: (context, index) {
-            final subcategory = category.subcategories[index];
+            if (index < children.length) {
+              final child = children[index];
+              return CatalogRow(
+                name: child.name,
+                meta: l10n.catalogCategoryMeta(
+                  child.categories.length + child.items.length,
+                  [
+                    ...child.categories.map((item) => item.name),
+                    ...child.items.map((item) => item.name),
+                  ].join(', '),
+                ),
+                onOpen: () => _open(
+                  () => CategoryRoute(categoryId: child.id).push<void>(context),
+                ),
+                onEdit: () => _open(
+                  () => CategoryFormRoute(
+                    categoryId: child.id,
+                  ).push<void>(context),
+                ),
+                onRemove: () => _deleteCategory(child),
+              );
+            }
+
+            final item = items[index - children.length];
             return CatalogRow(
-              name: subcategory.name,
-              meta: l10n.catalogMaterialsCount(subcategory.materials.length),
-              onOpen: () => _open(
-                () => SubcategoryRoute(
-                  categoryId: category.id,
-                  subcategoryId: subcategory.id,
-                ).push<void>(context),
-              ),
-              onEdit: () => _open(
-                () => SubcategoryFormRoute(
-                  categoryId: category.id,
-                  subcategoryId: subcategory.id,
-                ).push<void>(context),
-              ),
-              onRemove: () => _delete(subcategory),
+              name: item.name,
+              meta: itemUnitLabel(l10n, item.unit),
+              onOpen: () =>
+                  _open(() => ItemFormRoute(itemId: item.id).push<void>(context)),
+              onEdit: () =>
+                  _open(() => ItemFormRoute(itemId: item.id).push<void>(context)),
+              onRemove: () => _deleteItem(item),
             );
           },
-          fabLabel: l10n.catalogNewSubcategory,
-          onFabPressed: () => _open(
-            () => SubcategoryFormRoute(
-              categoryId: category.id,
-            ).push<void>(context),
-          ),
+          fabLabel: l10n.catalogAdd,
+          onFabPressed: () => _add(category),
         );
       },
     );
+  }
+
+  /// Путь до самой категории — для подзаголовка. На третьем уровне одного
+  /// названия в шапке мало: «Труба» есть и в канализации, и в ППР.
+  static List<String> _pathOf(
+    List<CatalogCategory> categories,
+    CatalogCategory category,
+  ) {
+    final byId = {
+      for (final item in flattenCategories(categories)) item.id: item,
+    };
+    final names = <String>[];
+    final seen = <String>{};
+    CatalogCategory? cursor = category;
+    while (cursor != null && seen.add(cursor.id)) {
+      names.insert(0, cursor.name);
+      final parentId = cursor.parentId;
+      cursor = parentId == null ? null : byId[parentId];
+    }
+    return names;
   }
 }

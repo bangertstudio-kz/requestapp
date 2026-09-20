@@ -5,14 +5,14 @@ import '../../feature/catalog/presentation/catalog_import_page.dart';
 import '../../feature/catalog/presentation/catalog_page.dart';
 import '../../feature/catalog/presentation/category_form_page.dart';
 import '../../feature/catalog/presentation/category_page.dart';
-import '../../feature/catalog/presentation/material_form_page.dart';
-import '../../feature/catalog/presentation/material_pick_page.dart';
-import '../../feature/catalog/presentation/subcategory_form_page.dart';
-import '../../feature/catalog/presentation/subcategory_page.dart';
+import '../../feature/catalog/presentation/item_form_page.dart';
+import '../../feature/catalog/presentation/item_pick_page.dart';
 import '../../feature/requests/domain/entities/material_request.dart';
+import '../../feature/requests/domain/entities/send_format.dart';
 import '../../feature/requests/presentation/folder_form_page.dart';
 import '../../feature/requests/presentation/request_detail_page.dart';
 import '../../feature/requests/presentation/request_item_page.dart';
+import '../../feature/requests/presentation/request_preview_page.dart';
 import '../../feature/requests/presentation/requests_page.dart';
 
 part 'app_routes.g.dart';
@@ -31,8 +31,9 @@ part 'app_routes.g.dart';
     TypedGoRoute<RequestDetailRoute>(
       path: 'detail/:requestId',
       routes: [
-        TypedGoRoute<PickMaterialRoute>(path: 'pick'),
+        TypedGoRoute<PickItemRoute>(path: 'pick'),
         TypedGoRoute<RequestItemRoute>(path: 'item/:itemId'),
+        TypedGoRoute<RequestPreviewRoute>(path: 'preview/:format'),
       ],
     ),
   ],
@@ -83,8 +84,8 @@ class RequestDetailRoute extends GoRouteData with $RequestDetailRoute {
 
 /// Подбор материала. Открывается из заявки, поэтому относительный:
 /// `pop` возвращает в ту заявку, которая спросила.
-class PickMaterialRoute extends GoRouteData with $PickMaterialRoute {
-  const PickMaterialRoute({required this.requestId, this.replaceItemId});
+class PickItemRoute extends GoRouteData with $PickItemRoute {
+  const PickItemRoute({required this.requestId, this.replaceItemId});
 
   final String requestId;
 
@@ -93,7 +94,23 @@ class PickMaterialRoute extends GoRouteData with $PickMaterialRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      MaterialPickPage(requestId: requestId, replaceItemId: replaceItemId);
+      ItemPickPage(requestId: requestId, replaceItemId: replaceItemId);
+}
+
+/// Предпросмотр файлов перед отправкой.
+///
+/// Формат в пути, а не в query: экрана без формата не существует, и
+/// необязательный параметр, без которого экран не строится, — ложь
+/// в сигнатуре.
+class RequestPreviewRoute extends GoRouteData with $RequestPreviewRoute {
+  const RequestPreviewRoute({required this.requestId, required this.format});
+
+  final String requestId;
+  final SendFormat format;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      RequestPreviewPage(requestId: requestId, format: format);
 }
 
 class RequestItemRoute extends GoRouteData with $RequestItemRoute {
@@ -112,13 +129,11 @@ class RequestItemRoute extends GoRouteData with $RequestItemRoute {
   routes: [
     TypedGoRoute<CatalogImportRoute>(path: 'import'),
     TypedGoRoute<CategoryFormRoute>(path: 'category-form'),
-    TypedGoRoute<SubcategoryFormRoute>(path: 'subcategory-form'),
-    TypedGoRoute<MaterialFormRoute>(path: 'material-form'),
+    TypedGoRoute<ItemFormRoute>(path: 'item-form'),
     TypedGoRoute<CategoryRoute>(
       path: 'category/:categoryId',
-      routes: [
-        TypedGoRoute<SubcategoryRoute>(path: 'subcategory/:subcategoryId'),
-      ],
+      // Вложенных маршрутов нет: категория открывает категорию тем же
+      // маршрутом, сколько бы уровней ни завели.
     ),
   ],
 )
@@ -130,52 +145,47 @@ class CatalogRoute extends GoRouteData with $CatalogRoute {
       const CatalogPage();
 }
 
+/// Импорт материалов. `categoryId` — категория-приёмник, предложенная
+/// по умолчанию: импорт открыли из неё, и спрашивать второй раз незачем.
 class CatalogImportRoute extends GoRouteData with $CatalogImportRoute {
-  const CatalogImportRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const CatalogImportPage();
-}
-
-/// Форма категории. `categoryId == null` — создание.
-class CategoryFormRoute extends GoRouteData with $CategoryFormRoute {
-  const CategoryFormRoute({this.categoryId});
+  const CatalogImportRoute({this.categoryId});
 
   final String? categoryId;
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      CategoryFormPage(categoryId: categoryId);
+      CatalogImportPage(categoryId: categoryId);
 }
 
-class SubcategoryFormRoute extends GoRouteData with $SubcategoryFormRoute {
-  const SubcategoryFormRoute({required this.categoryId, this.subcategoryId});
+/// Форма категории. `categoryId == null` — создание, `parentId` — место,
+/// предложенное по умолчанию: пришли из категории — предлагаем её.
+class CategoryFormRoute extends GoRouteData with $CategoryFormRoute {
+  const CategoryFormRoute({this.categoryId, this.parentId});
 
-  final String categoryId;
-  final String? subcategoryId;
+  final String? categoryId;
+  final String? parentId;
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      SubcategoryFormPage(categoryId: categoryId, subcategoryId: subcategoryId);
+      CategoryFormPage(categoryId: categoryId, parentId: parentId);
 }
 
-/// Форма материала. Без `materialId` — создание; `categoryId`
+/// Форма материала. Без `itemId` — создание; `categoryId`
 /// и `subcategoryId` задают ветку, предвыбранную в форме.
-class MaterialFormRoute extends GoRouteData with $MaterialFormRoute {
-  const MaterialFormRoute({
-    this.materialId,
+class ItemFormRoute extends GoRouteData with $ItemFormRoute {
+  const ItemFormRoute({
+    this.itemId,
     this.categoryId,
     this.subcategoryId,
   });
 
-  final String? materialId;
+  final String? itemId;
   final String? categoryId;
   final String? subcategoryId;
 
   @override
-  Widget build(BuildContext context, GoRouterState state) => MaterialFormPage(
-    materialId: materialId,
+  Widget build(BuildContext context, GoRouterState state) => ItemFormPage(
+    itemId: itemId,
     categoryId: categoryId,
     subcategoryId: subcategoryId,
   );
@@ -189,18 +199,4 @@ class CategoryRoute extends GoRouteData with $CategoryRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       CategoryPage(categoryId: categoryId);
-}
-
-class SubcategoryRoute extends GoRouteData with $SubcategoryRoute {
-  const SubcategoryRoute({
-    required this.categoryId,
-    required this.subcategoryId,
-  });
-
-  final String categoryId;
-  final String subcategoryId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      SubcategoryPage(categoryId: categoryId, subcategoryId: subcategoryId);
 }

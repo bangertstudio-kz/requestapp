@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:request_ui/request_ui.dart';
 
 import '../../../generated/app_localizations.dart';
-import '../domain/entities/catalog_material.dart';
-import 'material_unit_label.dart';
+import 'item_path_label.dart';
+import '../domain/entities/catalog_item.dart';
+import 'item_unit_label.dart';
 import 'quantity_controller.dart';
 
 /// Шторка ввода количества для выбранного материала.
@@ -14,13 +15,13 @@ import 'quantity_controller.dart';
 class QuantitySheet extends StatelessWidget {
   const QuantitySheet({
     super.key,
-    required this.material,
+    required this.item,
     required this.controller,
     required this.onAdd,
     required this.onClose,
   });
 
-  final CatalogMaterial material;
+  final CatalogItem item;
   final QuantityController controller;
 
   /// Вызывается только с непустым количеством: пустое поле гасит кнопку,
@@ -47,13 +48,10 @@ class QuantitySheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(material.name, style: tokens.text.sheetTitle),
+                    Text(item.name, style: tokens.text.sheetTitle),
                     const SizedBox(height: 3),
                     Text(
-                      l10n.materialPath(
-                        material.categoryName,
-                        material.subcategoryName,
-                      ),
+                      itemPathLabel(l10n, item.path),
                       style: tokens.text.caption,
                     ),
                   ],
@@ -83,7 +81,7 @@ class QuantitySheet extends StatelessWidget {
                     label: l10n.quantityLabel,
                     hint: l10n.quantityHint,
                     value: value.isEmpty ? l10n.quantityEmpty : value,
-                    unit: materialUnitLabel(l10n, material.unit),
+                    unit: itemUnitLabel(l10n, item.unit),
                     empty: value.isEmpty,
                     onSurface: false,
                   ),

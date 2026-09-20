@@ -2,7 +2,7 @@ import '../../../core/presentation/request_notifier.dart';
 import '../data/catalog_repository.dart';
 import '../domain/entities/catalog_params.dart';
 
-/// Создание и переименование категории.
+/// Создание, переименование и переезд категории.
 class SaveCategoryNotifier extends RequestNotifier<String, SaveCategoryParams> {
   SaveCategoryNotifier(this._repository);
 
@@ -10,7 +10,11 @@ class SaveCategoryNotifier extends RequestNotifier<String, SaveCategoryParams> {
 
   @override
   Future<String> fetch(SaveCategoryParams params) async {
-    await _repository.saveCategory(id: params.id, name: params.name);
+    await _repository.saveCategory(
+      id: params.id,
+      name: params.name,
+      parentId: params.parentId,
+    );
     return params.name;
   }
 }

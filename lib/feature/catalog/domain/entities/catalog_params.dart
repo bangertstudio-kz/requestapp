@@ -1,32 +1,26 @@
 import '../../../../core/domain/entities/params.dart';
-import 'catalog_import_summary.dart';
-import 'material_draft.dart';
+import 'catalog_import.dart';
+import 'item_draft.dart';
 
-/// Создание или переименование категории. `id == null` — создание.
+/// Создание, переименование или переезд категории. `id == null` — создание.
+///
+/// Один класс на все уровни: «завести подкатегорию» — это та же операция
+/// с непустым [parentId], и второй набор параметров под неё только повторял
+/// бы первый.
 class SaveCategoryParams extends Params {
-  const SaveCategoryParams({this.id, required this.name});
+  const SaveCategoryParams({this.id, required this.name, this.parentId});
 
   final String? id;
   final String name;
+
+  /// `null` — категория на верхнем уровне.
+  final String? parentId;
 }
 
-/// Создание или переименование подкатегории внутри категории.
-class SaveSubcategoryParams extends Params {
-  const SaveSubcategoryParams({
-    this.id,
-    required this.categoryId,
-    required this.name,
-  });
+class SaveItemParams extends Params {
+  const SaveItemParams(this.draft);
 
-  final String? id;
-  final String categoryId;
-  final String name;
-}
-
-class SaveMaterialParams extends Params {
-  const SaveMaterialParams(this.draft);
-
-  final MaterialDraft draft;
+  final ItemDraft draft;
 }
 
 /// Удаление записи справочника любого уровня.
@@ -36,14 +30,16 @@ class CatalogEntryParams extends Params {
   final String id;
 }
 
-class ParsePriceListParams extends Params {
-  const ParsePriceListParams(this.fileName);
+/// Разбор выбранного файла. `categoryId == null` — импорт в корень.
+class ParseImportParams extends Params {
+  const ParseImportParams({required this.filePath, this.categoryId});
 
-  final String fileName;
+  final String filePath;
+  final String? categoryId;
 }
 
-class ApplyPriceListParams extends Params {
-  const ApplyPriceListParams(this.summary);
+class ApplyImportParams extends Params {
+  const ApplyImportParams(this.import);
 
-  final CatalogImportSummary summary;
+  final CatalogImport import;
 }

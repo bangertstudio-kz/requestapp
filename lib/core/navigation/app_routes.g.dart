@@ -31,12 +31,17 @@ RouteBase get $requestsRoute => GoRouteData.$route(
         GoRouteData.$route(
           path: 'pick',
           hasOverriddenOnExit: false,
-          factory: $PickMaterialRoute._fromState,
+          factory: $PickItemRoute._fromState,
         ),
         GoRouteData.$route(
           path: 'item/:itemId',
           hasOverriddenOnExit: false,
           factory: $RequestItemRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: 'preview/:format',
+          hasOverriddenOnExit: false,
+          factory: $RequestPreviewRoute._fromState,
         ),
       ],
     ),
@@ -139,13 +144,13 @@ mixin $RequestDetailRoute on GoRouteData {
       context.replace(location, extra: _self.$extra);
 }
 
-mixin $PickMaterialRoute on GoRouteData {
-  static PickMaterialRoute _fromState(GoRouterState state) => PickMaterialRoute(
+mixin $PickItemRoute on GoRouteData {
+  static PickItemRoute _fromState(GoRouterState state) => PickItemRoute(
     requestId: state.pathParameters['requestId']!,
     replaceItemId: state.uri.queryParameters['replace-item-id'],
   );
 
-  PickMaterialRoute get _self => this as PickMaterialRoute;
+  PickItemRoute get _self => this as PickItemRoute;
 
   @override
   String get location => GoRouteData.$location(
@@ -196,6 +201,47 @@ mixin $RequestItemRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
+mixin $RequestPreviewRoute on GoRouteData {
+  static RequestPreviewRoute _fromState(GoRouterState state) =>
+      RequestPreviewRoute(
+        requestId: state.pathParameters['requestId']!,
+        format: _$SendFormatEnumMap._$fromName(
+          state.pathParameters['format']!,
+        )!,
+      );
+
+  RequestPreviewRoute get _self => this as RequestPreviewRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+    '/requests/detail/${Uri.encodeComponent(_self.requestId)}/preview/${Uri.encodeComponent(_$SendFormatEnumMap[_self.format]!)}',
+  );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+const _$SendFormatEnumMap = {
+  SendFormat.xlsx: 'xlsx',
+  SendFormat.pdf: 'pdf',
+  SendFormat.both: 'both',
+};
+
+extension<T extends Enum> on Map<T, String> {
+  T? _$fromName(String? value) =>
+      entries.where((element) => element.value == value).firstOrNull?.key;
+}
+
 RouteBase get $catalogRoute => GoRouteData.$route(
   path: '/catalog',
   hasOverriddenOnExit: false,
@@ -212,26 +258,14 @@ RouteBase get $catalogRoute => GoRouteData.$route(
       factory: $CategoryFormRoute._fromState,
     ),
     GoRouteData.$route(
-      path: 'subcategory-form',
+      path: 'item-form',
       hasOverriddenOnExit: false,
-      factory: $SubcategoryFormRoute._fromState,
-    ),
-    GoRouteData.$route(
-      path: 'material-form',
-      hasOverriddenOnExit: false,
-      factory: $MaterialFormRoute._fromState,
+      factory: $ItemFormRoute._fromState,
     ),
     GoRouteData.$route(
       path: 'category/:categoryId',
       hasOverriddenOnExit: false,
       factory: $CategoryRoute._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: 'subcategory/:subcategoryId',
-          hasOverriddenOnExit: false,
-          factory: $SubcategoryRoute._fromState,
-        ),
-      ],
     ),
   ],
 );
@@ -258,34 +292,13 @@ mixin $CatalogRoute on GoRouteData {
 
 mixin $CatalogImportRoute on GoRouteData {
   static CatalogImportRoute _fromState(GoRouterState state) =>
-      const CatalogImportRoute();
+      CatalogImportRoute(categoryId: state.uri.queryParameters['category-id']);
 
-  @override
-  String get location => GoRouteData.$location('/catalog/import');
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-mixin $CategoryFormRoute on GoRouteData {
-  static CategoryFormRoute _fromState(GoRouterState state) =>
-      CategoryFormRoute(categoryId: state.uri.queryParameters['category-id']);
-
-  CategoryFormRoute get _self => this as CategoryFormRoute;
+  CatalogImportRoute get _self => this as CatalogImportRoute;
 
   @override
   String get location => GoRouteData.$location(
-    '/catalog/category-form',
+    '/catalog/import',
     queryParams: {
       if (_self.categoryId != null) 'category-id': _self.categoryId,
     },
@@ -305,21 +318,20 @@ mixin $CategoryFormRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $SubcategoryFormRoute on GoRouteData {
-  static SubcategoryFormRoute _fromState(GoRouterState state) =>
-      SubcategoryFormRoute(
-        categoryId: state.uri.queryParameters['category-id']!,
-        subcategoryId: state.uri.queryParameters['subcategory-id'],
-      );
+mixin $CategoryFormRoute on GoRouteData {
+  static CategoryFormRoute _fromState(GoRouterState state) => CategoryFormRoute(
+    categoryId: state.uri.queryParameters['category-id'],
+    parentId: state.uri.queryParameters['parent-id'],
+  );
 
-  SubcategoryFormRoute get _self => this as SubcategoryFormRoute;
+  CategoryFormRoute get _self => this as CategoryFormRoute;
 
   @override
   String get location => GoRouteData.$location(
-    '/catalog/subcategory-form',
+    '/catalog/category-form',
     queryParams: {
-      'category-id': _self.categoryId,
-      if (_self.subcategoryId != null) 'subcategory-id': _self.subcategoryId,
+      if (_self.categoryId != null) 'category-id': _self.categoryId,
+      if (_self.parentId != null) 'parent-id': _self.parentId,
     },
   );
 
@@ -337,20 +349,20 @@ mixin $SubcategoryFormRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $MaterialFormRoute on GoRouteData {
-  static MaterialFormRoute _fromState(GoRouterState state) => MaterialFormRoute(
-    materialId: state.uri.queryParameters['material-id'],
+mixin $ItemFormRoute on GoRouteData {
+  static ItemFormRoute _fromState(GoRouterState state) => ItemFormRoute(
+    itemId: state.uri.queryParameters['item-id'],
     categoryId: state.uri.queryParameters['category-id'],
     subcategoryId: state.uri.queryParameters['subcategory-id'],
   );
 
-  MaterialFormRoute get _self => this as MaterialFormRoute;
+  ItemFormRoute get _self => this as ItemFormRoute;
 
   @override
   String get location => GoRouteData.$location(
-    '/catalog/material-form',
+    '/catalog/item-form',
     queryParams: {
-      if (_self.materialId != null) 'material-id': _self.materialId,
+      if (_self.itemId != null) 'item-id': _self.itemId,
       if (_self.categoryId != null) 'category-id': _self.categoryId,
       if (_self.subcategoryId != null) 'subcategory-id': _self.subcategoryId,
     },
@@ -379,33 +391,6 @@ mixin $CategoryRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
     '/catalog/category/${Uri.encodeComponent(_self.categoryId)}',
-  );
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-mixin $SubcategoryRoute on GoRouteData {
-  static SubcategoryRoute _fromState(GoRouterState state) => SubcategoryRoute(
-    categoryId: state.pathParameters['categoryId']!,
-    subcategoryId: state.pathParameters['subcategoryId']!,
-  );
-
-  SubcategoryRoute get _self => this as SubcategoryRoute;
-
-  @override
-  String get location => GoRouteData.$location(
-    '/catalog/category/${Uri.encodeComponent(_self.categoryId)}/subcategory/${Uri.encodeComponent(_self.subcategoryId)}',
   );
 
   @override

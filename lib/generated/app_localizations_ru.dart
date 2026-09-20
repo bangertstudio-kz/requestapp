@@ -265,13 +265,13 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String catalogSubcategoriesLabel(int count) {
-    return 'Подкатегории · $count';
+  String catalogInsideLabel(int count) {
+    return 'Внутри · $count';
   }
 
   @override
   String catalogCategoryMeta(int count, String names) {
-    return '$count подкат. · $names';
+    return '$count внутри · $names';
   }
 
   @override
@@ -305,29 +305,66 @@ class AppLocalizationsRu extends AppLocalizations {
       'В справочнике нет категорий.\nЗагрузите прайс или добавьте категорию.';
 
   @override
-  String get catalogSubcategoriesEmpty =>
-      'В категории нет подкатегорий.\nНажмите «+ Подкатегория».';
+  String get catalogInsideEmpty =>
+      'Здесь пока пусто.\nДобавьте категорию или материал.';
 
   @override
   String get catalogMaterialsEmpty =>
-      'В подкатегории нет материалов.\nНажмите «+ Материал».';
+      'В категории нет материалов.\nНажмите «+ Материал».';
 
   @override
   String get catalogImportTitle => 'Обновить справочник';
 
   @override
-  String get catalogImportSubtitle => 'Импорт из файла прайса';
+  String get catalogImportSubtitle => 'Импорт материалов из Excel';
 
   @override
-  String get catalogImportOpen => 'Загрузить прайс';
+  String get catalogImportOpen => 'Загрузить материалы';
 
   @override
-  String get catalogImportIntro =>
-      'Справочник целиком берётся из файла прайса заказчика. Выберите файл — приложение разберёт его и покажет, что именно загрузится.';
+  String get catalogImportHowTitle => 'Как подготовить файл';
 
   @override
-  String get catalogImportFormats =>
-      'Excel (.xlsx), лист «Материал». Колонки: категория, подкатегория, материал, единица измерения.';
+  String get catalogImportHowStep1 =>
+      'Попросите чат — ChatGPT, Claude и подобные — собрать ваш прайс в файл Excel. Промт ниже.';
+
+  @override
+  String get catalogImportHowStep2 =>
+      'Скачайте готовый .xlsx из чата. Если чат не умеет файлы — он выведет таблицу: скопируйте её в пустой лист Excel и сохраните как .xlsx.';
+
+  @override
+  String get catalogImportHowStep3 =>
+      'Вернитесь сюда, выберите категорию и файл.';
+
+  @override
+  String get catalogImportPromptShow => 'Показать промт';
+
+  @override
+  String get catalogImportPromptHide => 'Скрыть промт';
+
+  @override
+  String get catalogImportPromptCopy => 'Скопировать промт';
+
+  @override
+  String get catalogImportPromptCopied => 'Промт скопирован';
+
+  @override
+  String get catalogImportPrompt =>
+      'Собери мой список материалов в файл Excel (.xlsx) и дай его скачать.\n\nВ файле один лист с названием «Материалы» и три колонки; первая строка — заголовок:\n1) Путь   2) Материал   3) Единица\n\nПравила:\n- «Путь» — вложенные категории через « / », например: Труба / Чугунная. Если материал кладётся прямо в выбранную категорию — оставь пусто.\n- «Материал» — название целиком, как в прайсе, вместе с типоразмером.\n- «Единица» — строго одно из: шт., м.п., комплект. Если в исходнике другая единица — выбери ближайшую из этих трёх.\n- Одна строка — один материал. Ничего не придумывай: чего нет в исходнике, оставь пусто.\n- Никаких лишних листов, колонок, итогов и пояснений внутри файла.\n\nЕсли сделать файл не можешь — выведи ту же таблицу текстом, колонки раздели табуляцией: её можно вставить в пустой лист Excel и сохранить как .xlsx.\n\nВот список:\n';
+
+  @override
+  String get catalogImportTargetLabel => 'Куда загрузить';
+
+  @override
+  String get catalogImportTargetRoot => 'В корень справочника';
+
+  @override
+  String get catalogImportTargetHint =>
+      'Пути из файла считаются от выбранной категории';
+
+  @override
+  String get catalogImportRootNote =>
+      'В корне справочника материал лежать не может: строки с пустым путём будут пропущены.';
 
   @override
   String get catalogImportPickFile => 'Выбрать файл';
@@ -342,16 +379,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get catalogImportFileLabel => 'Файл';
 
   @override
-  String get catalogImportStatsLabel => 'Будет загружено';
+  String get catalogImportStatsLabel => 'Что изменится';
 
   @override
-  String get catalogImportCategories => 'Категории';
+  String get catalogImportAdded => 'Новых материалов';
 
   @override
-  String get catalogImportSubcategories => 'Подкатегории';
+  String get catalogImportUpdated => 'Обновится';
 
   @override
-  String get catalogImportMaterials => 'Материалы';
+  String get catalogImportCategoriesCreated => 'Новых категорий';
 
   @override
   String get catalogImportWarningsLabel => 'Предупреждения';
@@ -387,10 +424,14 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Пропущено $count строки без названия или категории',
-      many: 'Пропущено $count строк без названия или категории',
-      few: 'Пропущено $count строки без названия или категории',
-      one: 'Пропущена $count строка без названия или категории',
+      other:
+          'Пропущено $count строки: нет названия, неизвестна единица или некуда положить',
+      many:
+          'Пропущено $count строк: нет названия, неизвестна единица или некуда положить',
+      few:
+          'Пропущено $count строки: нет названия, неизвестна единица или некуда положить',
+      one:
+          'Пропущена $count строка: нет названия, неизвестна единица или некуда положить',
     );
     return '$_temp0';
   }
@@ -402,35 +443,44 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get catalogImportReplaceNote =>
-      'Импорт заменяет справочник целиком. Заявки не изменятся: в них лежат копии материалов на момент добавления.';
+      'Импорт дополняет справочник: материал с таким же названием в той же ветке обновится, остальные добавятся. Заявки не изменятся — в них лежат копии материалов на момент добавления.';
 
   @override
-  String get catalogImportApply => 'Заменить справочник';
+  String get catalogImportApply => 'Добавить в справочник';
 
   @override
   String get catalogImportRetry => 'Повторить';
 
   @override
-  String get confirmImportTitle => 'Заменить справочник?';
+  String get confirmImportTitle => 'Добавить в справочник?';
 
   @override
   String confirmImportText(int count) {
-    return 'Текущие $count материалов будут удалены и заменены содержимым файла.';
+    return 'В справочник будет записано $count материалов из файла.';
   }
 
   @override
-  String get confirmImportAction => 'Заменить';
+  String get confirmImportAction => 'Добавить';
 
   @override
   String snackCatalogImported(int count) {
-    return 'Справочник обновлён: $count материалов';
+    return 'Загружено материалов: $count';
   }
 
   @override
   String get catalogNewCategory => 'Категория';
 
   @override
-  String get catalogNewSubcategory => 'Подкатегория';
+  String get catalogAdd => 'Добавить';
+
+  @override
+  String get catalogAddTitle => 'Что добавить';
+
+  @override
+  String get catalogAddCategory => 'Категорию';
+
+  @override
+  String get catalogAddItem => 'Материал';
 
   @override
   String get catalogNewMaterial => 'Материал';
@@ -441,9 +491,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String materialPath(String category, String subcategory) {
-    return '$category → $subcategory';
-  }
+  String get pathSeparator => ' → ';
 
   @override
   String materialQuantity(int value) {
@@ -454,13 +502,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get formTitleCategory => 'Категория';
 
   @override
-  String get formTitleSubcategory => 'Подкатегория';
-
-  @override
   String get formTitleMaterial => 'Материал';
 
   @override
   String get formTitleFolder => 'Папка';
+
+  @override
+  String get formPlacementLabel => 'Где разместить';
+
+  @override
+  String get formPlacementRoot => 'На верхнем уровне';
+
+  @override
+  String get formPlacementInside => 'Внутри другой категории';
+
+  @override
+  String get formParentLabel => 'Внутри';
+
+  @override
+  String get formParentEmpty => 'Выберите категорию';
 
   @override
   String get formSubtitleNew => 'Новая запись';
@@ -478,16 +538,50 @@ class AppLocalizationsRu extends AppLocalizations {
   String get formCategoryLabel => 'Категория';
 
   @override
-  String get formSubcategoryLabel => 'Подкатегория';
-
-  @override
   String get formUnitLabel => 'Единица измерения';
 
   @override
   String get formNameRequired => 'Введите название';
 
   @override
-  String get formSubcategoryRequired => 'Выберите подкатегорию';
+  String get formCategoryRequired => 'Выберите категорию';
+
+  @override
+  String get folderSheetTitle => 'Перенести заявку';
+
+  @override
+  String folderSheetCurrent(String name) {
+    return 'Сейчас: $name';
+  }
+
+  @override
+  String get folderSheetHere => 'здесь';
+
+  @override
+  String get folderOutside => 'Вне папок';
+
+  @override
+  String get folderNew => 'Новая папка…';
+
+  @override
+  String get requestFolderLabel => 'Папка';
+
+  @override
+  String get previewTitle => 'Проверьте файлы';
+
+  @override
+  String previewFileSize(String size) {
+    return '$size КБ';
+  }
+
+  @override
+  String get previewPdfFailed => 'Не удалось показать страницы PDF';
+
+  @override
+  String get previewSheetFailed => 'Не удалось прочитать таблицу';
+
+  @override
+  String get itemDeletedFromCatalog => 'Материал удалён';
 
   @override
   String get sendSheetTitle => 'Отправить заявку';
@@ -496,13 +590,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendSheetSubtitle => 'Выберите формат вложения';
 
   @override
-  String get sendFormatXml => 'XML';
+  String get sendFormatExcel => 'Excel';
 
   @override
   String get sendFormatPdf => 'PDF';
 
   @override
-  String get sendFormatBoth => 'XML и PDF';
+  String get sendFormatBoth => 'Excel и PDF';
 
   @override
   String get confirmDeleteRequestTitle => 'Удалить заявку?';
@@ -518,14 +612,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String confirmDeleteCategoryText(String name) {
     return 'Категория «$name» удалится вместе со всеми подкатегориями и материалами внутри. Заявки не изменятся.';
-  }
-
-  @override
-  String get confirmDeleteSubcategoryTitle => 'Удалить подкатегорию?';
-
-  @override
-  String confirmDeleteSubcategoryText(String name) {
-    return 'Подкатегория «$name» удалится вместе с материалами внутри. Заявки не изменятся.';
   }
 
   @override
@@ -577,22 +663,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get snackRequestDeleted => 'Заявка удалена';
 
   @override
+  String get snackNothingToSend => 'В заявке нет позиций — отправлять нечего';
+
+  @override
+  String snackMovedToFolder(String name) {
+    return 'Заявка перенесена в «$name»';
+  }
+
+  @override
+  String get snackMovedOutOfFolders => 'Заявка вынесена из папок';
+
+  @override
   String get snackFolderCreated => 'Папка создана';
 
   @override
   String get snackCategorySaved => 'Категория сохранена';
 
   @override
-  String get snackSubcategorySaved => 'Подкатегория сохранена';
-
-  @override
   String get snackMaterialSaved => 'Материал сохранён';
 
   @override
   String get snackCategoryRemoved => 'Категория удалена';
-
-  @override
-  String get snackSubcategoryRemoved => 'Подкатегория удалена';
 
   @override
   String get snackMaterialRemovedFromCatalog =>

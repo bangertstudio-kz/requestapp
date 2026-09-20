@@ -45,9 +45,9 @@ class SendRequestSheet extends StatelessWidget {
           Text(l10n.sendSheetSubtitle, style: tokens.text.sheetSubtitle),
           const SizedBox(height: AppDimens.space14),
           AppButton.outlined(
-            label: l10n.sendFormatXml,
+            label: l10n.sendFormatExcel,
             size: AppButtonSize.medium,
-            onPressed: () => onSelected(SendFormat.xml),
+            onPressed: () => onSelected(SendFormat.xlsx),
           ),
           const SizedBox(height: AppDimens.space10),
           AppButton.outlined(

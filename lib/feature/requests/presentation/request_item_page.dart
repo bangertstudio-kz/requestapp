@@ -74,7 +74,7 @@ class _RequestItemPageState extends State<RequestItemPage> {
   }
 
   Future<void> _replace() async {
-    await PickMaterialRoute(
+    await PickItemRoute(
       requestId: widget.requestId,
       replaceItemId: widget.itemId,
     ).push<void>(context);
@@ -154,7 +154,7 @@ class _RequestItemPageState extends State<RequestItemPage> {
       item: item,
       requestName: request.name,
       quantityController: _quantity,
-      onReplaceMaterial: _replace,
+      onReplaceItem: _replace,
       onSave: () => _save(request, item),
       onDelete: () => _delete(request, item),
       onBack: () => Navigator.of(context).pop(),

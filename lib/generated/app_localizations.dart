@@ -502,16 +502,16 @@ abstract class AppLocalizations {
   /// **'Материалы · {count}'**
   String catalogMaterialsLabel(int count);
 
-  /// No description provided for @catalogSubcategoriesLabel.
+  /// Подпись над списком внутри категории: там и вложенные категории, и материалы
   ///
   /// In ru, this message translates to:
-  /// **'Подкатегории · {count}'**
-  String catalogSubcategoriesLabel(int count);
+  /// **'Внутри · {count}'**
+  String catalogInsideLabel(int count);
 
   /// No description provided for @catalogCategoryMeta.
   ///
   /// In ru, this message translates to:
-  /// **'{count} подкат. · {names}'**
+  /// **'{count} внутри · {names}'**
   String catalogCategoryMeta(int count, String names);
 
   /// No description provided for @catalogMaterialsInCategory.
@@ -532,16 +532,16 @@ abstract class AppLocalizations {
   /// **'В справочнике нет категорий.\nЗагрузите прайс или добавьте категорию.'**
   String get catalogCategoriesEmpty;
 
-  /// No description provided for @catalogSubcategoriesEmpty.
+  /// No description provided for @catalogInsideEmpty.
   ///
   /// In ru, this message translates to:
-  /// **'В категории нет подкатегорий.\nНажмите «+ Подкатегория».'**
-  String get catalogSubcategoriesEmpty;
+  /// **'Здесь пока пусто.\nДобавьте категорию или материал.'**
+  String get catalogInsideEmpty;
 
   /// No description provided for @catalogMaterialsEmpty.
   ///
   /// In ru, this message translates to:
-  /// **'В подкатегории нет материалов.\nНажмите «+ Материал».'**
+  /// **'В категории нет материалов.\nНажмите «+ Материал».'**
   String get catalogMaterialsEmpty;
 
   /// No description provided for @catalogImportTitle.
@@ -553,26 +553,92 @@ abstract class AppLocalizations {
   /// No description provided for @catalogImportSubtitle.
   ///
   /// In ru, this message translates to:
-  /// **'Импорт из файла прайса'**
+  /// **'Импорт материалов из Excel'**
   String get catalogImportSubtitle;
 
   /// Подпись кнопки-иконки в шапке справочника для скринридера
   ///
   /// In ru, this message translates to:
-  /// **'Загрузить прайс'**
+  /// **'Загрузить материалы'**
   String get catalogImportOpen;
 
-  /// No description provided for @catalogImportIntro.
+  /// No description provided for @catalogImportHowTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Справочник целиком берётся из файла прайса заказчика. Выберите файл — приложение разберёт его и покажет, что именно загрузится.'**
-  String get catalogImportIntro;
+  /// **'Как подготовить файл'**
+  String get catalogImportHowTitle;
 
-  /// No description provided for @catalogImportFormats.
+  /// No description provided for @catalogImportHowStep1.
   ///
   /// In ru, this message translates to:
-  /// **'Excel (.xlsx), лист «Материал». Колонки: категория, подкатегория, материал, единица измерения.'**
-  String get catalogImportFormats;
+  /// **'Попросите чат — ChatGPT, Claude и подобные — собрать ваш прайс в файл Excel. Промт ниже.'**
+  String get catalogImportHowStep1;
+
+  /// No description provided for @catalogImportHowStep2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скачайте готовый .xlsx из чата. Если чат не умеет файлы — он выведет таблицу: скопируйте её в пустой лист Excel и сохраните как .xlsx.'**
+  String get catalogImportHowStep2;
+
+  /// No description provided for @catalogImportHowStep3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вернитесь сюда, выберите категорию и файл.'**
+  String get catalogImportHowStep3;
+
+  /// No description provided for @catalogImportPromptShow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Показать промт'**
+  String get catalogImportPromptShow;
+
+  /// No description provided for @catalogImportPromptHide.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скрыть промт'**
+  String get catalogImportPromptHide;
+
+  /// No description provided for @catalogImportPromptCopy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скопировать промт'**
+  String get catalogImportPromptCopy;
+
+  /// No description provided for @catalogImportPromptCopied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Промт скопирован'**
+  String get catalogImportPromptCopied;
+
+  /// Готовый промт для чата: просит собрать произвольный прайс в .xlsx нужного формата
+  ///
+  /// In ru, this message translates to:
+  /// **'Собери мой список материалов в файл Excel (.xlsx) и дай его скачать.\n\nВ файле один лист с названием «Материалы» и три колонки; первая строка — заголовок:\n1) Путь   2) Материал   3) Единица\n\nПравила:\n- «Путь» — вложенные категории через « / », например: Труба / Чугунная. Если материал кладётся прямо в выбранную категорию — оставь пусто.\n- «Материал» — название целиком, как в прайсе, вместе с типоразмером.\n- «Единица» — строго одно из: шт., м.п., комплект. Если в исходнике другая единица — выбери ближайшую из этих трёх.\n- Одна строка — один материал. Ничего не придумывай: чего нет в исходнике, оставь пусто.\n- Никаких лишних листов, колонок, итогов и пояснений внутри файла.\n\nЕсли сделать файл не можешь — выведи ту же таблицу текстом, колонки раздели табуляцией: её можно вставить в пустой лист Excel и сохранить как .xlsx.\n\nВот список:\n'**
+  String get catalogImportPrompt;
+
+  /// No description provided for @catalogImportTargetLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Куда загрузить'**
+  String get catalogImportTargetLabel;
+
+  /// No description provided for @catalogImportTargetRoot.
+  ///
+  /// In ru, this message translates to:
+  /// **'В корень справочника'**
+  String get catalogImportTargetRoot;
+
+  /// No description provided for @catalogImportTargetHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пути из файла считаются от выбранной категории'**
+  String get catalogImportTargetHint;
+
+  /// No description provided for @catalogImportRootNote.
+  ///
+  /// In ru, this message translates to:
+  /// **'В корне справочника материал лежать не может: строки с пустым путём будут пропущены.'**
+  String get catalogImportRootNote;
 
   /// No description provided for @catalogImportPickFile.
   ///
@@ -601,26 +667,26 @@ abstract class AppLocalizations {
   /// No description provided for @catalogImportStatsLabel.
   ///
   /// In ru, this message translates to:
-  /// **'Будет загружено'**
+  /// **'Что изменится'**
   String get catalogImportStatsLabel;
 
-  /// No description provided for @catalogImportCategories.
+  /// No description provided for @catalogImportAdded.
   ///
   /// In ru, this message translates to:
-  /// **'Категории'**
-  String get catalogImportCategories;
+  /// **'Новых материалов'**
+  String get catalogImportAdded;
 
-  /// No description provided for @catalogImportSubcategories.
+  /// No description provided for @catalogImportUpdated.
   ///
   /// In ru, this message translates to:
-  /// **'Подкатегории'**
-  String get catalogImportSubcategories;
+  /// **'Обновится'**
+  String get catalogImportUpdated;
 
-  /// No description provided for @catalogImportMaterials.
+  /// No description provided for @catalogImportCategoriesCreated.
   ///
   /// In ru, this message translates to:
-  /// **'Материалы'**
-  String get catalogImportMaterials;
+  /// **'Новых категорий'**
+  String get catalogImportCategoriesCreated;
 
   /// No description provided for @catalogImportWarningsLabel.
   ///
@@ -643,7 +709,7 @@ abstract class AppLocalizations {
   /// No description provided for @catalogImportSkipped.
   ///
   /// In ru, this message translates to:
-  /// **'{count, plural, one{Пропущена {count} строка без названия или категории} few{Пропущено {count} строки без названия или категории} many{Пропущено {count} строк без названия или категории} other{Пропущено {count} строки без названия или категории}}'**
+  /// **'{count, plural, one{Пропущена {count} строка: нет названия, неизвестна единица или некуда положить} few{Пропущено {count} строки: нет названия, неизвестна единица или некуда положить} many{Пропущено {count} строк: нет названия, неизвестна единица или некуда положить} other{Пропущено {count} строки: нет названия, неизвестна единица или некуда положить}}'**
   String catalogImportSkipped(int count);
 
   /// No description provided for @catalogImportUnknownUnits.
@@ -655,13 +721,13 @@ abstract class AppLocalizations {
   /// No description provided for @catalogImportReplaceNote.
   ///
   /// In ru, this message translates to:
-  /// **'Импорт заменяет справочник целиком. Заявки не изменятся: в них лежат копии материалов на момент добавления.'**
+  /// **'Импорт дополняет справочник: материал с таким же названием в той же ветке обновится, остальные добавятся. Заявки не изменятся — в них лежат копии материалов на момент добавления.'**
   String get catalogImportReplaceNote;
 
   /// No description provided for @catalogImportApply.
   ///
   /// In ru, this message translates to:
-  /// **'Заменить справочник'**
+  /// **'Добавить в справочник'**
   String get catalogImportApply;
 
   /// No description provided for @catalogImportRetry.
@@ -673,25 +739,25 @@ abstract class AppLocalizations {
   /// No description provided for @confirmImportTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Заменить справочник?'**
+  /// **'Добавить в справочник?'**
   String get confirmImportTitle;
 
   /// No description provided for @confirmImportText.
   ///
   /// In ru, this message translates to:
-  /// **'Текущие {count} материалов будут удалены и заменены содержимым файла.'**
+  /// **'В справочник будет записано {count} материалов из файла.'**
   String confirmImportText(int count);
 
   /// No description provided for @confirmImportAction.
   ///
   /// In ru, this message translates to:
-  /// **'Заменить'**
+  /// **'Добавить'**
   String get confirmImportAction;
 
   /// No description provided for @snackCatalogImported.
   ///
   /// In ru, this message translates to:
-  /// **'Справочник обновлён: {count} материалов'**
+  /// **'Загружено материалов: {count}'**
   String snackCatalogImported(int count);
 
   /// No description provided for @catalogNewCategory.
@@ -700,11 +766,29 @@ abstract class AppLocalizations {
   /// **'Категория'**
   String get catalogNewCategory;
 
-  /// No description provided for @catalogNewSubcategory.
+  /// No description provided for @catalogAdd.
   ///
   /// In ru, this message translates to:
-  /// **'Подкатегория'**
-  String get catalogNewSubcategory;
+  /// **'Добавить'**
+  String get catalogAdd;
+
+  /// No description provided for @catalogAddTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Что добавить'**
+  String get catalogAddTitle;
+
+  /// No description provided for @catalogAddCategory.
+  ///
+  /// In ru, this message translates to:
+  /// **'Категорию'**
+  String get catalogAddCategory;
+
+  /// No description provided for @catalogAddItem.
+  ///
+  /// In ru, this message translates to:
+  /// **'Материал'**
+  String get catalogAddItem;
 
   /// No description provided for @catalogNewMaterial.
   ///
@@ -718,11 +802,11 @@ abstract class AppLocalizations {
   /// **'{path} · {unit}'**
   String catalogMaterialMeta(String path, String unit);
 
-  /// Путь материала. Стрелка — часть строки, а не склейка в коде
+  /// Разделитель звеньев пути. В строке, а не в коде: длина пути теперь любая, а знак зависит от языка
   ///
   /// In ru, this message translates to:
-  /// **'{category} → {subcategory}'**
-  String materialPath(String category, String subcategory);
+  /// **' → '**
+  String get pathSeparator;
 
   /// Количество в карточке позиции: целое число, моноширинно
   ///
@@ -736,12 +820,6 @@ abstract class AppLocalizations {
   /// **'Категория'**
   String get formTitleCategory;
 
-  /// No description provided for @formTitleSubcategory.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подкатегория'**
-  String get formTitleSubcategory;
-
   /// No description provided for @formTitleMaterial.
   ///
   /// In ru, this message translates to:
@@ -753,6 +831,36 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Папка'**
   String get formTitleFolder;
+
+  /// No description provided for @formPlacementLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Где разместить'**
+  String get formPlacementLabel;
+
+  /// No description provided for @formPlacementRoot.
+  ///
+  /// In ru, this message translates to:
+  /// **'На верхнем уровне'**
+  String get formPlacementRoot;
+
+  /// No description provided for @formPlacementInside.
+  ///
+  /// In ru, this message translates to:
+  /// **'Внутри другой категории'**
+  String get formPlacementInside;
+
+  /// No description provided for @formParentLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Внутри'**
+  String get formParentLabel;
+
+  /// No description provided for @formParentEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите категорию'**
+  String get formParentEmpty;
 
   /// No description provided for @formSubtitleNew.
   ///
@@ -784,12 +892,6 @@ abstract class AppLocalizations {
   /// **'Категория'**
   String get formCategoryLabel;
 
-  /// No description provided for @formSubcategoryLabel.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подкатегория'**
-  String get formSubcategoryLabel;
-
   /// No description provided for @formUnitLabel.
   ///
   /// In ru, this message translates to:
@@ -802,11 +904,77 @@ abstract class AppLocalizations {
   /// **'Введите название'**
   String get formNameRequired;
 
-  /// No description provided for @formSubcategoryRequired.
+  /// No description provided for @formCategoryRequired.
   ///
   /// In ru, this message translates to:
-  /// **'Выберите подкатегорию'**
-  String get formSubcategoryRequired;
+  /// **'Выберите категорию'**
+  String get formCategoryRequired;
+
+  /// No description provided for @folderSheetTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Перенести заявку'**
+  String get folderSheetTitle;
+
+  /// No description provided for @folderSheetCurrent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сейчас: {name}'**
+  String folderSheetCurrent(String name);
+
+  /// No description provided for @folderSheetHere.
+  ///
+  /// In ru, this message translates to:
+  /// **'здесь'**
+  String get folderSheetHere;
+
+  /// No description provided for @folderOutside.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вне папок'**
+  String get folderOutside;
+
+  /// No description provided for @folderNew.
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая папка…'**
+  String get folderNew;
+
+  /// No description provided for @requestFolderLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Папка'**
+  String get requestFolderLabel;
+
+  /// No description provided for @previewTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверьте файлы'**
+  String get previewTitle;
+
+  /// No description provided for @previewFileSize.
+  ///
+  /// In ru, this message translates to:
+  /// **'{size} КБ'**
+  String previewFileSize(String size);
+
+  /// No description provided for @previewPdfFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось показать страницы PDF'**
+  String get previewPdfFailed;
+
+  /// No description provided for @previewSheetFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось прочитать таблицу'**
+  String get previewSheetFailed;
+
+  /// No description provided for @itemDeletedFromCatalog.
+  ///
+  /// In ru, this message translates to:
+  /// **'Материал удалён'**
+  String get itemDeletedFromCatalog;
 
   /// No description provided for @sendSheetTitle.
   ///
@@ -820,11 +988,11 @@ abstract class AppLocalizations {
   /// **'Выберите формат вложения'**
   String get sendSheetSubtitle;
 
-  /// No description provided for @sendFormatXml.
+  /// No description provided for @sendFormatExcel.
   ///
   /// In ru, this message translates to:
-  /// **'XML'**
-  String get sendFormatXml;
+  /// **'Excel'**
+  String get sendFormatExcel;
 
   /// No description provided for @sendFormatPdf.
   ///
@@ -835,7 +1003,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendFormatBoth.
   ///
   /// In ru, this message translates to:
-  /// **'XML и PDF'**
+  /// **'Excel и PDF'**
   String get sendFormatBoth;
 
   /// No description provided for @confirmDeleteRequestTitle.
@@ -861,18 +1029,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Категория «{name}» удалится вместе со всеми подкатегориями и материалами внутри. Заявки не изменятся.'**
   String confirmDeleteCategoryText(String name);
-
-  /// No description provided for @confirmDeleteSubcategoryTitle.
-  ///
-  /// In ru, this message translates to:
-  /// **'Удалить подкатегорию?'**
-  String get confirmDeleteSubcategoryTitle;
-
-  /// No description provided for @confirmDeleteSubcategoryText.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подкатегория «{name}» удалится вместе с материалами внутри. Заявки не изменятся.'**
-  String confirmDeleteSubcategoryText(String name);
 
   /// No description provided for @confirmDeleteMaterialTitle.
   ///
@@ -952,6 +1108,24 @@ abstract class AppLocalizations {
   /// **'Заявка удалена'**
   String get snackRequestDeleted;
 
+  /// No description provided for @snackNothingToSend.
+  ///
+  /// In ru, this message translates to:
+  /// **'В заявке нет позиций — отправлять нечего'**
+  String get snackNothingToSend;
+
+  /// No description provided for @snackMovedToFolder.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заявка перенесена в «{name}»'**
+  String snackMovedToFolder(String name);
+
+  /// No description provided for @snackMovedOutOfFolders.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заявка вынесена из папок'**
+  String get snackMovedOutOfFolders;
+
   /// No description provided for @snackFolderCreated.
   ///
   /// In ru, this message translates to:
@@ -964,12 +1138,6 @@ abstract class AppLocalizations {
   /// **'Категория сохранена'**
   String get snackCategorySaved;
 
-  /// No description provided for @snackSubcategorySaved.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подкатегория сохранена'**
-  String get snackSubcategorySaved;
-
   /// No description provided for @snackMaterialSaved.
   ///
   /// In ru, this message translates to:
@@ -981,12 +1149,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Категория удалена'**
   String get snackCategoryRemoved;
-
-  /// No description provided for @snackSubcategoryRemoved.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подкатегория удалена'**
-  String get snackSubcategoryRemoved;
 
   /// No description provided for @snackMaterialRemovedFromCatalog.
   ///

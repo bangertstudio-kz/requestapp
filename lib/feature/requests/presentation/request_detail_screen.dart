@@ -17,11 +17,13 @@ class RequestDetailScreen extends StatelessWidget {
     required this.request,
     required this.nameController,
     required this.onNameChanged,
-    required this.onAddMaterial,
+    required this.onAddItem,
     required this.onItemOpened,
     required this.onItemIncrement,
     required this.onItemDecrement,
     required this.onItemRemove,
+    required this.folderName,
+    required this.onChangeFolder,
     required this.onSave,
     required this.onSend,
     required this.onDelete,
@@ -35,11 +37,18 @@ class RequestDetailScreen extends StatelessWidget {
   final TextEditingController nameController;
   final ValueChanged<String> onNameChanged;
 
-  final VoidCallback onAddMaterial;
+  final VoidCallback onAddItem;
   final ValueChanged<RequestItem> onItemOpened;
   final ValueChanged<RequestItem> onItemIncrement;
   final ValueChanged<RequestItem> onItemDecrement;
   final ValueChanged<RequestItem> onItemRemove;
+
+  /// Название папки или `null` — заявка вне папок. Название, а не
+  /// идентификатор: экран показывает его, и превращать одно в другое
+  /// здесь значило бы тащить сюда список папок целиком.
+  final String? folderName;
+
+  final VoidCallback onChangeFolder;
 
   /// Сохранение и отправка — разные действия, а не одно с ветвлением снаружи:
   /// черновик сохраняют на устройство, сохранённую отправляют.
@@ -54,12 +63,15 @@ class RequestDetailScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final tokens = context.request;
     final isDraft = request.status == RequestStatus.draft;
+    // Подпись считается здесь, а не в параметре виджета: выражение в
+    // аргументе прячет строку от анализатора локализации.
+    final folderLabel = folderName ?? l10n.folderOutside;
 
     return Scaffold(
       bottomNavigationBar: _ActionBar(
         mainActionLabel: isDraft ? l10n.actionSave : l10n.actionSend,
         onMainAction: isDraft ? onSave : onSend,
-        onAddMaterial: onAddMaterial,
+        onAddItem: onAddItem,
         onDelete: onDelete,
       ),
       body: SafeArea(
@@ -88,6 +100,20 @@ class RequestDetailScreen extends StatelessWidget {
                           label: l10n.requestNameLabel,
                           controller: nameController,
                           onChanged: onNameChanged,
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppDimens.screenPadding,
+                          AppDimens.space10,
+                          AppDimens.screenPadding,
+                          0,
+                        ),
+                        child: _FolderRow(
+                          name: folderLabel,
+                          onTap: onChangeFolder,
                         ),
                       ),
                     ),
@@ -177,13 +203,13 @@ class _ActionBar extends StatelessWidget {
   const _ActionBar({
     required this.mainActionLabel,
     required this.onMainAction,
-    required this.onAddMaterial,
+    required this.onAddItem,
     required this.onDelete,
   });
 
   final String mainActionLabel;
   final VoidCallback onMainAction;
-  final VoidCallback onAddMaterial;
+  final VoidCallback onAddItem;
   final VoidCallback onDelete;
 
   @override
@@ -212,7 +238,7 @@ class _ActionBar extends StatelessWidget {
                 AppButton.filled(
                   label: l10n.requestAddMaterial,
                   icon: Icons.add,
-                  onPressed: onAddMaterial,
+                  onPressed: onAddItem,
                 ),
                 const SizedBox(height: AppDimens.space10),
                 Row(
@@ -238,6 +264,60 @@ class _ActionBar extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// Папка заявки в шапке экрана: единственная точка входа в перенос.
+///
+/// Видимая строка, а не долгое нажатие на карточку в списке: функция,
+/// о которой нельзя догадаться, глядя на экран, считается отсутствующей.
+class _FolderRow extends StatelessWidget {
+  const _FolderRow({required this.name, required this.onTap});
+
+  final String name;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final tokens = context.request;
+
+    return Material(
+      color: tokens.surfaceMuted,
+      borderRadius: BorderRadius.circular(AppDimens.radiusCard),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDimens.radiusCard),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.space12,
+            vertical: AppDimens.space10,
+          ),
+          child: Row(
+            children: [
+              Text(
+                l10n.requestFolderLabel,
+                style: tokens.text.meta.copyWith(color: tokens.inkTertiary),
+              ),
+              const SizedBox(width: AppDimens.space8),
+              Expanded(
+                child: Text(
+                  name,
+                  style: tokens.text.rowTitle,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 16,
+                color: tokens.inkTertiary,
+              ),
+            ],
           ),
         ),
       ),

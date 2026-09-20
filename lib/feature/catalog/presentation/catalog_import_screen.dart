@@ -14,13 +14,29 @@ import '../domain/entities/catalog_import_summary.dart';
 class CatalogImportScreen extends StatelessWidget {
   const CatalogImportScreen({
     super.key,
+    required this.targetLabel,
+    required this.targetIsRoot,
     required this.summary,
     required this.parsing,
     required this.errorMessage,
+    required this.onPickTarget,
+    required this.onPickRoot,
+    required this.onCopyPrompt,
     required this.onPickFile,
     required this.onApply,
     required this.onBack,
   });
+
+  /// Путь категории-приёмника готовой строкой или подпись «в корень».
+  final String targetLabel;
+
+  /// В корне материалу лежать негде — экран обязан предупредить об этом
+  /// до выбора файла, а не отчётом о пропущенных строках после.
+  final bool targetIsRoot;
+
+  final VoidCallback onPickTarget;
+  final VoidCallback onPickRoot;
+  final VoidCallback onCopyPrompt;
 
   /// Разобранный файл или `null` — файл ещё не выбран.
   final CatalogImportSummary? summary;
@@ -69,16 +85,29 @@ class CatalogImportScreen extends StatelessWidget {
                     AppDimens.screenPadding,
                     AppDimens.space26,
                   ),
-                  children: switch ((parsed, parsing, errorMessage)) {
-                    (_, true, _) => [const _Parsing()],
-                    (_, _, final String message) => [
-                      _Failure(message: message, onRetry: onPickFile),
-                    ],
-                    (null, _, _) => [_Intro(onPickFile: onPickFile)],
-                    (final CatalogImportSummary value, _, _) => [
-                      _Report(summary: value, onPickAnother: onPickFile),
-                    ],
-                  },
+                  children: [
+                    _Target(
+                      label: targetLabel,
+                      isRoot: targetIsRoot,
+                      onPickTarget: onPickTarget,
+                      onPickRoot: onPickRoot,
+                    ),
+                    const SizedBox(height: AppDimens.space12),
+                    ...switch ((parsed, parsing, errorMessage)) {
+                      (_, true, _) => [const _Parsing()],
+                      (_, _, final String message) => [
+                        _Failure(message: message, onRetry: onPickFile),
+                      ],
+                      (null, _, _) => [
+                        _HowTo(onCopyPrompt: onCopyPrompt),
+                        const SizedBox(height: AppDimens.space12),
+                        _PickCard(onPickFile: onPickFile),
+                      ],
+                      (final CatalogImportSummary value, _, _) => [
+                        _Report(summary: value, onPickAnother: onPickFile),
+                      ],
+                    },
+                  ],
                 ),
               ),
             ],
@@ -89,11 +118,20 @@ class CatalogImportScreen extends StatelessWidget {
   }
 }
 
-/// Файл ещё не выбран: объясняем, что произойдёт, и предлагаем выбрать.
-class _Intro extends StatelessWidget {
-  const _Intro({required this.onPickFile});
+/// Куда грузим. Первое, что выбирают: от приёмника зависят и пути в файле,
+/// и цифры отчёта.
+class _Target extends StatelessWidget {
+  const _Target({
+    required this.label,
+    required this.isRoot,
+    required this.onPickTarget,
+    required this.onPickRoot,
+  });
 
-  final VoidCallback onPickFile;
+  final String label;
+  final bool isRoot;
+  final VoidCallback onPickTarget;
+  final VoidCallback onPickRoot;
 
   @override
   Widget build(BuildContext context) {
@@ -106,16 +144,177 @@ class _Intro extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(l10n.catalogImportIntro, style: tokens.text.sheetSubtitle),
-          const SizedBox(height: AppDimens.space12),
-          Text(l10n.catalogImportFormats, style: tokens.text.caption),
-          const SizedBox(height: AppDimens.space16),
-          AppButton.filled(
-            label: l10n.catalogImportPickFile,
-            icon: Icons.upload_file_outlined,
-            onPressed: onPickFile,
+          Text(
+            l10n.catalogImportTargetLabel,
+            style: tokens.text.meta.copyWith(color: tokens.inkTertiary),
           ),
+          const SizedBox(height: AppDimens.space8),
+          InkWell(
+            onTap: onPickTarget,
+            borderRadius: BorderRadius.circular(AppDimens.radiusCard),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppDimens.space4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: tokens.text.rowTitle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: tokens.inkTertiary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppDimens.space8),
+          Text(l10n.catalogImportTargetHint, style: tokens.text.caption),
+          if (isRoot) ...[
+            const SizedBox(height: AppDimens.space10),
+            Text(
+              l10n.catalogImportRootNote,
+              style: tokens.text.caption.copyWith(color: tokens.danger),
+            ),
+          ] else ...[
+            const SizedBox(height: AppDimens.space10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: AppButton.text(
+                label: l10n.catalogImportTargetRoot,
+                onPressed: onPickRoot,
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// Три шага и готовый промт.
+///
+/// Промт свёрнут: он длинный, а тому, кто уже знает порядок действий,
+/// нужна кнопка выбора файла, а не стена текста над ней.
+class _HowTo extends StatefulWidget {
+  const _HowTo({required this.onCopyPrompt});
+
+  final VoidCallback onCopyPrompt;
+
+  @override
+  State<_HowTo> createState() => _HowToState();
+}
+
+class _HowToState extends State<_HowTo> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final tokens = context.request;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.space16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.catalogImportHowTitle, style: tokens.text.rowTitleStrong),
+          const SizedBox(height: AppDimens.space12),
+          _Step(number: 1, text: l10n.catalogImportHowStep1),
+          _Step(number: 2, text: l10n.catalogImportHowStep2),
+          _Step(number: 3, text: l10n.catalogImportHowStep3),
+          const SizedBox(height: AppDimens.space10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AppButton.text(
+              label: _open
+                  ? l10n.catalogImportPromptHide
+                  : l10n.catalogImportPromptShow,
+              onPressed: () => setState(() => _open = !_open),
+            ),
+          ),
+          if (_open) ...[
+            const SizedBox(height: AppDimens.space10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppDimens.space12),
+              decoration: BoxDecoration(
+                color: tokens.surfaceMuted,
+                borderRadius: BorderRadius.circular(AppDimens.radiusCard),
+                border: Border.all(color: tokens.border),
+              ),
+              // Моноширинным: промт копируют целиком, и в нём есть
+              // табуляция, которая в пропорциональном шрифте не читается.
+              child: Text(
+                l10n.catalogImportPrompt,
+                style: tokens.text.meta.copyWith(color: tokens.inkSecondary),
+              ),
+            ),
+            const SizedBox(height: AppDimens.space10),
+            AppButton.outlinedAccent(
+              label: l10n.catalogImportPromptCopy,
+              onPressed: widget.onCopyPrompt,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Step extends StatelessWidget {
+  const _Step({required this.number, required this.text});
+
+  final int number;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.request;
+    final label = '$number.';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDimens.space10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 20,
+            // Номер шага собирается до дерева: анализатор локализации
+            // не пускает интерполяцию в аргумент виджета, а число здесь
+            // не переводится.
+            child: Text(
+              label,
+              style: tokens.text.meta.copyWith(color: tokens.primary),
+            ),
+          ),
+          Expanded(child: Text(text, style: tokens.text.caption)),
+        ],
+      ),
+    );
+  }
+}
+
+class _PickCard extends StatelessWidget {
+  const _PickCard({required this.onPickFile});
+
+  final VoidCallback onPickFile;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AppCard(
+      padding: const EdgeInsets.all(AppDimens.space16),
+      child: AppButton.filled(
+        label: l10n.catalogImportPickFile,
+        icon: Icons.upload_file_outlined,
+        onPressed: onPickFile,
       ),
     );
   }
@@ -244,17 +443,19 @@ class _Report extends StatelessWidget {
               AppSectionLabel(l10n.catalogImportStatsLabel),
               const SizedBox(height: AppDimens.space10),
               _Stat(
-                label: l10n.catalogImportCategories,
-                value: summary.categories,
-              ),
-              _Stat(
-                label: l10n.catalogImportSubcategories,
-                value: summary.subcategories,
-              ),
-              _Stat(
-                label: l10n.catalogImportMaterials,
-                value: summary.materials,
+                label: l10n.catalogImportAdded,
+                value: summary.itemsAdded,
                 emphasized: true,
+              ),
+              // Обновление отдельной строкой: «добавится 40» и «40 записей
+              // перезапишутся» человек взвешивает по-разному.
+              _Stat(
+                label: l10n.catalogImportUpdated,
+                value: summary.itemsUpdated,
+              ),
+              _Stat(
+                label: l10n.catalogImportCategoriesCreated,
+                value: summary.categoriesCreated,
               ),
             ],
           ),

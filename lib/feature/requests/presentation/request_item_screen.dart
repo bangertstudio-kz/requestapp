@@ -3,7 +3,8 @@ import 'package:request_ui/request_ui.dart';
 
 import '../../../core/presentation/content_column.dart';
 import '../../../generated/app_localizations.dart';
-import '../../catalog/presentation/material_unit_label.dart';
+import '../../catalog/presentation/item_path_label.dart';
+import '../../catalog/presentation/item_unit_label.dart';
 import '../../catalog/presentation/quantity_controller.dart';
 import '../domain/entities/request_item.dart';
 
@@ -18,7 +19,7 @@ class RequestItemScreen extends StatelessWidget {
     required this.item,
     required this.requestName,
     required this.quantityController,
-    required this.onReplaceMaterial,
+    required this.onReplaceItem,
     required this.onSave,
     required this.onDelete,
     required this.onBack,
@@ -27,7 +28,7 @@ class RequestItemScreen extends StatelessWidget {
   final RequestItem item;
   final String requestName;
   final QuantityController quantityController;
-  final VoidCallback onReplaceMaterial;
+  final VoidCallback onReplaceItem;
   final VoidCallback onSave;
   final VoidCallback onDelete;
   final VoidCallback onBack;
@@ -70,10 +71,7 @@ class RequestItemScreen extends StatelessWidget {
                             Text(item.name, style: tokens.text.materialTitle),
                             const SizedBox(height: 5),
                             Text(
-                              l10n.materialPath(
-                                item.categoryName,
-                                item.subcategoryName,
-                              ),
+                              itemPathLabel(l10n, item.path),
                               style: tokens.text.bodySmall.copyWith(
                                 color: tokens.inkMuted,
                               ),
@@ -86,7 +84,7 @@ class RequestItemScreen extends StatelessWidget {
                               alignment: Alignment.centerLeft,
                               child: AppButton.outlinedAccent(
                                 label: l10n.requestItemReplaceMaterial,
-                                onPressed: onReplaceMaterial,
+                                onPressed: onReplaceItem,
                               ),
                             ),
                           ],
@@ -99,7 +97,7 @@ class RequestItemScreen extends StatelessWidget {
                           label: l10n.quantityLabel,
                           hint: l10n.quantityHint,
                           value: value.isEmpty ? l10n.quantityEmpty : value,
-                          unit: materialUnitLabel(l10n, item.unit),
+                          unit: itemUnitLabel(l10n, item.unit),
                           empty: value.isEmpty,
                         ),
                       ),

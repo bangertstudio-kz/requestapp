@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:request_ui/request_ui.dart';
 
 import 'core/dependencies/container/dependency_container.dart';
+import 'core/dependencies/container/drift_dependency_factory.dart';
 import 'core/dependencies/container/mock_dependency_factory.dart';
+import 'core/env/env.dart';
 import 'core/navigation/app_router.dart';
 import 'core/presentation/app_text.dart';
 import 'core/presentation/multi_scope.dart';
@@ -10,21 +12,21 @@ import 'core/presentation/notifier_scope.dart';
 import 'core/presentation/snack_notifier.dart';
 import 'core/widgets/snack_overlay.dart';
 import 'feature/catalog/data/catalog_repository.dart';
-import 'feature/catalog/presentation/apply_price_list_notifier.dart';
+import 'feature/catalog/presentation/apply_import_notifier.dart';
 import 'feature/catalog/presentation/catalog_notifier.dart';
 import 'feature/catalog/presentation/delete_category_notifier.dart';
-import 'feature/catalog/presentation/delete_material_notifier.dart';
-import 'feature/catalog/presentation/delete_subcategory_notifier.dart';
-import 'feature/catalog/presentation/material_search_notifier.dart';
-import 'feature/catalog/presentation/parse_price_list_notifier.dart';
+import 'feature/catalog/presentation/delete_item_notifier.dart';
+import 'feature/catalog/presentation/item_search_notifier.dart';
+import 'feature/catalog/presentation/parse_import_notifier.dart';
 import 'feature/catalog/presentation/save_category_notifier.dart';
-import 'feature/catalog/presentation/save_material_notifier.dart';
-import 'feature/catalog/presentation/save_subcategory_notifier.dart';
+import 'feature/catalog/presentation/save_item_notifier.dart';
 import 'feature/requests/data/request_repository.dart';
 import 'feature/requests/presentation/create_folder_notifier.dart';
 import 'feature/requests/presentation/create_request_notifier.dart';
 import 'feature/requests/presentation/delete_request_notifier.dart';
 import 'feature/requests/presentation/folder_list_notifier.dart';
+import 'feature/requests/presentation/move_request_notifier.dart';
+import 'feature/requests/presentation/prepare_documents_notifier.dart';
 import 'feature/requests/presentation/request_detail_notifier.dart';
 import 'feature/requests/presentation/request_list_notifier.dart';
 import 'feature/requests/presentation/save_request_notifier.dart';
@@ -37,11 +39,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Контейнер собирается до первого кадра: репозитории должны существовать
-  // раньше, чем экран попробует что-то у них спросить.
+  // раньше, чем экран попробует что-то у них спросить. Фабрика на drift
+  // успевает здесь же открыть базу и засеять пустое хранилище прайсом.
   //
-  // Фабрика пока одна — приложение локальное, и `RootFactory` появится
-  // вместе с решением, куда отправляется заявка (см. `Env.useMocks`).
-  final container = await const MockRootFactory().create();
+  // Выбор фабрики — `const`, поэтому в сборку попадает только одна из них.
+  const DependencyFactory factory = Env.useMocks
+      ? MockRootFactory()
+      : DriftRootFactory();
+  final container = await factory.create();
 
   // Единственная строка, сообщающая нотифаерам язык, и она выполняется
   // до того, как хоть один из них упадёт и захочет объясниться.
@@ -73,21 +78,21 @@ class _AppState extends State<App> {
   late final _createRequest = CreateRequestNotifier(_requests);
   late final _updateRequest = UpdateRequestNotifier(_requests);
   late final _deleteRequest = DeleteRequestNotifier(_requests);
+  late final _moveRequest = MoveRequestNotifier(_requests);
   late final _saveRequest = SaveRequestNotifier(_requests);
   late final _sendRequest = SendRequestNotifier(_requests);
+  late final _prepareDocuments = PrepareDocumentsNotifier(_requests);
   late final _folderList = FolderListNotifier(_requests);
   late final _createFolder = CreateFolderNotifier(_requests);
 
   late final _catalog = CatalogNotifier(_catalogRepository);
-  late final _materialSearch = MaterialSearchNotifier(_catalogRepository);
+  late final _itemSearch = ItemSearchNotifier(_catalogRepository);
   late final _saveCategory = SaveCategoryNotifier(_catalogRepository);
   late final _deleteCategory = DeleteCategoryNotifier(_catalogRepository);
-  late final _saveSubcategory = SaveSubcategoryNotifier(_catalogRepository);
-  late final _deleteSubcategory = DeleteSubcategoryNotifier(_catalogRepository);
-  late final _saveMaterial = SaveMaterialNotifier(_catalogRepository);
-  late final _deleteMaterial = DeleteMaterialNotifier(_catalogRepository);
-  late final _parsePriceList = ParsePriceListNotifier(_catalogRepository);
-  late final _applyPriceList = ApplyPriceListNotifier(_catalogRepository);
+  late final _saveItem = SaveItemNotifier(_catalogRepository);
+  late final _deleteItem = DeleteItemNotifier(_catalogRepository);
+  late final _parseImport = ParseImportNotifier(_catalogRepository);
+  late final _applyImport = ApplyImportNotifier(_catalogRepository);
 
   RequestRepository get _requests => widget.container.requestRepository;
   CatalogRepository get _catalogRepository =>
@@ -124,12 +129,20 @@ class _AppState extends State<App> {
         controller: _deleteRequest,
         child: child,
       ),
+      (child) => NotifierScope<MoveRequestNotifier>(
+        controller: _moveRequest,
+        child: child,
+      ),
       (child) => NotifierScope<SaveRequestNotifier>(
         controller: _saveRequest,
         child: child,
       ),
       (child) => NotifierScope<SendRequestNotifier>(
         controller: _sendRequest,
+        child: child,
+      ),
+      (child) => NotifierScope<PrepareDocumentsNotifier>(
+        controller: _prepareDocuments,
         child: child,
       ),
       (child) => NotifierScope<FolderListNotifier>(
@@ -142,8 +155,8 @@ class _AppState extends State<App> {
       ),
       (child) =>
           NotifierScope<CatalogNotifier>(controller: _catalog, child: child),
-      (child) => NotifierScope<MaterialSearchNotifier>(
-        controller: _materialSearch,
+      (child) => NotifierScope<ItemSearchNotifier>(
+        controller: _itemSearch,
         child: child,
       ),
       (child) => NotifierScope<SaveCategoryNotifier>(
@@ -154,28 +167,20 @@ class _AppState extends State<App> {
         controller: _deleteCategory,
         child: child,
       ),
-      (child) => NotifierScope<SaveSubcategoryNotifier>(
-        controller: _saveSubcategory,
+      (child) => NotifierScope<SaveItemNotifier>(
+        controller: _saveItem,
         child: child,
       ),
-      (child) => NotifierScope<DeleteSubcategoryNotifier>(
-        controller: _deleteSubcategory,
+      (child) => NotifierScope<DeleteItemNotifier>(
+        controller: _deleteItem,
         child: child,
       ),
-      (child) => NotifierScope<SaveMaterialNotifier>(
-        controller: _saveMaterial,
+      (child) => NotifierScope<ParseImportNotifier>(
+        controller: _parseImport,
         child: child,
       ),
-      (child) => NotifierScope<DeleteMaterialNotifier>(
-        controller: _deleteMaterial,
-        child: child,
-      ),
-      (child) => NotifierScope<ParsePriceListNotifier>(
-        controller: _parsePriceList,
-        child: child,
-      ),
-      (child) => NotifierScope<ApplyPriceListNotifier>(
-        controller: _applyPriceList,
+      (child) => NotifierScope<ApplyImportNotifier>(
+        controller: _applyImport,
         child: child,
       ),
     ],

@@ -1,4 +1,4 @@
-package com.example.request_ui_gallery
+package com.bangertstudio.request_ui_gallery
 
 import io.flutter.embedding.android.FlutterActivity
 

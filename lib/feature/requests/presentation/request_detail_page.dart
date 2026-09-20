@@ -9,14 +9,16 @@ import '../../../core/widgets/confirm_sheet.dart';
 import '../../../core/widgets/request_view.dart';
 import '../../../generated/app_localizations.dart';
 import '../domain/entities/material_request.dart';
+import '../domain/entities/request_folder.dart';
 import '../domain/entities/request_item.dart';
 import '../domain/entities/requests_params.dart';
-import '../domain/entities/send_format.dart';
 import 'delete_request_notifier.dart';
+import 'folder_list_notifier.dart';
+import 'folder_pick_sheet.dart';
+import 'move_request_notifier.dart';
 import 'request_detail_notifier.dart';
 import 'request_detail_screen.dart';
 import 'save_request_notifier.dart';
-import 'send_request_notifier.dart';
 import 'send_request_sheet.dart';
 import 'update_request_notifier.dart';
 
@@ -99,8 +101,8 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     _load();
   }
 
-  Future<void> _addMaterial() async {
-    await PickMaterialRoute(requestId: widget.requestId).push<void>(context);
+  Future<void> _addItem() async {
+    await PickItemRoute(requestId: widget.requestId).push<void>(context);
     _load();
   }
 
@@ -122,25 +124,102 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     _load();
   }
 
-  Future<void> _send() async {
+  Future<void> _send(MaterialRequest request) async {
+    final l10n = AppLocalizations.of(context)!;
+    final snack = NotifierScope.read<SnackNotifier>(context);
+
+    // Пустая заявка — пустой документ. Отказ здесь, а не мёртвая кнопка:
+    // недоступная кнопка не объясняет, чего ей не хватает.
+    if (request.items.isEmpty) {
+      snack.show(l10n.snackNothingToSend);
+      return;
+    }
+
     final format = await SendRequestSheet.show(context);
     if (format == null || !mounted) return;
 
-    final l10n = AppLocalizations.of(context)!;
-    final notifier = NotifierScope.read<SendRequestNotifier>(context);
-    final snack = NotifierScope.read<SnackNotifier>(context);
-    await notifier.run(SendRequestParams(id: widget.requestId, format: format));
-    if (!mounted) return;
-    snack.show(notifier.failure ?? l10n.snackSent(_formatLabel(l10n, format)));
+    // Отправку отмечает экран предпросмотра — после того, как системный
+    // лист сообщит, что файлы приняты. Здесь только открываем его.
+    await RequestPreviewRoute(
+      requestId: widget.requestId,
+      format: format,
+    ).push<void>(context);
     _load();
   }
 
-  static String _formatLabel(AppLocalizations l10n, SendFormat format) =>
-      switch (format) {
-        SendFormat.xml => l10n.sendFormatXml,
-        SendFormat.pdf => l10n.sendFormatPdf,
-        SendFormat.both => l10n.sendFormatBoth,
-      };
+  Future<void> _changeFolder(MaterialRequest request) async {
+    final folderNotifier = NotifierScope.read<FolderListNotifier>(context);
+    // Папки уже загружены списком заявок. Если нет — тянем здесь: шторка
+    // без вариантов выбора бесполезна, а спиннер вместо неё честнее.
+    final folders = folderNotifier.data ?? await folderNotifier.run(null);
+    if (folders == null || !mounted) return;
+
+    final choice = await FolderPickSheet.show(
+      context,
+      folders: folders,
+      currentFolderId: request.folderId,
+    );
+    if (choice == null || !mounted) return;
+
+    final String? target;
+    switch (choice) {
+      case MoveToFolder(:final id):
+        target = id;
+      case MoveOutOfFolders():
+        target = null;
+      case CreateFolderFirst():
+        // Заведение папки — отдельный экран со своей валидацией. Вернулись
+        // без папки — значит, передумали, и переносить некуда.
+        final created = await NewFolderRoute().push<String>(context);
+        if (created == null || !mounted) return;
+        target = created;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final notifier = NotifierScope.read<MoveRequestNotifier>(context);
+    final snack = NotifierScope.read<SnackNotifier>(context);
+
+    final moved = await notifier.run(
+      MoveRequestParams(id: widget.requestId, folderId: target),
+    );
+    if (!mounted) return;
+
+    final failure = notifier.failure;
+    if (failure != null) {
+      snack.show(failure);
+      return;
+    }
+
+    snack.show(
+      moved?.folderId == null
+          ? l10n.snackMovedOutOfFolders
+          : l10n.snackMovedToFolder(_folderName(folders, moved!.folderId!)),
+    );
+
+    // Перечитываем и заявку, и папки: счётчик «4 заявки» после переноса
+    // врёт сразу в двух строках списка папок.
+    _load();
+    await folderNotifier.request(null);
+  }
+
+  static String _folderName(List<RequestFolder> folders, String id) =>
+      folders
+          .where((folder) => folder.id == id)
+          .map((folder) => folder.name)
+          .firstOrNull ??
+      '';
+
+  /// Название папки для шапки заявки. `null` — заявка вне папок либо список
+  /// папок ещё не приехал: и там, и там показывать нечего, а придуманное
+  /// название было бы хуже пустого места.
+  String? _currentFolderName(MaterialRequest request) {
+    final id = request.folderId;
+    if (id == null) return null;
+    final folders = NotifierScope.of<FolderListNotifier>(context).data;
+    if (folders == null) return null;
+    final name = _folderName(folders, id);
+    return name.isEmpty ? null : name;
+  }
 
   Future<void> _delete(MaterialRequest request) async {
     final l10n = AppLocalizations.of(context)!;
@@ -212,15 +291,17 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
       nameController: _nameController,
       onNameChanged: (value) =>
           _debouncer.run(() => _update(request.withName(value))),
-      onAddMaterial: _addMaterial,
+      onAddItem: _addItem,
       onItemOpened: _openItem,
       onItemIncrement: (item) =>
           _update(request.replacingItem(item.withQuantity(item.quantity + 1))),
       onItemDecrement: (item) =>
           _update(request.replacingItem(item.withQuantity(item.quantity - 1))),
       onItemRemove: (item) => _removeItem(request, item),
+      folderName: _currentFolderName(request),
+      onChangeFolder: () => _changeFolder(request),
       onSave: _save,
-      onSend: _send,
+      onSend: () => _send(request),
       onDelete: () => _delete(request),
       onBack: () => Navigator.of(context).pop(),
     );

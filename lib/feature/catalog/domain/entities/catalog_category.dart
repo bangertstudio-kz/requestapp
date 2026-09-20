@@ -1,14 +1,32 @@
-import 'catalog_subcategory.dart';
+import 'catalog_item.dart';
 
-/// Категория справочника — верхний уровень дерева.
+/// Узел дерева справочника.
+///
+/// Одна сущность на все уровни, а не «категория» и «подкатегория» отдельно:
+/// в базе это одна таблица со ссылкой на саму себя, и различие, которого там
+/// нет, в домене приходилось поддерживать руками. Подкатегория может иметь
+/// свои вложенные, категория верхнего уровня — хранить материалы; отличает
+/// их ровно одно — [parentId].
 class CatalogCategory {
   const CatalogCategory({
     required this.id,
     required this.name,
-    required this.subcategories,
+    this.parentId,
+    this.categories = const [],
+    this.items = const [],
   });
 
   final String id;
   final String name;
-  final List<CatalogSubcategory> subcategories;
+
+  /// `null` — категория лежит на верхнем уровне.
+  final String? parentId;
+
+  /// Вложенные категории. Глубина не ограничена: прайс заказчика
+  /// двухуровневый, но это его свойство, а не правило справочника.
+  final List<CatalogCategory> categories;
+
+  /// Материалы, лежащие прямо здесь. Не только в листьях: «Расходный
+  /// материал» без подкатегорий — законная ветка.
+  final List<CatalogItem> items;
 }

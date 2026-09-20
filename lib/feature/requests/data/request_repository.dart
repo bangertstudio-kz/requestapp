@@ -1,4 +1,5 @@
 import '../domain/entities/material_request.dart';
+import '../domain/entities/request_document.dart';
 import '../domain/entities/request_folder.dart';
 import '../domain/entities/request_list.dart';
 import '../domain/entities/requests_params.dart';
@@ -24,12 +25,28 @@ abstract interface class RequestRepository {
   /// больше не соответствуют содержимому.
   Future<MaterialRequest> update(MaterialRequest request);
 
+  /// Переносит заявку в папку или, при `folderId == null`, из папок наружу.
+  ///
+  /// Не `update`: папка не входит в документ, и возвращать из-за неё
+  /// сохранённую заявку в черновик значило бы требовать сохранить заново
+  /// того, кто просто навёл порядок.
+  Future<MaterialRequest> moveToFolder(String id, String? folderId);
+
   Future<void> delete(String id);
 
-  /// Сохраняет XML и PDF на устройство и переводит заявку в «Сохранена».
+  /// Собирает файлы выбранных форматов и возвращает их.
+  ///
+  /// Статус не меняет: пока файлы не ушли, заявка не отправлена. Зовётся
+  /// экраном предпросмотра — тем, который показывает их перед отправкой.
+  Future<List<RequestDocument>> prepare(String id, SendFormat format);
+
+  /// Сохраняет таблицу и PDF на устройство и переводит заявку в «Сохранена» —
+  /// после успешной записи, а не до неё.
   Future<MaterialRequest> save(String id);
 
-  /// Отправляет заявку с вложением выбранного формата.
+  /// Отмечает отправку. Зовётся после того, как системный лист сообщил,
+  /// что файлы приняты: отметка по нажатию показала бы «Отправлена» на
+  /// заявке, которую никто не получил.
   Future<MaterialRequest> send(String id, SendFormat format);
 
   Future<List<RequestFolder>> folders();

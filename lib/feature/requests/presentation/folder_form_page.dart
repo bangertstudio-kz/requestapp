@@ -34,11 +34,16 @@ class _FolderFormPageState extends State<FolderFormPage> {
     final l10n = AppLocalizations.of(context)!;
     final notifier = NotifierScope.read<CreateFolderNotifier>(context);
     final snack = NotifierScope.read<SnackNotifier>(context);
-    await notifier.run(CreateFolderParams(_controller.text.trim()));
+    final created = await notifier.run(
+      CreateFolderParams(_controller.text.trim()),
+    );
     if (!mounted) return;
     final failure = notifier.failure;
     snack.show(failure ?? l10n.snackFolderCreated);
-    if (failure == null) Navigator.of(context).pop();
+    // Возвращаем идентификатор: тот, кто завёл папку из шторки переноса,
+    // ждёт её, а не «форма закрылась». Остальные вызывающие результат
+    // игнорируют, и для них ничего не меняется.
+    if (failure == null) Navigator.of(context).pop(created?.id);
   }
 
   @override
