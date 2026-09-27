@@ -85,12 +85,12 @@ pw.Widget _header(MaterialRequest request, int pageNumber) {
     children: [
       pw.Text(
         pdfSafeText(request.name),
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
       ),
       pw.SizedBox(height: 4),
       pw.Text(
         meta,
-        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
+        style: const pw.TextStyle(fontSize: 13.5, color: PdfColors.grey700),
       ),
       pw.SizedBox(height: 10),
       pw.Divider(height: 1, color: PdfColors.grey400),
@@ -99,22 +99,39 @@ pw.Widget _header(MaterialRequest request, int pageNumber) {
   );
 }
 
+/// Строки разделены тонкой светлой линией снизу: без неё на длинной заявке
+/// глаз соскальзывает с материала на количество соседней строки, а сетка
+/// со всех сторон делает лист тяжелее, чем нужно.
+const _rowLine = pw.BorderSide(color: PdfColors.grey500, width: 0.5);
+
 pw.Widget _itemsTable(MaterialRequest request) => pw.TableHelper.fromTextArray(
-  border: null,
-  headerStyle: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+  border: const pw.TableBorder(horizontalInside: _rowLine, bottom: _rowLine),
+  // Шрифт крупный: заявку читают распечатанной, на складе и с расстояния
+  // вытянутой руки, а не с экрана.
+  headerStyle: pw.TextStyle(fontSize: 13.5, fontWeight: pw.FontWeight.bold),
   headerDecoration: const pw.BoxDecoration(color: PdfColors.grey200),
-  cellStyle: const pw.TextStyle(fontSize: 10),
+  cellStyle: const pw.TextStyle(fontSize: 15),
   cellPadding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-  headerAlignments: {2: pw.Alignment.centerRight},
+  // Номер, количество и единица — по центру и в заголовке, и в строках:
+  // короткое значение в широкой колонке, прижатое к краю, отрывается
+  // от своего заголовка.
+  headerAlignments: {
+    0: pw.Alignment.center,
+    2: pw.Alignment.center,
+    3: pw.Alignment.center,
+  },
   cellAlignments: {
-    0: pw.Alignment.centerRight,
-    2: pw.Alignment.centerRight,
+    0: pw.Alignment.center,
+    2: pw.Alignment.center,
+    3: pw.Alignment.center,
   },
   columnWidths: {
-    0: const pw.FixedColumnWidth(24),
+    // Узкие колонки выросли вместе со шрифтом: «Кол-во» и «комплект»
+    // в прежней ширине переносились по буквам.
+    0: const pw.FixedColumnWidth(36),
     1: const pw.FlexColumnWidth(1),
-    2: const pw.FixedColumnWidth(48),
-    3: const pw.FixedColumnWidth(56),
+    2: const pw.FixedColumnWidth(72),
+    3: const pw.FixedColumnWidth(84),
   },
   headers: ['№', 'Материал', 'Кол-во', 'Ед.'],
   data: [
