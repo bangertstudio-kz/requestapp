@@ -658,6 +658,29 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String snackMaterialQuantityUpdated(String name, int quantity, String unit) {
+    return '$name · теперь $quantity $unit';
+  }
+
+  @override
+  String get duplicateTitle => 'Материал уже в заявке';
+
+  @override
+  String duplicateText(String name, int current, String unit) {
+    return '$name — сейчас $current $unit.';
+  }
+
+  @override
+  String duplicateAdd(int total, String unit) {
+    return 'Прибавить · будет $total $unit';
+  }
+
+  @override
+  String duplicateReplace(int quantity, String unit) {
+    return 'Заменить на $quantity $unit';
+  }
+
+  @override
   String get snackMaterialRemovedFromRequest => 'Материал удалён из заявки';
 
   @override

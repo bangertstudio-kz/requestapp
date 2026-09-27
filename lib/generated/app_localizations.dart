@@ -1102,6 +1102,36 @@ abstract class AppLocalizations {
   /// **'Материал заменён на {name}'**
   String snackMaterialReplaced(String name);
 
+  /// Материал уже был в заявке, и у позиции поменялось количество
+  ///
+  /// In ru, this message translates to:
+  /// **'{name} · теперь {quantity} {unit}'**
+  String snackMaterialQuantityUpdated(String name, int quantity, String unit);
+
+  /// No description provided for @duplicateTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Материал уже в заявке'**
+  String get duplicateTitle;
+
+  /// No description provided for @duplicateText.
+  ///
+  /// In ru, this message translates to:
+  /// **'{name} — сейчас {current} {unit}.'**
+  String duplicateText(String name, int current, String unit);
+
+  /// No description provided for @duplicateAdd.
+  ///
+  /// In ru, this message translates to:
+  /// **'Прибавить · будет {total} {unit}'**
+  String duplicateAdd(int total, String unit);
+
+  /// No description provided for @duplicateReplace.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить на {quantity} {unit}'**
+  String duplicateReplace(int quantity, String unit);
+
   /// No description provided for @snackMaterialRemovedFromRequest.
   ///
   /// In ru, this message translates to:

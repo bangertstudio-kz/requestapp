@@ -634,7 +634,7 @@ void main() {
     expect(find.text('КАТЕГОРИИ · 6'), findsOneWidget);
   });
 
-  testWidgets('подбор: после добавления экран остаётся, добавленное не теряется', (
+  testWidgets('подбор: экран остаётся, повторный материал не дублируется', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(412, 892) * 3;
@@ -668,8 +668,28 @@ void main() {
     expect(find.text('Поиск по материалам'), findsOneWidget);
     await add('Отвод ⌀40', '3');
 
-    // В заявке оба материала: второе добавление не затёрло первое.
-    // Сами строки ниже края экрана, поэтому считаем по подписи.
+    // Тот же материал ещё раз — шторка выбора вместо второй позиции.
+    await add('Отвод ⌀30', '3');
+    expect(find.text('Материал уже в заявке'), findsOneWidget);
+    // Отмена возвращает к количеству.
+    await tester.tap(find.text('Отмена'));
+    await _settle(tester);
+    expect(find.text('Добавить в заявку'), findsOneWidget);
+
+    await tester.tap(find.text('Добавить в заявку'));
+    await _settle(tester);
+    await tester.tap(find.text('Прибавить · будет 5 шт.'));
+    await _settle(tester);
+    expect(find.text('Отвод ⌀30 · теперь 5 шт.'), findsOneWidget);
+
+    await add('Отвод ⌀30', '7');
+    await tester.tap(find.text('Заменить на 7 шт.'));
+    await _settle(tester);
+    expect(find.text('Отвод ⌀30 · теперь 7 шт.'), findsOneWidget);
+
+    // В заявке два новых материала, не четыре: повторы не завели позиций,
+    // и второе добавление не затёрло первое. Сами строки ниже края
+    // экрана, поэтому считаем по подписи.
     await tester.tap(find.byIcon(Icons.arrow_back_ios_new).first);
     await _settle(tester);
     expect(find.text('МАТЕРИАЛЫ · 6'), findsOneWidget);

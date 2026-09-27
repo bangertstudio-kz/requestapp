@@ -15,6 +15,7 @@ import '../domain/entities/catalog_category.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/catalog_search_params.dart';
 import 'catalog_notifier.dart';
+import 'duplicate_item_sheet.dart';
 import 'item_pick_screen.dart';
 import 'item_search_notifier.dart';
 import 'item_unit_label.dart';
@@ -127,30 +128,68 @@ class _ItemPickPageState extends State<ItemPickPage> {
     final unit = itemUnitLabel(l10n, item.unit);
 
     final replaceId = widget.replaceItemId;
-    final updated = replaceId == null
-        ? request.withItems([
-            ...request.items,
-            RequestItem(
-              // Идентификатор позиции свой, не материала: один и тот же
-              // материал можно добавить дважды — например, на два стояка.
-              id: '${request.id}-${DateTime.now().microsecondsSinceEpoch}',
-              itemId: item.id,
-              name: item.name,
-              path: item.path,
-              quantity: quantity,
-              unit: item.unit,
-            ),
-          ])
-        : request.replacingItem(
-            RequestItem(
-              id: replaceId,
-              itemId: item.id,
-              name: item.name,
-              path: item.path,
-              quantity: quantity,
-              unit: item.unit,
-            ),
-          );
+
+    // Материал уже в заявке — вторую позицию не заводим, а спрашиваем,
+    // что сделать с количеством. Только при добавлении: замена работает
+    // с одной конкретной позицией, и её место человек уже выбрал.
+    final existing = replaceId == null
+        ? request.items.where((i) => i.itemId == item.id).firstOrNull
+        : null;
+    int? merged;
+    if (existing != null) {
+      final choice = await DuplicateItemSheet.show(
+        context,
+        name: item.name,
+        unit: unit,
+        current: existing.quantity,
+        quantity: quantity,
+      );
+      // Отмена оставляет шторку количества открытой: число можно поправить.
+      if (choice == null || !mounted) return;
+      merged = switch (choice) {
+        DuplicateChoice.add => existing.quantity + quantity,
+        DuplicateChoice.replace => quantity,
+      };
+    }
+
+    final MaterialRequest updated;
+    if (existing != null && merged != null) {
+      updated = request.replacingItem(
+        RequestItem(
+          id: existing.id,
+          itemId: existing.itemId,
+          name: existing.name,
+          path: existing.path,
+          quantity: merged,
+          unit: existing.unit,
+        ),
+      );
+    } else if (replaceId == null) {
+      updated = request.withItems([
+        ...request.items,
+        RequestItem(
+          // Идентификатор позиции свой, не материала: позиция живёт и
+          // тогда, когда материал удалили из справочника.
+          id: '${request.id}-${DateTime.now().microsecondsSinceEpoch}',
+          itemId: item.id,
+          name: item.name,
+          path: item.path,
+          quantity: quantity,
+          unit: item.unit,
+        ),
+      ]);
+    } else {
+      updated = request.replacingItem(
+        RequestItem(
+          id: replaceId,
+          itemId: item.id,
+          name: item.name,
+          path: item.path,
+          quantity: quantity,
+          unit: item.unit,
+        ),
+      );
+    }
 
     final saved = await notifier.run(UpdateRequestParams(updated));
     if (!mounted) return;
@@ -169,7 +208,11 @@ class _ItemPickPageState extends State<ItemPickPage> {
     // Добавление не закрывает экран: заявку набирают десятком позиций
     // подряд, и возвращаться в подбор после каждой — лишний круг.
     // Закрывается только шторка количества.
-    snack.show(l10n.snackMaterialAdded(item.name, quantity, unit));
+    snack.show(
+      merged == null
+          ? l10n.snackMaterialAdded(item.name, quantity, unit)
+          : l10n.snackMaterialQuantityUpdated(item.name, merged, unit),
+    );
     setState(() {
       _saved = saved;
       _selected = null;

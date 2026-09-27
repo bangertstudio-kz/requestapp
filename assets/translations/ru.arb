@@ -319,6 +319,38 @@
   "@snackMaterialReplaced": {
     "placeholders": { "name": { "type": "String" } }
   },
+  "snackMaterialQuantityUpdated": "{name} · теперь {quantity} {unit}",
+  "@snackMaterialQuantityUpdated": {
+    "description": "Материал уже был в заявке, и у позиции поменялось количество",
+    "placeholders": {
+      "name": { "type": "String" },
+      "quantity": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "duplicateTitle": "Материал уже в заявке",
+  "duplicateText": "{name} — сейчас {current} {unit}.",
+  "@duplicateText": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "current": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "duplicateAdd": "Прибавить · будет {total} {unit}",
+  "@duplicateAdd": {
+    "placeholders": {
+      "total": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
+  "duplicateReplace": "Заменить на {quantity} {unit}",
+  "@duplicateReplace": {
+    "placeholders": {
+      "quantity": { "type": "int" },
+      "unit": { "type": "String" }
+    }
+  },
   "snackMaterialRemovedFromRequest": "Материал удалён из заявки",
   "snackSavedToDevice": "Сохранено на устройство: XML и PDF",
   "snackSent": "Отправлено · {format}",
