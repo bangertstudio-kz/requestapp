@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request/core/database/app_database.dart';
@@ -182,6 +185,94 @@ void main() {
       expect(moved.items.map((i) => i.name), contains(screw.name));
     });
 
+    test('новый и перенесённый материал встают в конец категории', () async {
+      final cast = await at(['Канализация', 'Труба', 'Чугунная']);
+      await source.saveItem(
+        ItemDraft(
+          id: null,
+          name: 'Труба ⌀100/1000',
+          categoryId: cast.id,
+          unit: ItemUnit.piece,
+        ),
+      );
+      final screw = (await at(['Расходный материал'])).items.single;
+      await source.saveItem(
+        ItemDraft(
+          id: screw.id,
+          name: screw.name,
+          categoryId: cast.id,
+          unit: screw.unit,
+        ),
+      );
+
+      final items = (await at(['Канализация', 'Труба', 'Чугунная'])).items;
+      expect(items.map((i) => i.name), [
+        'Труба ⌀100/2000',
+        'Труба ⌀100/1000',
+        screw.name,
+      ]);
+      final positions = await (db.select(db.items)
+            ..where((i) => i.subcategoryId.equals(int.parse(cast.id)))
+            ..orderBy([(i) => OrderingTerm(expression: i.position)]))
+          .map((row) => row.position)
+          .get();
+      expect(positions, [0, 1, 2]);
+    });
+
+    test('материал читается по позиции, а не по идентификатору', () async {
+      final pipes = await at(['ППР', 'Труба']);
+      await source.saveItem(
+        ItemDraft(
+          id: null,
+          name: 'Труба ⌀32',
+          categoryId: pipes.id,
+          unit: ItemUnit.meter,
+        ),
+      );
+      // Перестановку сделает drag & drop; пока — прямо в базе.
+      await db.customStatement(
+        'UPDATE items SET position = 1 - position WHERE subcategory_id = ?',
+        [int.parse(pipes.id)],
+      );
+
+      final items = (await at(['ППР', 'Труба'])).items;
+      expect(items.map((i) => i.name), ['Труба ⌀32', 'Труба ⌀25']);
+    });
+
+    test('перестановка сохраняет порядок и не трогает чужие материалы', () async {
+      final pipes = await at(['ППР', 'Труба']);
+      for (final name in ['Труба ⌀32', 'Труба ⌀40']) {
+        await source.saveItem(
+          ItemDraft(
+            id: null,
+            name: name,
+            categoryId: pipes.id,
+            unit: ItemUnit.meter,
+          ),
+        );
+      }
+      final items = (await at(['ППР', 'Труба'])).items;
+      final stranger = (await at(['Расходный материал'])).items.single;
+
+      await source.reorderItems(pipes.id, [
+        items[2].id,
+        items[0].id,
+        items[1].id,
+        // Материал другой категории сюда не переезжает и не перенумеровывается.
+        stranger.id,
+      ]);
+
+      expect((await at(['ППР', 'Труба'])).items.map((i) => i.name), [
+        'Труба ⌀40',
+        'Труба ⌀25',
+        'Труба ⌀32',
+      ]);
+      expect(
+        (await at(['Расходный материал'])).items.single.id,
+        stranger.id,
+      );
+    });
+
     test('удаление категории уносит всё поддерево', () async {
       final drainage = await at(['Канализация']);
       await source.deleteCategory(drainage.id);
@@ -231,5 +322,30 @@ void main() {
         throwsA(isA<DescribedFailure>()),
       );
     });
+  });
+  test('миграция v1 → v2 нумерует материалы по порядку в категории', () async {
+    final dir = await Directory.systemTemp.createTemp('catalog_migration');
+    addTearDown(() => dir.delete(recursive: true));
+    final file = File('${dir.path}/db.sqlite');
+
+    // Базу v1 получаем из текущей: снимаем колонку и версию схемы.
+    final fresh = AppDatabase.executor(NativeDatabase(file));
+    await DriftCatalogLocalDataSource(fresh).replaceCatalog(catalogFixture());
+    await fresh.customStatement('ALTER TABLE items DROP COLUMN position');
+    await fresh.customStatement('PRAGMA user_version = 1');
+    await fresh.close();
+
+    final upgraded = AppDatabase.executor(NativeDatabase(file));
+    addTearDown(upgraded.close);
+    final rows = await (upgraded.select(upgraded.items)
+          ..orderBy([(i) => OrderingTerm(expression: i.id)]))
+        .get();
+    final bySubcategory = <int, List<int>>{};
+    for (final row in rows) {
+      (bySubcategory[row.subcategoryId] ??= []).add(row.position);
+    }
+    for (final positions in bySubcategory.values) {
+      expect(positions, [for (var i = 0; i < positions.length; i++) i]);
+    }
   });
 }

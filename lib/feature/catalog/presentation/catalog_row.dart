@@ -16,6 +16,7 @@ class CatalogRow extends StatelessWidget {
     required this.onOpen,
     required this.onEdit,
     required this.onRemove,
+    this.dragIndex,
   });
 
   final String name;
@@ -24,10 +25,16 @@ class CatalogRow extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onRemove;
 
+  /// Место строки в перетаскиваемом списке. Не `null` — слева ручка:
+  /// за неё строку тянут, а нажатие на саму строку по-прежнему открывает
+  /// запись, и прокрутка списка не превращается в перестановку.
+  final int? dragIndex;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final tokens = context.request;
+    final index = dragIndex;
 
     return AppCard(
       borderRadius: AppDimens.radiusControl,
@@ -40,6 +47,20 @@ class CatalogRow extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (index != null) ...[
+            ReorderableDragStartListener(
+              index: index,
+              child: Semantics(
+                label: l10n.actionReorder,
+                child: Icon(
+                  Icons.drag_indicator,
+                  size: 22,
+                  color: tokens.inkMuted,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppDimens.space8),
+          ],
           Expanded(
             child: InkWell(
               onTap: onOpen,

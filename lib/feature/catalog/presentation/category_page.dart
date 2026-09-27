@@ -19,6 +19,7 @@ import 'delete_category_notifier.dart';
 import 'delete_item_notifier.dart';
 import 'item_path_label.dart';
 import 'item_unit_label.dart';
+import 'reorder_items_notifier.dart';
 
 /// Содержимое категории: вложенные категории и материалы одним списком.
 ///
@@ -36,6 +37,12 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  /// Порядок после перетаскивания, пока справочник не перечитан.
+  ///
+  /// Без него строка на секунду отпрыгивает на старое место: экран рисует
+  /// дерево из нотифаера, а там ещё прежний порядок.
+  List<CatalogItem>? _reordered;
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +54,10 @@ class _CategoryPageState extends State<CategoryPage> {
     super.didUpdateWidget(oldWidget);
     // go_router переиспользует State при переходе с категории на вложенную:
     // тип виджета тот же, и initState больше не вызовут.
-    if (oldWidget.categoryId != widget.categoryId) _load();
+    if (oldWidget.categoryId != widget.categoryId) {
+      _reordered = null;
+      _load();
+    }
   }
 
   void _load() {
@@ -94,6 +104,37 @@ class _CategoryPageState extends State<CategoryPage> {
     _load();
   }
 
+  Future<void> _reorder(
+    CatalogCategory category,
+    List<CatalogItem> items,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    final ordered = [...items];
+    ordered.insert(newIndex, ordered.removeAt(oldIndex));
+    setState(() => _reordered = ordered);
+
+    final notifier = NotifierScope.read<ReorderItemsNotifier>(context);
+    final snack = NotifierScope.read<SnackNotifier>(context);
+    final catalog = NotifierScope.read<CatalogNotifier>(context);
+    await notifier.run(
+      ReorderItemsParams(
+        categoryId: category.id,
+        itemIds: [for (final item in ordered) item.id],
+      ),
+    );
+    if (!mounted) return;
+    final failure = notifier.failure;
+    if (failure != null) snack.show(failure);
+
+    await catalog.request(null);
+    // Перестановку, сделанную пока шло сохранение, не затираем:
+    // её сохранение ещё впереди и перечитает справочник само.
+    if (mounted && identical(_reordered, ordered)) {
+      setState(() => _reordered = null);
+    }
+  }
+
   Future<void> _deleteItem(CatalogItem item) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmSheet.show(
@@ -135,7 +176,7 @@ class _CategoryPageState extends State<CategoryPage> {
         // Сначала вложенные категории, потом материалы: папки выше файлов —
         // тот порядок, к которому человек привык у себя на компьютере.
         final children = category.categories;
-        final items = category.items;
+        final items = _reordered ?? category.items;
 
         return CatalogListScreen(
           title: category.name,
@@ -144,6 +185,12 @@ class _CategoryPageState extends State<CategoryPage> {
           onBack: () => Navigator.of(context).pop(),
           itemCount: children.length + items.length,
           emptyMessage: l10n.catalogInsideEmpty,
+          reorderFrom: children.length,
+          // Переставлять одну строку не с чем.
+          onReorder: items.length < 2
+              ? null
+              : (oldIndex, newIndex) =>
+                    _reorder(category, items, oldIndex, newIndex),
           itemBuilder: (context, index) {
             if (index < children.length) {
               final child = children[index];
@@ -170,6 +217,8 @@ class _CategoryPageState extends State<CategoryPage> {
 
             final item = items[index - children.length];
             return CatalogRow(
+              key: ValueKey(item.id),
+              dragIndex: items.length < 2 ? null : index - children.length,
               name: item.name,
               meta: itemUnitLabel(l10n, item.unit),
               onOpen: () =>

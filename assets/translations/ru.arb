@@ -16,6 +16,8 @@
   "@actionEditShort": { "description": "Кнопка правки в строке справочника; коротко, потому что стоит в одной строке с названием" },
   "actionRemove": "Удалить запись",
   "@actionRemove": { "description": "Подпись крестика удаления для скринридера" },
+  "actionReorder": "Перетащить, чтобы изменить порядок",
+  "@actionReorder": { "description": "Подпись ручки перетаскивания строки для скринридера" },
   "actionRetry": "Повторить",
   "actionBackspace": "Стереть",
   "@actionBackspace": { "description": "Подпись клавиши стирания на цифровой клавиатуре" },

@@ -154,6 +154,12 @@ abstract class AppLocalizations {
   /// **'Удалить запись'**
   String get actionRemove;
 
+  /// Подпись ручки перетаскивания строки для скринридера
+  ///
+  /// In ru, this message translates to:
+  /// **'Перетащить, чтобы изменить порядок'**
+  String get actionReorder;
+
   /// No description provided for @actionRetry.
   ///
   /// In ru, this message translates to:

@@ -18,6 +18,7 @@ import 'feature/catalog/presentation/delete_category_notifier.dart';
 import 'feature/catalog/presentation/delete_item_notifier.dart';
 import 'feature/catalog/presentation/item_search_notifier.dart';
 import 'feature/catalog/presentation/parse_import_notifier.dart';
+import 'feature/catalog/presentation/reorder_items_notifier.dart';
 import 'feature/catalog/presentation/save_category_notifier.dart';
 import 'feature/catalog/presentation/save_item_notifier.dart';
 import 'feature/requests/data/request_repository.dart';
@@ -91,6 +92,7 @@ class _AppState extends State<App> {
   late final _deleteCategory = DeleteCategoryNotifier(_catalogRepository);
   late final _saveItem = SaveItemNotifier(_catalogRepository);
   late final _deleteItem = DeleteItemNotifier(_catalogRepository);
+  late final _reorderItems = ReorderItemsNotifier(_catalogRepository);
   late final _parseImport = ParseImportNotifier(_catalogRepository);
   late final _applyImport = ApplyImportNotifier(_catalogRepository);
 
@@ -173,6 +175,10 @@ class _AppState extends State<App> {
       ),
       (child) => NotifierScope<DeleteItemNotifier>(
         controller: _deleteItem,
+        child: child,
+      ),
+      (child) => NotifierScope<ReorderItemsNotifier>(
+        controller: _reorderItems,
         child: child,
       ),
       (child) => NotifierScope<ParseImportNotifier>(

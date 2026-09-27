@@ -365,6 +365,65 @@ void main() {
     expect(find.text('Изм.'), findsNWidgets(2));
   });
 
+  testWidgets('category: материалы переставляются за ручку', (tester) async {
+    var order = ['Отвод ⌀50', 'Отвод ⌀100', 'Отвод ⌀110'];
+    (int, int)? reordered;
+    await _render(
+      tester,
+      StatefulBuilder(
+        builder: (context, setState) => CatalogListScreen(
+          title: _catalogTitle,
+          subtitle: _catalogSubtitle,
+          label: _catalogLabel,
+          // Одна вложенная ветка сверху — она не перетаскивается.
+          itemCount: 1 + order.length,
+          reorderFrom: 1,
+          onReorder: (oldIndex, newIndex) => setState(() {
+            reordered = (oldIndex, newIndex);
+            final next = [...order];
+            order = next..insert(newIndex, next.removeAt(oldIndex));
+          }),
+          itemBuilder: (context, index) => index == 0
+              ? CatalogRow(
+                  name: _categories.first.name,
+                  meta: _catalogRowMeta,
+                  onOpen: () {},
+                  onEdit: () {},
+                  onRemove: () {},
+                )
+              : CatalogRow(
+                  key: ValueKey(order[index - 1]),
+                  dragIndex: index - 1,
+                  name: order[index - 1],
+                  meta: _catalogRowMeta,
+                  onOpen: () {},
+                  onEdit: () {},
+                  onRemove: () {},
+                ),
+          emptyMessage: _catalogEmpty,
+          fabLabel: _catalogFab,
+          onFabPressed: () {},
+        ),
+      ),
+    );
+    // Ручки только у материалов.
+    expect(find.byIcon(Icons.drag_indicator), findsNWidgets(3));
+
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byIcon(Icons.drag_indicator).first),
+    );
+    for (var i = 0; i < 10; i++) {
+      await gesture.moveBy(const Offset(0, 20));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await gesture.up();
+    await _settle(tester);
+
+    expect(reordered?.$1, 0);
+    expect(reordered?.$2, 2);
+    expect(order, ['Отвод ⌀100', 'Отвод ⌀110', 'Отвод ⌀50']);
+  });
+
   testWidgets('name form', (tester) async {
     await _render(
       tester,

@@ -44,6 +44,10 @@ class DriftCatalogRepository implements CatalogRepository {
   Future<void> deleteItem(String id) => _local.deleteItem(id);
 
   @override
+  Future<void> reorderItems(String categoryId, List<String> itemIds) =>
+      _local.reorderItems(categoryId, itemIds);
+
+  @override
   Future<CatalogImport> parseImport(
     String filePath, {
     String? categoryId,

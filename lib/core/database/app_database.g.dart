@@ -603,6 +603,18 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -634,6 +646,7 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     unitId,
     name,
     nameLower,
+    position,
     createdAt,
     updatedAt,
   ];
@@ -687,6 +700,12 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
     } else if (isInserting) {
       context.missing(_nameLowerMeta);
     }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -728,6 +747,10 @@ class $ItemsTable extends Items with TableInfo<$ItemsTable, ItemRow> {
         DriftSqlType.string,
         data['${effectivePrefix}name_lower'],
       )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -759,6 +782,13 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
   /// уже готовые строки. Колонку заполняет `normalizedName` в слое data,
   /// единственным путём на запись.
   final String nameLower;
+
+  /// Порядок материала внутри своей категории, с нуля.
+  ///
+  /// Задаётся руками, а не выводится из идентификатора: материалы
+  /// переставляют перетаскиванием, и порядок строк прайса — только
+  /// начальное значение. Новый материал встаёт в конец категории.
+  final int position;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ItemRow({
@@ -767,6 +797,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     required this.unitId,
     required this.name,
     required this.nameLower,
+    required this.position,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -778,6 +809,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     map['unit_id'] = Variable<int>(unitId);
     map['name'] = Variable<String>(name);
     map['name_lower'] = Variable<String>(nameLower);
+    map['position'] = Variable<int>(position);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -790,6 +822,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       unitId: Value(unitId),
       name: Value(name),
       nameLower: Value(nameLower),
+      position: Value(position),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -806,6 +839,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       unitId: serializer.fromJson<int>(json['unitId']),
       name: serializer.fromJson<String>(json['name']),
       nameLower: serializer.fromJson<String>(json['nameLower']),
+      position: serializer.fromJson<int>(json['position']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -819,6 +853,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       'unitId': serializer.toJson<int>(unitId),
       'name': serializer.toJson<String>(name),
       'nameLower': serializer.toJson<String>(nameLower),
+      'position': serializer.toJson<int>(position),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -830,6 +865,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     int? unitId,
     String? name,
     String? nameLower,
+    int? position,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => ItemRow(
@@ -838,6 +874,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     unitId: unitId ?? this.unitId,
     name: name ?? this.name,
     nameLower: nameLower ?? this.nameLower,
+    position: position ?? this.position,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -850,6 +887,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
       unitId: data.unitId.present ? data.unitId.value : this.unitId,
       name: data.name.present ? data.name.value : this.name,
       nameLower: data.nameLower.present ? data.nameLower.value : this.nameLower,
+      position: data.position.present ? data.position.value : this.position,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -863,6 +901,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
           ..write('unitId: $unitId, ')
           ..write('name: $name, ')
           ..write('nameLower: $nameLower, ')
+          ..write('position: $position, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -876,6 +915,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
     unitId,
     name,
     nameLower,
+    position,
     createdAt,
     updatedAt,
   );
@@ -888,6 +928,7 @@ class ItemRow extends DataClass implements Insertable<ItemRow> {
           other.unitId == this.unitId &&
           other.name == this.name &&
           other.nameLower == this.nameLower &&
+          other.position == this.position &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -898,6 +939,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
   final Value<int> unitId;
   final Value<String> name;
   final Value<String> nameLower;
+  final Value<int> position;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const ItemsCompanion({
@@ -906,6 +948,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     this.unitId = const Value.absent(),
     this.name = const Value.absent(),
     this.nameLower = const Value.absent(),
+    this.position = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -915,6 +958,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     required int unitId,
     required String name,
     required String nameLower,
+    this.position = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : subcategoryId = Value(subcategoryId),
@@ -927,6 +971,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     Expression<int>? unitId,
     Expression<String>? name,
     Expression<String>? nameLower,
+    Expression<int>? position,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -936,6 +981,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
       if (unitId != null) 'unit_id': unitId,
       if (name != null) 'name': name,
       if (nameLower != null) 'name_lower': nameLower,
+      if (position != null) 'position': position,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -947,6 +993,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     Value<int>? unitId,
     Value<String>? name,
     Value<String>? nameLower,
+    Value<int>? position,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -956,6 +1003,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
       unitId: unitId ?? this.unitId,
       name: name ?? this.name,
       nameLower: nameLower ?? this.nameLower,
+      position: position ?? this.position,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -979,6 +1027,9 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
     if (nameLower.present) {
       map['name_lower'] = Variable<String>(nameLower.value);
     }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -996,6 +1047,7 @@ class ItemsCompanion extends UpdateCompanion<ItemRow> {
           ..write('unitId: $unitId, ')
           ..write('name: $name, ')
           ..write('nameLower: $nameLower, ')
+          ..write('position: $position, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3141,6 +3193,7 @@ typedef $$ItemsTableCreateCompanionBuilder =
       required int unitId,
       required String name,
       required String nameLower,
+      Value<int> position,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -3151,6 +3204,7 @@ typedef $$ItemsTableUpdateCompanionBuilder =
       Value<int> unitId,
       Value<String> name,
       Value<String> nameLower,
+      Value<int> position,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -3232,6 +3286,11 @@ class $$ItemsTableFilterComposer extends Composer<_$AppDatabase, $ItemsTable> {
 
   ColumnFilters<String> get nameLower => $composableBuilder(
     column: $table.nameLower,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3341,6 +3400,11 @@ class $$ItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3415,6 +3479,9 @@ class $$ItemsTableAnnotationComposer
 
   GeneratedColumn<String> get nameLower =>
       $composableBuilder(column: $table.nameLower, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -3531,6 +3598,7 @@ class $$ItemsTableTableManager
                 Value<int> unitId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String> nameLower = const Value.absent(),
+                Value<int> position = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ItemsCompanion(
@@ -3539,6 +3607,7 @@ class $$ItemsTableTableManager
                 unitId: unitId,
                 name: name,
                 nameLower: nameLower,
+                position: position,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -3549,6 +3618,7 @@ class $$ItemsTableTableManager
                 required int unitId,
                 required String name,
                 required String nameLower,
+                Value<int> position = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ItemsCompanion.insert(
@@ -3557,6 +3627,7 @@ class $$ItemsTableTableManager
                 unitId: unitId,
                 name: name,
                 nameLower: nameLower,
+                position: position,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

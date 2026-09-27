@@ -43,6 +43,10 @@ abstract interface class CatalogLocalDataSource {
 
   Future<void> deleteItem(String id);
 
+  /// Проставляет материалам категории позиции по порядку в [itemIds].
+  /// Материалы из других категорий не трогает.
+  Future<void> reorderItems(String categoryId, List<String> itemIds);
+
   /// Заменяет справочник целиком одной транзакцией и возвращает число
   /// записанных материалов. Наполовину заменённый справочник — состояние,
   /// в котором приложение не должно оказываться даже на секунду.

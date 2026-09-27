@@ -35,6 +35,21 @@ void main() {
     expect(updated.length, pipes.items.length);
   });
 
+  test('перестановка материалов меняет только их порядок', () async {
+    final repository = MockCatalogRepository();
+    final pipes = _byName(await repository.categories(), 'Канализация')
+        .categories
+        .first;
+    final reversed = [for (final item in pipes.items.reversed) item.id];
+
+    await repository.reorderItems(pipes.id, reversed);
+
+    final after = _byName(await repository.categories(), 'Канализация')
+        .categories
+        .first;
+    expect([for (final item in after.items) item.id], reversed);
+  });
+
   test('перенос материала в другую категорию убирает его из старой', () async {
     final repository = MockCatalogRepository();
     final before = await repository.categories();

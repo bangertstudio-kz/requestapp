@@ -39,6 +39,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get actionRemove => 'Удалить запись';
 
   @override
+  String get actionReorder => 'Перетащить, чтобы изменить порядок';
+
+  @override
   String get actionRetry => 'Повторить';
 
   @override

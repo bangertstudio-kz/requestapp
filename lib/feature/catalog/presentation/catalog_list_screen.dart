@@ -27,6 +27,8 @@ class CatalogListScreen extends StatelessWidget {
     this.tab,
     this.onTabSelected,
     this.onBack,
+    this.reorderFrom = 0,
+    this.onReorder,
   });
 
   final String title;
@@ -55,6 +57,15 @@ class CatalogListScreen extends StatelessWidget {
   final ValueChanged<CatalogTab>? onTabSelected;
 
   final VoidCallback? onBack;
+
+  /// Строки с этого индекса и до конца перетаскиваются, если задан
+  /// [onReorder]. Хвост, а не весь список: внутри категории вложенные ветки
+  /// стоят выше материалов, и переставлять можно только материалы между собой.
+  final int reorderFrom;
+
+  /// Индексы — внутри перетаскиваемого хвоста; `newIndex` — сразу место
+  /// в итоговом списке, с поправкой на убранную строку.
+  final void Function(int oldIndex, int newIndex)? onReorder;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +141,8 @@ class CatalogListScreen extends StatelessWidget {
                           child: AppEmptyState(message: emptyMessage),
                         ),
                       )
-                    : ListView.separated(
+                    : onReorder == null
+                    ? ListView.separated(
                         padding: const EdgeInsets.fromLTRB(
                           AppDimens.screenPadding,
                           0,
@@ -141,12 +153,70 @@ class CatalogListScreen extends StatelessWidget {
                         separatorBuilder: (_, _) =>
                             const SizedBox(height: AppDimens.space8),
                         itemBuilder: itemBuilder,
-                      ),
+                      )
+                    : _reorderable(context),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// Неподвижная голова и перетаскиваемый хвост в одной прокрутке.
+  /// Промежуток — отступом под строкой, а не разделителем: у
+  /// [SliverReorderableList] разделителей нет, а поднятая строка должна
+  /// ехать вместе со своим промежутком.
+  Widget _reorderable(BuildContext context) {
+    final onReorder = this.onReorder!;
+    final tokens = context.request;
+
+    Widget spaced(Widget? row, {Key? key}) => Padding(
+      key: key,
+      padding: const EdgeInsets.only(bottom: AppDimens.space8),
+      child: row,
+    );
+
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDimens.screenPadding,
+          ),
+          sliver: SliverList.builder(
+            itemCount: reorderFrom,
+            itemBuilder: (context, index) =>
+                spaced(itemBuilder(context, index)),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppDimens.screenPadding,
+            0,
+            AppDimens.screenPadding,
+            130,
+          ),
+          sliver: SliverReorderableList(
+            itemCount: itemCount - reorderFrom,
+            // Ключ строки — ключ виджета, который вернул itemBuilder:
+            // по нему список узнаёт строку после перестановки.
+            itemBuilder: (context, index) {
+              final row = itemBuilder(context, reorderFrom + index);
+              return spaced(row, key: row?.key ?? ValueKey(index));
+            },
+            onReorderItem: onReorder,
+            // Поднятая строка отбрасывает тень: без неё она не отличается
+            // от лежащих и непонятно, что именно едет под пальцем.
+            proxyDecorator: (child, index, animation) => Material(
+              color: Colors.transparent,
+              elevation: 6,
+              shadowColor: tokens.ink.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(AppDimens.radiusControl),
+              child: child,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

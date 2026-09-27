@@ -23,6 +23,14 @@ class SaveItemParams extends Params {
   final ItemDraft draft;
 }
 
+/// Новый порядок материалов категории — весь список целиком.
+class ReorderItemsParams extends Params {
+  const ReorderItemsParams({required this.categoryId, required this.itemIds});
+
+  final String categoryId;
+  final List<String> itemIds;
+}
+
 /// Удаление записи справочника любого уровня.
 class CatalogEntryParams extends Params {
   const CatalogEntryParams(this.id);

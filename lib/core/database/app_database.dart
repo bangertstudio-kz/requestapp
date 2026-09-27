@@ -30,13 +30,26 @@ class AppDatabase extends _$AppDatabase {
   static const _fileName = 'request';
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
       await _seedUnits();
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // v2: ручной порядок материалов. Существующие получают позицию
+        // по идентификатору — тот порядок, который экран показывал до сих пор.
+        await m.addColumn(items, items.position);
+        await customStatement(
+          'UPDATE items SET position = ('
+          'SELECT COUNT(*) FROM items AS earlier '
+          'WHERE earlier.subcategory_id = items.subcategory_id '
+          'AND earlier.id < items.id)',
+        );
+      }
     },
     beforeOpen: (details) async {
       // Без этого `ON DELETE SET NULL` и каскады не работают: SQLite

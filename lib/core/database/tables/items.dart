@@ -30,6 +30,13 @@ class Items extends Table {
   /// единственным путём на запись.
   TextColumn get nameLower => text()();
 
+  /// Порядок материала внутри своей категории, с нуля.
+  ///
+  /// Задаётся руками, а не выводится из идентификатора: материалы
+  /// переставляют перетаскиванием, и порядок строк прайса — только
+  /// начальное значение. Новый материал встаёт в конец категории.
+  IntColumn get position => integer().withDefault(const Constant(0))();
+
   DateTimeColumn get createdAt =>
       dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt =>

@@ -210,6 +210,30 @@ class MockCatalogRepository implements CatalogRepository {
   Future<void> deleteItem(String id) =>
       _delayed(() => _leaves.removeWhere((leaf) => leaf.id == id));
 
+  /// Порядок в моке — порядок в общем списке. Материалы категории
+  /// раскладываются по тем же местам списка, которые занимали: чужие
+  /// материалы между ними не сдвигаются.
+  @override
+  Future<void> reorderItems(String categoryId, List<String> itemIds) =>
+      _delayed(() {
+        final slots = [
+          for (final (index, leaf) in _leaves.indexed)
+            if (leaf.categoryId == categoryId) index,
+        ];
+        final byId = {
+          for (final slot in slots) _leaves[slot].id: _leaves[slot],
+        };
+        final ordered = [for (final id in itemIds) ?byId[id]];
+        if (ordered.length != slots.length) {
+          throw const DescribedFailure(
+            'Список материалов устарел. Обновите экран.',
+          );
+        }
+        for (final (i, slot) in slots.indexed) {
+          _leaves[slot] = ordered[i];
+        }
+      });
+
   @override
   Future<CatalogImport> parseImport(
     String filePath, {

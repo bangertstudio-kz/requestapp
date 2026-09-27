@@ -123,16 +123,28 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
               unitId: unitIdOf(draft.unit),
               name: draft.name,
               nameLower: normalizedName(draft.name),
+              position: Value(await _nextPosition(categoryId)),
             ),
           );
       return;
     }
 
+    final itemId = _itemId(id);
+    final current =
+        await (_db.select(_db.items)..where((i) => i.id.equals(itemId)))
+            .getSingleOrNull();
+    if (current == null) throw _itemNotFound;
+
     final updated =
-        await (_db.update(_db.items)..where((i) => i.id.equals(_itemId(id))))
+        await (_db.update(_db.items)..where((i) => i.id.equals(itemId)))
             .write(
               ItemsCompanion(
                 subcategoryId: Value(categoryId),
+                // Перенесённый материал встаёт в конец новой категории:
+                // его старая позиция там ничего не значит.
+                position: current.subcategoryId == categoryId
+                    ? const Value.absent()
+                    : Value(await _nextPosition(categoryId)),
                 unitId: Value(unitIdOf(draft.unit)),
                 name: Value(draft.name),
                 nameLower: Value(normalizedName(draft.name)),
@@ -145,6 +157,20 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
   @override
   Future<void> deleteItem(String id) async {
     await (_db.delete(_db.items)..where((i) => i.id.equals(_itemId(id)))).go();
+  }
+
+  @override
+  Future<void> reorderItems(String categoryId, List<String> itemIds) async {
+    final category = _categoryId(categoryId);
+    await _db.transaction(() async {
+      for (final (position, id) in itemIds.indexed) {
+        await (_db.update(_db.items)..where(
+              (i) =>
+                  i.id.equals(_itemId(id)) & i.subcategoryId.equals(category),
+            ))
+            .write(ItemsCompanion(position: Value(position)));
+      }
+    });
   }
 
   @override
@@ -165,7 +191,7 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
                   parentId: Value(parentId),
                 ),
               );
-          for (final item in category.items) {
+          for (final (position, item) in category.items.indexed) {
             await _db
                 .into(_db.items)
                 .insert(
@@ -174,6 +200,7 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
                     unitId: unitIdOf(item.unit),
                     name: item.name,
                     nameLower: normalizedName(item.name),
+                    position: Value(position),
                   ),
                 );
             written++;
@@ -230,6 +257,7 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
                     unitId: unitIdOf(row.unit),
                     name: row.name,
                     nameLower: normalizedName(row.name),
+                    position: Value(await _nextPosition(parentId)),
                   ),
                 );
           } else {
@@ -259,6 +287,18 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
     return (await query.getSingleOrNull())?.id;
   }
 
+  /// Позиция после последнего материала категории.
+  Future<int> _nextPosition(int categoryId) async {
+    final last = _db.items.position.max();
+    final row =
+        await (_db.selectOnly(_db.items)
+              ..addColumns([last])
+              ..where(_db.items.subcategoryId.equals(categoryId)))
+            .getSingle();
+    final value = row.read(last);
+    return value == null ? 0 : value + 1;
+  }
+
   Future<int?> _itemByName(String name, int? categoryId) async {
     if (categoryId == null) return null;
     final row =
@@ -274,10 +314,10 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
 
   /// Дерево и материалы одним чтением.
   ///
-  /// Порядок — по идентификатору, а не по имени: он повторяет порядок строк
-  /// прайса, где типоразмеры идут по возрастанию. Сортировка по названию
-  /// поставила бы «⌀100» перед «⌀40» — строки сравниваются посимвольно,
-  /// и для человека, ищущего трубу, это случайный порядок.
+  /// Порядок не по имени: сортировка по названию поставила бы «⌀100» перед
+  /// «⌀40» — строки сравниваются посимвольно, и для человека, ищущего трубу,
+  /// это случайный порядок. Категории — по идентификатору, то есть по строкам
+  /// прайса; материалы — по ручной позиции, а при равной — тоже по нему.
   Future<_CategoryTree> _readTree() async {
     final categoryRows =
         await (_db.select(_db.categories)
@@ -285,7 +325,10 @@ class DriftCatalogLocalDataSource implements CatalogLocalDataSource {
             .get();
     final itemRows =
         await (_db.select(_db.items)
-              ..orderBy([(i) => OrderingTerm(expression: i.id)]))
+              ..orderBy([
+                (i) => OrderingTerm(expression: i.position),
+                (i) => OrderingTerm(expression: i.id),
+              ]))
             .get();
     return _CategoryTree(categoryRows, itemRows);
   }
