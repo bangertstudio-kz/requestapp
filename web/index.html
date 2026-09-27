@@ -32,6 +32,29 @@
   <title>Заявки на материалы</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#23558F">
+
+  <!--
+    Изоляция страницы для SQLite в OPFS: заголовки ставит coi-serviceworker.js.
+    Первый заход регистрирует воркер и один раз перезагружает страницу — до
+    этого ответы пришли без его заголовков. Флаг в sessionStorage не даёт
+    зациклиться там, где изоляция невозможна (Safari, приватные окна).
+  -->
+  <script>
+    if (!window.crossOriginIsolated && window.isSecureContext && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('coi-serviceworker.js').then((registration) => {
+        if (sessionStorage.getItem('coiReloaded')) return;
+        const reload = () => {
+          sessionStorage.setItem('coiReloaded', '1');
+          window.location.reload();
+        };
+        if (registration.active && !navigator.serviceWorker.controller) {
+          reload();
+        } else {
+          navigator.serviceWorker.addEventListener('controllerchange', reload, { once: true });
+        }
+      });
+    }
+  </script>
 </head>
 <body>
   <!--

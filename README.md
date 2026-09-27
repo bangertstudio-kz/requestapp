@@ -69,6 +69,18 @@ flutter build web --release    # статика в build/web
   должен отдавать с типом `application/wasm`.
 - «Поделиться» в браузере без Web Share API скачивает файл, «Сохранить на
   устройство» — тоже загрузка.
+- Файл базы хранится в OPFS, если страница изолирована (COOP/COEP): тогда
+  есть `SharedArrayBuffer`. Заголовки ставит `web/coi-serviceworker.js` —
+  на хостинге, где их не задать (GitHub Pages). Первый заход один раз
+  перезагружает страницу. Без изоляции (Safari) drift сам уходит в
+  IndexedDB — медленнее, но работает.
+
+### GitHub Pages
+
+`.github/workflows/pages.yml` собирает и выкладывает сайт на каждый push
+в `main` (и вручную из вкладки Actions). Один раз включить: Settings →
+Pages → Source: **GitHub Actions**. Сайт — `https://<owner>.github.io/<repo>/`;
+глубокие ссылки работают через копию `index.html` в `404.html`.
 
 ## Проверки
 
