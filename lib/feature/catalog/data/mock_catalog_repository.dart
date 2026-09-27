@@ -1,9 +1,8 @@
-import 'dart:io';
-
-import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 
 import '../../../core/domain/described_exception.dart';
 import '../domain/entities/catalog_category.dart';
+import '../domain/entities/catalog_export.dart';
 import '../domain/entities/catalog_import.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/item_draft.dart';
@@ -214,12 +213,8 @@ class MockCatalogRepository implements CatalogRepository {
       _delayed(() => _leaves.removeWhere((leaf) => leaf.id == id));
 
   @override
-  Future<String> exportCatalog({String? categoryId}) async =>
-      writeCatalogXlsx(
-        _tree(null),
-        categoryId: categoryId,
-        directory: await getTemporaryDirectory(),
-      );
+  Future<CatalogExport> exportCatalog({String? categoryId}) =>
+      _delayed(() => buildCatalogExport(_tree(null), categoryId: categoryId));
 
   /// Порядок в моке — порядок в общем списке. Материалы категории
   /// раскладываются по тем же местам списка, которые занимали: чужие
@@ -247,14 +242,11 @@ class MockCatalogRepository implements CatalogRepository {
 
   @override
   Future<CatalogImport> parseImport(
-    String filePath, {
+    Uint8List bytes, {
+    required String fileName,
     String? categoryId,
   }) => _delayed(() {
-    final file = File(filePath);
-    if (!file.existsSync()) {
-      throw const DescribedFailure('Файл не найден. Выберите его заново.');
-    }
-    final parsed = parseImportFile(file.readAsBytesSync());
+    final parsed = parseImportFile(bytes);
 
     final rows = categoryId == null
         ? [
@@ -273,7 +265,7 @@ class MockCatalogRepository implements CatalogRepository {
 
     return CatalogImport(
       summary: summarizeImport(
-        fileName: file.uri.pathSegments.last,
+        fileName: fileName,
         categories: categories,
         target: target,
         rows: rows,

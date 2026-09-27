@@ -20,7 +20,21 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   /// Боевая база на устройстве.
-  AppDatabase() : super(driftDatabase(name: _fileName));
+  ///
+  /// В браузере та же SQLite, собранная в WebAssembly: `sqlite3.wasm` и
+  /// `drift_worker.js` лежат в `web/` и обновляются вместе с пакетами
+  /// `sqlite3` и `drift` — версии файлов должны совпадать с версиями
+  /// пакетов в pubspec.lock.
+  AppDatabase()
+    : super(
+        driftDatabase(
+          name: _fileName,
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
+        ),
+      );
 
   /// База для тестов: `AppDatabase.executor(NativeDatabase.memory())`.
   /// Отдельный конструктор, а не nullable-аргумент, чтобы в боевом коде

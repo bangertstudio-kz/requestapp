@@ -1,8 +1,7 @@
 import '../../../core/domain/described_exception.dart';
 import '../domain/entities/catalog_category.dart';
-import 'dart:io';
-
-import 'package:path_provider/path_provider.dart';
+import '../domain/entities/catalog_export.dart';
+import 'dart:typed_data';
 
 import '../domain/entities/catalog_import.dart';
 import '../domain/entities/catalog_item.dart';
@@ -51,23 +50,16 @@ class DriftCatalogRepository implements CatalogRepository {
       _local.reorderItems(categoryId, itemIds);
 
   @override
-  Future<String> exportCatalog({String? categoryId}) async =>
-      writeCatalogXlsx(
-        await _local.categories(),
-        categoryId: categoryId,
-        directory: await getTemporaryDirectory(),
-      );
+  Future<CatalogExport> exportCatalog({String? categoryId}) async =>
+      buildCatalogExport(await _local.categories(), categoryId: categoryId);
 
   @override
   Future<CatalogImport> parseImport(
-    String filePath, {
+    Uint8List bytes, {
+    required String fileName,
     String? categoryId,
   }) async {
-    final file = File(filePath);
-    if (!await file.exists()) {
-      throw const DescribedFailure('Файл не найден. Выберите его заново.');
-    }
-    final parsed = parseImportFile(await file.readAsBytes());
+    final parsed = parseImportFile(bytes);
 
     // В корне справочника материалу лежать негде — там только категории.
     // Строки без пути отсеиваются здесь, один раз: иначе отчёт и запись
@@ -88,7 +80,7 @@ class DriftCatalogRepository implements CatalogRepository {
 
     return CatalogImport(
       summary: summarizeImport(
-        fileName: file.uri.pathSegments.last,
+        fileName: fileName,
         categories: categories,
         target: target,
         rows: rows,

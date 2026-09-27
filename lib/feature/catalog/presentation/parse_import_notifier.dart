@@ -12,5 +12,9 @@ class ParseImportNotifier
 
   @override
   Future<CatalogImport> fetch(ParseImportParams params) =>
-      _repository.parseImport(params.filePath, categoryId: params.categoryId);
+      _repository.parseImport(
+        params.bytes,
+        fileName: params.fileName,
+        categoryId: params.categoryId,
+      );
 }

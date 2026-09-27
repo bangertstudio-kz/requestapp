@@ -73,6 +73,7 @@ class CatalogListScreen extends StatelessWidget {
     final currentTab = tab;
 
     return Scaffold(
+      floatingActionButtonLocation: ContentColumn.fabLocation,
       floatingActionButton: AppFab(label: fabLabel, onPressed: onFabPressed),
       body: SafeArea(
         bottom: false,

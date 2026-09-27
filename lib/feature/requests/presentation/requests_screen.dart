@@ -65,6 +65,7 @@ class RequestsScreen extends StatelessWidget {
     final title = currentFolder?.name ?? l10n.requestsTitle;
 
     return Scaffold(
+      floatingActionButtonLocation: ContentColumn.fabLocation,
       floatingActionButton: AppFab(
         label: l10n.requestsCreate,
         onPressed: onRequestCreate,

@@ -54,7 +54,14 @@ class _RequestPreviewPageState extends State<RequestPreviewPage> {
       ShareParams(
         files: [
           for (final document in documents)
-            XFile(document.path, name: document.name),
+            // Из памяти, а не с диска: в браузере диска нет, а на телефоне
+            // share_plus сам положит файл туда, откуда его заберёт
+            // выбранное приложение.
+            XFile.fromData(
+              document.bytes,
+              name: document.name,
+              mimeType: document.mimeType,
+            ),
         ],
         // Тема письма: название заявки, а если экран открыли по ссылке
         // и его нет — имя файла. Пустая тема хуже транслитерации.

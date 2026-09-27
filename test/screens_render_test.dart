@@ -1,5 +1,5 @@
 // Временная проверка вёрстки: рендерим каждый экран и ловим overflow.
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -235,23 +235,14 @@ void main() {
   });
 
   testWidgets('request preview: excel', (tester) async {
-    // Экран читает книгу с диска, поэтому и файл настоящий. PDF здесь не
-    // проверяем: его отрисовка идёт через плагин печати, которого
+    // Экран читает настоящую книгу — ту, что собрал бы для отправки. PDF
+    // здесь не проверяем: его отрисовка идёт через плагин печати, которого
     // в тестовом окружении нет.
-    //
-    // Всё — внутри `runAsync`, включая построение виджета. В обычном теле
-    // `testWidgets` время поддельное, и `Future` от dart:io не завершается:
-    // экран навсегда остаётся на спиннере, а тест висит до таймаута.
     tester.view.physicalSize = const Size(412, 892) * 3;
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
-    late final Directory directory;
     await tester.runAsync(() async {
-      directory = await Directory.systemTemp.createTemp('preview');
-      final file = File('${directory.path}/$_previewFileName');
-      await file.writeAsBytes(requestToXlsx(_request));
-
       await tester.pumpWidget(
         _host(
           RequestPreviewScreen(
@@ -260,8 +251,7 @@ void main() {
               RequestDocument(
                 format: DocumentFormat.xlsx,
                 name: _previewFileName,
-                path: file.path,
-                sizeBytes: await file.length(),
+                bytes: Uint8List.fromList(requestToXlsx(_request)),
               ),
             ],
             onShare: () {},
@@ -271,7 +261,6 @@ void main() {
       );
       await Future<void>.delayed(const Duration(milliseconds: 200));
     });
-    addTearDown(() => directory.deleteSync(recursive: true));
 
     await _settle(tester);
 

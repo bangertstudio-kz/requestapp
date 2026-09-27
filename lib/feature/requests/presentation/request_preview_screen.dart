@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -110,8 +109,8 @@ class _RequestPreviewScreenState extends State<RequestPreviewScreen> {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: switch (document.format) {
-                    DocumentFormat.xlsx => _SheetPreview(path: document.path),
-                    DocumentFormat.pdf => _PdfPreview(path: document.path),
+                    DocumentFormat.xlsx => _SheetPreview(bytes: document.bytes),
+                    DocumentFormat.pdf => _PdfPreview(bytes: document.bytes),
                   },
                 ),
               ),
@@ -196,9 +195,9 @@ class _DocumentRow extends StatelessWidget {
 /// показывать то, что уйдёт. Вторая сборка тех же данных однажды разойдётся
 /// с первой, и разойдётся молча.
 class _SheetPreview extends StatefulWidget {
-  const _SheetPreview({required this.path});
+  const _SheetPreview({required this.bytes});
 
-  final String path;
+  final Uint8List bytes;
 
   @override
   State<_SheetPreview> createState() => _SheetPreviewState();
@@ -207,8 +206,7 @@ class _SheetPreview extends StatefulWidget {
 class _SheetPreviewState extends State<_SheetPreview> {
   late final Future<List<List<String>>> _rows = _read();
 
-  Future<List<List<String>>> _read() async =>
-      readXlsxRows(await File(widget.path).readAsBytes());
+  Future<List<List<String>>> _read() async => readXlsxRows(widget.bytes);
 
   @override
   Widget build(BuildContext context) {
@@ -269,9 +267,9 @@ class _SheetPreviewState extends State<_SheetPreview> {
 /// Не встроенный просмотрщик: у него своя панель и своя кнопка «поделиться»
 /// рядом с нашей, а проверить документ перед отправкой хватает картинок.
 class _PdfPreview extends StatefulWidget {
-  const _PdfPreview({required this.path});
+  const _PdfPreview({required this.bytes});
 
-  final String path;
+  final Uint8List bytes;
 
   @override
   State<_PdfPreview> createState() => _PdfPreviewState();
@@ -281,9 +279,8 @@ class _PdfPreviewState extends State<_PdfPreview> {
   late final Future<List<Uint8List>> _pages = _rasterize();
 
   Future<List<Uint8List>> _rasterize() async {
-    final bytes = await File(widget.path).readAsBytes();
     final pages = <Uint8List>[];
-    await for (final page in Printing.raster(bytes, dpi: 96)) {
+    await for (final page in Printing.raster(widget.bytes, dpi: 96)) {
       pages.add(await page.toPng());
     }
     return pages;

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 /// Ограничивает контент по ширине и центрирует его.
 ///
@@ -16,6 +16,13 @@ class ContentColumn extends StatelessWidget {
   /// так же, как на телефоне, а не растягивается в таблицу, которой нет.
   static const double defaultMaxWidth = 560;
 
+  /// Место плавающей кнопки: правый край колонки, а не окна.
+  ///
+  /// На широком окне кнопка у края экрана оказывается в полуметре от
+  /// списка, к которому относится, — её ищут взглядом. На телефоне колонка
+  /// во всю ширину, и место совпадает со стандартным.
+  static const FloatingActionButtonLocation fabLocation = _ColumnEndFab();
+
   final Widget child;
   final double maxWidth;
 
@@ -32,4 +39,19 @@ class ContentColumn extends StatelessWidget {
       child: child,
     ),
   );
+}
+
+class _ColumnEndFab extends FloatingActionButtonLocation {
+  const _ColumnEndFab();
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final standard = FloatingActionButtonLocation.endFloat.getOffset(
+      scaffoldGeometry,
+    );
+    final margin =
+        (scaffoldGeometry.scaffoldSize.width - ContentColumn.defaultMaxWidth) /
+        2;
+    return margin > 0 ? standard.translate(-margin, 0) : standard;
+  }
 }

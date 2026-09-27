@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import '../domain/entities/catalog_category.dart';
+import '../domain/entities/catalog_export.dart';
 import '../domain/entities/catalog_import.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/item_draft.dart';
@@ -44,14 +47,19 @@ abstract interface class CatalogRepository {
   Future<void> reorderItems(String categoryId, List<String> itemIds);
 
   /// Выгружает справочник (`categoryId == null`) или одну ветку в книгу
-  /// Excel во временный каталог и возвращает путь к файлу. Формат тот же,
-  /// что принимает [parseImport].
-  Future<String> exportCatalog({String? categoryId});
+  /// Excel. Формат тот же, что принимает [parseImport].
+  Future<CatalogExport> exportCatalog({String? categoryId});
 
   /// Разбирает файл и считает, что даст импорт в [categoryId]
   /// (`null` — в корень справочника). Справочник при этом не трогает:
   /// пользователь должен увидеть цифры до того, как согласится.
-  Future<CatalogImport> parseImport(String filePath, {String? categoryId});
+  ///
+  /// Байты, а не путь: в браузере у выбранного файла пути нет.
+  Future<CatalogImport> parseImport(
+    Uint8List bytes, {
+    required String fileName,
+    String? categoryId,
+  });
 
   /// Вливает разобранный файл в справочник. Возвращает число материалов.
   ///

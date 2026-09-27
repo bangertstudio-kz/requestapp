@@ -51,6 +51,25 @@ flutter run                                   # приложение на мок
 cd packages/request_ui/example && flutter run  # галерея дизайн-системы
 ```
 
+## Веб
+
+```sh
+flutter run -d chrome          # в браузере
+flutter build web --release    # статика в build/web
+```
+
+- Адреса без `#` (`/requests/detail/7`), поэтому сервер должен отдавать
+  `index.html` на любой неизвестный путь — иначе обновление страницы
+  в глубине даёт 404.
+- База — та же SQLite в WebAssembly: `web/sqlite3.wasm` и
+  `web/drift_worker.js`. При обновлении пакетов `sqlite3` и `drift` их
+  нужно скачать заново под новые версии из релизов
+  [sqlite3.dart](https://github.com/simolus3/sqlite3.dart/releases) и
+  [drift](https://github.com/simolus3/drift/releases). `.wasm` сервер
+  должен отдавать с типом `application/wasm`.
+- «Поделиться» в браузере без Web Share API скачивает файл, «Сохранить на
+  устройство» — тоже загрузка.
+
 ## Проверки
 
 ```sh

@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:request/feature/catalog/domain/entities/item_unit.dart';
 import 'package:request/feature/requests/data/request_documents.dart';
 import 'package:request/feature/requests/data/request_pdf.dart';
 import 'package:request/feature/requests/data/request_xlsx.dart';
 import 'package:request/feature/requests/domain/entities/material_request.dart';
-import 'package:request/feature/requests/domain/entities/request_document.dart';
 import 'package:request/feature/requests/domain/entities/request_item.dart';
 import 'package:request/feature/requests/domain/entities/request_status.dart';
 import 'package:request/feature/requests/domain/entities/send_format.dart';
@@ -120,22 +117,14 @@ void main() {
   });
 
   group('файлы', () {
-    late Directory temporary;
-    late Directory documents;
+    final saved = <String, int>{};
     late FileRequestDocuments builder;
 
-    setUp(() async {
-      temporary = await Directory.systemTemp.createTemp('request-temp');
-      documents = await Directory.systemTemp.createTemp('request-docs');
+    setUp(() {
+      saved.clear();
       builder = FileRequestDocuments(
-        temporaryDirectory: () async => temporary,
-        documentsDirectory: () async => documents,
+        saveFile: (name, bytes) async => saved[name] = bytes.length,
       );
-    });
-
-    tearDown(() async {
-      await temporary.delete(recursive: true);
-      await documents.delete(recursive: true);
     });
 
     test('формат решает, сколько файлов собрать', () async {
@@ -144,16 +133,19 @@ void main() {
       expect(await builder.build(request, SendFormat.both), hasLength(2));
     });
 
-    test('отправка кладёт во временный каталог, сохранение — в документы',
+    test('сборка для отправки ничего не сохраняет, сохранение — оба файла',
         () async {
-      final forSending = await builder.build(request, SendFormat.both);
-      final forKeeping = await builder.save(request);
+      await builder.build(request, SendFormat.both);
+      expect(saved, isEmpty);
 
-      expect(forSending.every((d) => d.path.startsWith(temporary.path)), isTrue);
-      expect(forKeeping.every((d) => d.path.startsWith(documents.path)), isTrue);
+      await builder.save(request);
       // «Сохранить на устройство» кладёт оба формата независимо от того,
       // чем в прошлый раз отправляли.
-      expect(forKeeping.map((d) => d.format), DocumentFormat.values);
+      expect(saved.keys, [
+        'zayavka-2026-09-06-sklad-3-rashodniki.xlsx',
+        'zayavka-2026-09-06-sklad-3-rashodniki.pdf',
+      ]);
+      expect(saved.values.every((size) => size > 0), isTrue);
     });
 
     test('имя файла латиницей, с датой и без мусора', () async {
@@ -163,7 +155,7 @@ void main() {
       // в «%D0%A1%D0%BA...» — такие файлы ищут потом по дате изменения.
       expect(document.name, 'zayavka-2026-09-06-sklad-3-rashodniki.xlsx');
       expect(document.sizeBytes, greaterThan(0));
-      expect(await File(document.path).exists(), isTrue);
+      expect(readXlsxRows(document.bytes), isNotEmpty);
     });
 
     test('файлы пересобираются, а не берутся из прошлого раза', () async {
@@ -173,7 +165,6 @@ void main() {
       final document = (await builder.build(renamed, SendFormat.xlsx)).single;
 
       expect(document.name, contains('drugoe-nazvanie'));
-      expect(await File(document.path).exists(), isTrue);
     });
   });
 }

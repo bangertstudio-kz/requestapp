@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../core/domain/described_exception.dart';
 import '../../../core/utils/latin_slug.dart';
 import '../domain/entities/catalog_category.dart';
+import '../domain/entities/catalog_export.dart';
 import 'datasources/unit_mapping.dart';
 import 'import_file.dart';
 
@@ -67,17 +68,15 @@ List<int> catalogToXlsx(
   return bytes;
 }
 
-/// Выгружает справочник или ветку [categoryId] файлом в [directory] и
-/// возвращает путь к нему.
+/// Собирает выгрузку справочника или ветки [categoryId]: имя файла и книгу.
 ///
 /// Общая для обоих репозиториев: выгрузка читает только дерево, а дерево
 /// у них одинаковое.
-Future<String> writeCatalogXlsx(
+CatalogExport buildCatalogExport(
   List<CatalogCategory> categories, {
   required String? categoryId,
-  required Directory directory,
   DateTime? now,
-}) async {
+}) {
   final date = DateFormat('yyyy-MM-dd').format(now ?? DateTime.now());
 
   final String stem;
@@ -106,9 +105,10 @@ Future<String> writeCatalogXlsx(
     );
   }
 
-  final file = File('${directory.path}/$stem.xlsx');
-  await file.writeAsBytes(catalogToXlsx(roots, basePath: basePath));
-  return file.path;
+  return CatalogExport(
+    name: '$stem.xlsx',
+    bytes: Uint8List.fromList(catalogToXlsx(roots, basePath: basePath)),
+  );
 }
 
 /// Ветки от корня до категории включительно или `null`, если её нет.

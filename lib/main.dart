@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:request_ui/request_ui.dart';
 
 import 'core/dependencies/container/dependency_container.dart';
@@ -43,6 +44,10 @@ import 'generated/app_localizations.dart';
 /// Единственное место сборки приложения.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Адреса без «#»: ссылка на заявку в браузере — `/requests/detail/7`,
+  // как в приложении. Серверу при этом нужно отдавать index.html на любой
+  // путь, иначе обновление страницы в глубине даёт 404. Вне веба — no-op.
+  usePathUrlStrategy();
 
   // Контейнер собирается до первого кадра: репозитории должны существовать
   // раньше, чем экран попробует что-то у них спросить. Фабрика на drift

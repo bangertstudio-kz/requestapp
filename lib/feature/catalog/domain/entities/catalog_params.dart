@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../../core/domain/entities/params.dart';
 import 'catalog_import.dart';
 import 'item_draft.dart';
@@ -47,9 +49,14 @@ class CatalogEntryParams extends Params {
 
 /// Разбор выбранного файла. `categoryId == null` — импорт в корень.
 class ParseImportParams extends Params {
-  const ParseImportParams({required this.filePath, this.categoryId});
+  const ParseImportParams({
+    required this.bytes,
+    required this.fileName,
+    this.categoryId,
+  });
 
-  final String filePath;
+  final Uint8List bytes;
+  final String fileName;
   final String? categoryId;
 }
 

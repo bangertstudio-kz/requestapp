@@ -48,11 +48,19 @@ class _CatalogImportPageState extends State<CatalogImportPage> {
       type: FileType.custom,
       allowedExtensions: const ['xlsx'],
     );
-    final path = picked.singleOrNull?.path;
-    if (path == null || !mounted) return;
+    final file = picked.singleOrNull;
+    if (file == null) return;
+    // Содержимое, а не путь: в браузере у выбранного файла пути нет,
+    // а прайс в пару сотен строк в памяти ничего не стоит.
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
 
     await NotifierScope.read<ParseImportNotifier>(context).run(
-      ParseImportParams(filePath: path, categoryId: _categoryId),
+      ParseImportParams(
+        bytes: bytes,
+        fileName: file.name,
+        categoryId: _categoryId,
+      ),
     );
   }
 
