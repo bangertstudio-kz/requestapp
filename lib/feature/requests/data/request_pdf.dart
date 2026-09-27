@@ -59,24 +59,23 @@ Future<Uint8List> requestToPdf(
       theme: theme,
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.all(32),
-      // Шапка повторяется на каждой странице: заявка на сорок позиций
-      // уезжает на второй лист, а лист без названия — просто столбик чисел
-      // на столе у кладовщика.
-      header: (context) => _header(request, context.pageNumber),
-      build: (context) => [_itemsTable(request)],
+      // Шапка — только на первом листе, в начале документа, а не в
+      // заголовке страницы: на продолжении таблицы она занимала место
+      // строк, а какая это заявка, видно по первому листу.
+      build: (context) => [_header(request), _itemsTable(request)],
     ),
   );
 
   return document.save();
 }
 
-pw.Widget _header(MaterialRequest request, int pageNumber) {
+pw.Widget _header(MaterialRequest request) {
   // Строка собирается до дерева, а не в аргументе: анализатор локализации
   // не отличает документ от экрана и запрещает склейку литералов в
   // параметрах — хотя ARB здесь неприменим, у PDF нет локали читателя.
   final meta =
       '${_dateFormat.format(request.createdAt)}  ·  '
-      'позиций: ${request.items.length}  ·  лист $pageNumber';
+      'позиций: ${request.items.length}';
 
   return pw.Container(
   margin: const pw.EdgeInsets.only(bottom: 16),
