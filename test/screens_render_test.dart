@@ -314,8 +314,9 @@ void main() {
         onBack: () {},
       ),
     );
+    // Дерево открывается свёрнутым: подкатегорий не видно до нажатия.
     expect(find.text('Канализация'), findsOneWidget);
-    expect(find.text('Труба'), findsOneWidget);
+    expect(find.text('Труба'), findsNothing);
   });
 
   testWidgets('item pick: selected shows sheet', (tester) async {
@@ -558,9 +559,9 @@ void main() {
     await tester.tap(find.text('Добавить материал'));
     await _settle(tester);
     expect(find.text('Поиск по материалам'), findsOneWidget);
-    // Первая категория раскрыта сразу — видно и её, и подкатегории.
+    // Категории свёрнуты — ни одна не раскрыта заранее.
     expect(find.text('Канализация'), findsOneWidget);
-    expect(find.text('Труба'), findsOneWidget);
+    expect(find.text('Труба'), findsNothing);
 
     // Справочник открывается второй вкладкой.
     // Шапка в макете своя, поэтому и «назад» — своя иконка, а не
