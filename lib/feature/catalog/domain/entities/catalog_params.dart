@@ -31,6 +31,13 @@ class ReorderItemsParams extends Params {
   final List<String> itemIds;
 }
 
+/// Выгрузка в Excel: `categoryId == null` — весь справочник.
+class ExportCatalogParams extends Params {
+  const ExportCatalogParams({this.categoryId});
+
+  final String? categoryId;
+}
+
 /// Удаление записи справочника любого уровня.
 class CatalogEntryParams extends Params {
   const CatalogEntryParams(this.id);

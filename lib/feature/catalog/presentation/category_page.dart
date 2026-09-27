@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:request_ui/request_ui.dart';
 
 import '../../../core/navigation/app_routes.dart';
 import '../../../core/presentation/notifier_scope.dart';
@@ -11,6 +12,7 @@ import '../domain/entities/catalog_category.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/catalog_params.dart';
 import 'catalog_add_sheet.dart';
+import 'catalog_export.dart';
 import 'catalog_flatten.dart';
 import 'catalog_list_screen.dart';
 import 'catalog_notifier.dart';
@@ -183,6 +185,17 @@ class _CategoryPageState extends State<CategoryPage> {
           subtitle: itemPathLabel(l10n, _pathOf(categories, category)),
           label: l10n.catalogInsideLabel(children.length + items.length),
           onBack: () => Navigator.of(context).pop(),
+          actions: [
+            AppIconButton(
+              icon: Icons.ios_share,
+              semanticLabel: l10n.catalogExportOpen,
+              onPressed: () => shareCatalogExport(
+                context,
+                categoryId: category.id,
+                subject: category.name,
+              ),
+            ),
+          ],
           itemCount: children.length + items.length,
           emptyMessage: l10n.catalogInsideEmpty,
           reorderFrom: children.length,

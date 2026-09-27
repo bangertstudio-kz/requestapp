@@ -568,6 +568,18 @@ abstract class AppLocalizations {
   /// **'Загрузить материалы'**
   String get catalogImportOpen;
 
+  /// Подпись кнопки-иконки выгрузки справочника или категории для скринридера
+  ///
+  /// In ru, this message translates to:
+  /// **'Выгрузить в Excel'**
+  String get catalogExportOpen;
+
+  /// Тема письма при отправке выгрузки всего справочника
+  ///
+  /// In ru, this message translates to:
+  /// **'Справочник материалов'**
+  String get catalogExportSubject;
+
   /// No description provided for @catalogImportHowTitle.
   ///
   /// In ru, this message translates to:

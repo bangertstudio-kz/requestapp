@@ -12,6 +12,7 @@ import '../../../generated/app_localizations.dart';
 import '../domain/entities/catalog_category.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/catalog_params.dart';
+import 'catalog_export.dart';
 import 'catalog_flatten.dart';
 import 'catalog_list_screen.dart';
 import 'catalog_notifier.dart';
@@ -108,6 +109,14 @@ class _CatalogPageState extends State<CatalogPage> {
             tab: _tab,
             onTabSelected: (value) => setState(() => _tab = value),
             actions: [
+              AppIconButton(
+                icon: Icons.ios_share,
+                semanticLabel: l10n.catalogExportOpen,
+                onPressed: () => shareCatalogExport(
+                  context,
+                  subject: l10n.catalogExportSubject,
+                ),
+              ),
               AppIconButton(
                 icon: Icons.upload_file_outlined,
                 semanticLabel: l10n.catalogImportOpen,

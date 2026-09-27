@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
+
 import '../../../core/domain/described_exception.dart';
 import '../domain/entities/catalog_category.dart';
 import '../domain/entities/catalog_import.dart';
@@ -7,6 +9,7 @@ import '../domain/entities/catalog_item.dart';
 import '../domain/entities/item_draft.dart';
 import '../domain/entities/item_unit.dart';
 import 'catalog_repository.dart';
+import 'catalog_xlsx.dart';
 import 'import_file.dart';
 import 'import_summary.dart';
 import 'price_list_seed.dart';
@@ -209,6 +212,14 @@ class MockCatalogRepository implements CatalogRepository {
   @override
   Future<void> deleteItem(String id) =>
       _delayed(() => _leaves.removeWhere((leaf) => leaf.id == id));
+
+  @override
+  Future<String> exportCatalog({String? categoryId}) async =>
+      writeCatalogXlsx(
+        _tree(null),
+        categoryId: categoryId,
+        directory: await getTemporaryDirectory(),
+      );
 
   /// Порядок в моке — порядок в общем списке. Материалы категории
   /// раскладываются по тем же местам списка, которые занимали: чужие

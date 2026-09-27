@@ -43,6 +43,11 @@ abstract interface class CatalogRepository {
   /// разойтись.
   Future<void> reorderItems(String categoryId, List<String> itemIds);
 
+  /// Выгружает справочник (`categoryId == null`) или одну ветку в книгу
+  /// Excel во временный каталог и возвращает путь к файлу. Формат тот же,
+  /// что принимает [parseImport].
+  Future<String> exportCatalog({String? categoryId});
+
   /// Разбирает файл и считает, что даст импорт в [categoryId]
   /// (`null` — в корень справочника). Справочник при этом не трогает:
   /// пользователь должен увидеть цифры до того, как согласится.

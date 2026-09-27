@@ -2,10 +2,13 @@ import '../../../core/domain/described_exception.dart';
 import '../domain/entities/catalog_category.dart';
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
+
 import '../domain/entities/catalog_import.dart';
 import '../domain/entities/catalog_item.dart';
 import '../domain/entities/item_draft.dart';
 import 'catalog_repository.dart';
+import 'catalog_xlsx.dart';
 import 'datasources/catalog_local_data_source.dart';
 import 'import_file.dart';
 import 'import_summary.dart';
@@ -46,6 +49,14 @@ class DriftCatalogRepository implements CatalogRepository {
   @override
   Future<void> reorderItems(String categoryId, List<String> itemIds) =>
       _local.reorderItems(categoryId, itemIds);
+
+  @override
+  Future<String> exportCatalog({String? categoryId}) async =>
+      writeCatalogXlsx(
+        await _local.categories(),
+        categoryId: categoryId,
+        directory: await getTemporaryDirectory(),
+      );
 
   @override
   Future<CatalogImport> parseImport(

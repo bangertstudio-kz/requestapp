@@ -325,6 +325,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get catalogImportOpen => 'Загрузить материалы';
 
   @override
+  String get catalogExportOpen => 'Выгрузить в Excel';
+
+  @override
+  String get catalogExportSubject => 'Справочник материалов';
+
+  @override
   String get catalogImportHowTitle => 'Как подготовить файл';
 
   @override
