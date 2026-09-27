@@ -14,12 +14,13 @@ import '../../feature/requests/presentation/request_detail_page.dart';
 import '../../feature/requests/presentation/request_item_page.dart';
 import '../../feature/requests/presentation/request_preview_page.dart';
 import '../../feature/requests/presentation/requests_page.dart';
+import '../../feature/settings/presentation/settings_page.dart';
 
 part 'app_routes.g.dart';
 
 /// Все маршруты приложения.
 ///
-/// Вкладки — два независимых корня, а не общая оболочка со стеками:
+/// Вкладки — три независимых корня, а не общая оболочка со стеками:
 /// переключение вкладки в прототипе сбрасывает историю, и держать ради
 /// этого `StatefulShellRoute` значит хранить состояние, которое сразу
 /// же выбрасывается.
@@ -199,4 +200,13 @@ class CategoryRoute extends GoRouteData with $CategoryRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       CategoryPage(categoryId: categoryId);
+}
+
+@TypedGoRoute<SettingsRoute>(path: '/settings')
+class SettingsRoute extends GoRouteData with $SettingsRoute {
+  const SettingsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const SettingsPage();
 }

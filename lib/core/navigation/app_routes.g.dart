@@ -6,7 +6,11 @@ part of 'app_routes.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$requestsRoute, $catalogRoute];
+List<RouteBase> get $appRoutes => [
+  $requestsRoute,
+  $catalogRoute,
+  $settingsRoute,
+];
 
 RouteBase get $requestsRoute => GoRouteData.$route(
   path: '/requests',
@@ -392,6 +396,32 @@ mixin $CategoryRoute on GoRouteData {
   String get location => GoRouteData.$location(
     '/catalog/category/${Uri.encodeComponent(_self.categoryId)}',
   );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $settingsRoute => GoRouteData.$route(
+  path: '/settings',
+  hasOverriddenOnExit: false,
+  factory: $SettingsRoute._fromState,
+);
+
+mixin $SettingsRoute on GoRouteData {
+  static SettingsRoute _fromState(GoRouterState state) => const SettingsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/settings');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -2,6 +2,7 @@ import '../../../feature/catalog/data/datasources/drift_catalog_local_data_sourc
 import '../../../feature/catalog/data/drift_catalog_repository.dart';
 import '../../../feature/requests/data/datasources/drift_request_local_data_source.dart';
 import '../../../feature/requests/data/drift_request_repository.dart';
+import '../../../feature/settings/data/preferences_settings_repository.dart';
 import '../../database/app_database.dart';
 import 'dependency_container.dart';
 
@@ -27,6 +28,7 @@ class DriftRootFactory implements DependencyFactory {
       catalogRepository: DriftCatalogRepository(
         DriftCatalogLocalDataSource(database),
       ),
+      settingsRepository: const PreferencesSettingsRepository(),
     );
   }
 }

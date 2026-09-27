@@ -32,6 +32,7 @@ import 'package:request/generated/app_localizations.dart';
 import 'package:request/core/dependencies/container/mock_dependency_factory.dart';
 import 'package:request/main.dart';
 import 'package:request_ui/request_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const _catalogItem = CatalogItem(
   id: 'm1',
@@ -93,7 +94,10 @@ const _confirmAction = 'Удалить';
 const _importFile = 'Прайс сантехника-SergeyM 2.xlsx';
 const _importError = 'Не удалось прочитать файл.';
 
+/// Экраны проверяются по-русски: локаль теста по умолчанию — английская,
+/// а строки в проверках — из `ru.arb`.
 Widget _host(Widget child) => MaterialApp(
+      locale: const Locale('ru'),
       theme: RequestTheme.light,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -693,6 +697,41 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_ios_new).first);
     await _settle(tester);
     expect(find.text('МАТЕРИАЛЫ · 6'), findsOneWidget);
+  });
+
+  testWidgets('настройки: язык переключается и возвращается', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(412, 892) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    final container = await const MockRootFactory().create();
+    await tester.pumpWidget(App(container: container));
+    await _settle(tester);
+
+    await tester.tap(find.text('Настройки'));
+    await _settle(tester);
+    expect(find.text('ЯЗЫК'), findsOneWidget);
+
+    await tester.tap(find.text('English'));
+    await _settle(tester);
+    expect(find.text('Settings'), findsWidgets);
+    expect(find.text('Requests'), findsOneWidget);
+
+    await tester.tap(find.text('Қазақша'));
+    await _settle(tester);
+    expect(find.text('Өтінімдер'), findsOneWidget);
+    expect(find.text('Баптаулар'), findsWidgets);
+
+    // Из кошачьего есть дорога назад: название своего языка не переводится.
+    await tester.tap(find.text('Кошачий 🐱'));
+    await _settle(tester);
+    expect(find.text('Requests'), findsNothing);
+    expect(find.text('Русский'), findsOneWidget);
+
+    await tester.tap(find.text('Русский'));
+    await _settle(tester);
+    expect(find.text('Заявки'), findsOneWidget);
   });
 
   testWidgets('requests screen on a wide window', (tester) async {

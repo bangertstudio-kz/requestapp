@@ -22,12 +22,18 @@ class TabShell extends StatelessWidget {
 
     return WindowShell(
       selectedIndex: index,
-      onSelected: (value) => value == 0
-          ? const RequestsRoute().go(context)
-          : const CatalogRoute().go(context),
+      onSelected: (value) => switch (value) {
+        0 => const RequestsRoute().go(context),
+        1 => const CatalogRoute().go(context),
+        _ => const SettingsRoute().go(context),
+      },
       destinations: [
         AppNavDestination(icon: Icons.list_alt, label: l10n.navRequests),
         AppNavDestination(icon: Icons.grid_view, label: l10n.navCatalog),
+        AppNavDestination(
+          icon: Icons.settings_outlined,
+          label: l10n.navSettings,
+        ),
       ],
       child: child,
     );

@@ -1,5 +1,6 @@
 import '../../../feature/catalog/data/mock_catalog_repository.dart';
 import '../../../feature/requests/data/mock_request_repository.dart';
+import '../../../feature/settings/data/preferences_settings_repository.dart';
 import 'dependency_container.dart';
 
 /// Контейнер на моках: справочник из настоящего прайса, заявки в памяти.
@@ -15,5 +16,6 @@ class MockRootFactory implements DependencyFactory {
   Future<RootContainer> create() async => RootContainer(
     requestRepository: MockRequestRepository(),
     catalogRepository: MockCatalogRepository(),
+    settingsRepository: const PreferencesSettingsRepository(),
   );
 }

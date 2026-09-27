@@ -1,5 +1,6 @@
 import '../../../feature/catalog/data/catalog_repository.dart';
 import '../../../feature/requests/data/request_repository.dart';
+import '../../../feature/settings/data/settings_repository.dart';
 
 /// Плоский список зависимостей приложения.
 ///
@@ -10,10 +11,12 @@ class RootContainer {
   const RootContainer({
     required this.requestRepository,
     required this.catalogRepository,
+    required this.settingsRepository,
   });
 
   final RequestRepository requestRepository;
   final CatalogRepository catalogRepository;
+  final SettingsRepository settingsRepository;
 }
 
 /// Собирает контейнер до первого кадра.

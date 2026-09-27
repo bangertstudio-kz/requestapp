@@ -35,6 +35,7 @@ Future<GoRouter> _launch(WidgetTester tester) async {
 void main() {
   test('маршруты собирают ожидаемые адреса', () {
     expect(const RequestsRoute().location, '/requests');
+    expect(const SettingsRoute().location, '/settings');
     expect(
       const FolderRequestsRoute(folderId: 'f1').location,
       '/requests/folder/f1',
@@ -124,6 +125,7 @@ void main() {
       '/catalog/item-form?item-id=c1-s1-m1',
       '/catalog/category/c1',
       '/catalog/category-form?parent-id=c1',
+      '/settings',
     ];
 
     for (final location in routes) {

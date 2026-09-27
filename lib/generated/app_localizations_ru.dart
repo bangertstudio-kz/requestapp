@@ -54,6 +54,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navCatalog => 'Справочник';
 
   @override
+  String get navSettings => 'Настройки';
+
+  @override
   String get statusDraft => 'Черновик';
 
   @override
@@ -722,6 +725,27 @@ class AppLocalizationsRu extends AppLocalizations {
       'Материал удалён из справочника';
 
   @override
+  String get settingsTitle => 'Настройки';
+
+  @override
+  String get settingsSubtitle => 'Параметры приложения';
+
+  @override
+  String get settingsLanguageLabel => 'Язык';
+
+  @override
+  String get languageRussian => 'Русский';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageKazakh => 'Қазақша';
+
+  @override
+  String get languageCat => 'Кошачий 🐱';
+
+  @override
   String get routeNotFound => 'Такого экрана нет.\nВозможно, ссылка устарела.';
 
   @override
@@ -747,4 +771,721 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorUnknown => 'Что-то пошло не так. Попробуйте ещё раз.';
+}
+
+/// The translations for Russian (`ru_CAT`).
+class AppLocalizationsRuCat extends AppLocalizationsRu {
+  AppLocalizationsRuCat() : super('ru_CAT');
+
+  @override
+  String get appTitle => 'Мррррр мя мяуууу';
+
+  @override
+  String get actionBack => 'Мяууу';
+
+  @override
+  String get actionClose => 'Муррмяу';
+
+  @override
+  String get actionClearSearch => 'Мррррр мяууу';
+
+  @override
+  String get actionSave => 'Мяуууу';
+
+  @override
+  String get actionCancel => 'Муррмяу';
+
+  @override
+  String get actionDelete => 'Муррмяу';
+
+  @override
+  String get actionSend => 'Муррмяу';
+
+  @override
+  String get actionEditShort => 'Мур.';
+
+  @override
+  String get actionRemove => 'Муррмяу муррмяу';
+
+  @override
+  String get actionReorder => 'Мррррр, муррр мррррр муррмяу';
+
+  @override
+  String get actionRetry => 'Мррррр';
+
+  @override
+  String get actionBackspace => 'Мяуууу';
+
+  @override
+  String get navRequests => 'Мррррр';
+
+  @override
+  String get navCatalog => 'Муррмяу';
+
+  @override
+  String get navSettings => 'Мяуууу';
+
+  @override
+  String get statusDraft => 'Мяуууу';
+
+  @override
+  String get statusSaved => 'Мяуууу';
+
+  @override
+  String get statusSent => 'Муррмяу';
+
+  @override
+  String get unitPiece => 'мр.';
+
+  @override
+  String get unitMeter => 'мр.мр.';
+
+  @override
+  String get unitSet => 'мяуууу';
+
+  @override
+  String get requestsTitle => 'Мррррр';
+
+  @override
+  String requestsSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мяуууу',
+      many: '$count мяуууу',
+      few: '$count мяуууу',
+      one: '$count мррррр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get requestsSearchHint => 'Муррр мя муррмяу';
+
+  @override
+  String get requestsFilterAll => 'Мур';
+
+  @override
+  String get requestsFilterDrafts => 'Мяуууу';
+
+  @override
+  String get requestsFilterSaved => 'Мяуууу';
+
+  @override
+  String get requestsFilterSent => 'Мррррр';
+
+  @override
+  String get requestsFoldersLabel => 'Мяууу';
+
+  @override
+  String get requestsFolderNew => 'Муррр';
+
+  @override
+  String requestsListAll(int count) {
+    return 'Мур мяуууу · $count';
+  }
+
+  @override
+  String requestsListInFolder(int count) {
+    return 'Мррррр мр мяв-мяв · $count';
+  }
+
+  @override
+  String get requestsEmpty => 'Мяуууу мр мррррр.\nМяуууу муррмяу мяу мррррр.';
+
+  @override
+  String get requestsCreate => 'Муррмяу муррмяу';
+
+  @override
+  String requestPositions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мррррр',
+      many: '$count муррмяу',
+      few: '$count мррррр',
+      one: '$count мяуууу',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String requestPositionsWord(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'мррррр',
+      many: 'муррмяу',
+      few: 'мррррр',
+      one: 'мяуууу',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get requestDetailTitle => 'Муррмяу';
+
+  @override
+  String get requestNameLabel => 'Муррмяу мяуууу';
+
+  @override
+  String requestMaterialsLabel(int count) {
+    return 'Мррррр · $count';
+  }
+
+  @override
+  String get requestItemsEmpty =>
+      'Мр мяуууу мурр мяу муррмяу.\nМяуууу «Муррмяу муррмяу».';
+
+  @override
+  String get requestAddMaterial => 'Муррмяу муррмяу';
+
+  @override
+  String get requestIncreaseQuantity => 'Муррмяу муррмяу';
+
+  @override
+  String get requestDecreaseQuantity => 'Муррмяу муррмяу';
+
+  @override
+  String get requestItemTitle => 'Мррррр мяуууу';
+
+  @override
+  String get requestItemReplaceMaterial => 'Мяуууу муррмяу';
+
+  @override
+  String get pickTitle => 'Муррмяу муррмяу';
+
+  @override
+  String get pickSubtitle => 'Мяуууу, муррмяу мр муррмяу';
+
+  @override
+  String get pickSearchHint => 'Муррр мя мррррр';
+
+  @override
+  String get pickHintTree => 'Мяуууу → муррмяу → муррмяу';
+
+  @override
+  String pickHintFound(int count) {
+    return 'Муррмяу · $count';
+  }
+
+  @override
+  String get pickAddToRequest => 'Муррмяу мр муррмяу';
+
+  @override
+  String get pickSearching => 'Мурр…';
+
+  @override
+  String get pickNothingFound =>
+      'Мяуууу мр мррррр.\nМуррмяу муррмяу мяу мяуууу мяуууу.';
+
+  @override
+  String get pickScrollTop => 'Мяуууу';
+
+  @override
+  String pickCategoryMeta(int subcategories, int materials) {
+    return '$subcategories мяуууу. · $materials мяу.';
+  }
+
+  @override
+  String pickSubcategoriesShort(int count) {
+    return '$count мяуууу.';
+  }
+
+  @override
+  String pickMaterialsShort(int count) {
+    return '$count мяу.';
+  }
+
+  @override
+  String get quantityLabel => 'Мяуууу';
+
+  @override
+  String get quantityHint => 'Мррррр мя муррмяу';
+
+  @override
+  String get catalogTitle => 'Муррмяу';
+
+  @override
+  String get catalogSubtitle => 'Мррррр, мяуууу мр мяуууу';
+
+  @override
+  String get catalogTabCategories => 'Мррррр';
+
+  @override
+  String get catalogTabMaterials => 'Мррррр';
+
+  @override
+  String catalogCategoriesLabel(int count) {
+    return 'Мррррр · $count';
+  }
+
+  @override
+  String catalogMaterialsLabel(int count) {
+    return 'Мррррр · $count';
+  }
+
+  @override
+  String catalogInsideLabel(int count) {
+    return 'Мррррр · $count';
+  }
+
+  @override
+  String catalogCategoryMeta(int count, String names) {
+    return '$count мяуууу · $names';
+  }
+
+  @override
+  String catalogMaterialsInCategory(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мяуууу мр мяуууу',
+      many: '$count муррмяу мр мяуууу',
+      few: '$count мяуууу мр мяуууу',
+      one: '$count муррмяу мр мяуууу',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogMaterialsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мяуууу',
+      many: '$count муррмяу',
+      few: '$count мяуууу',
+      one: '$count муррмяу',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogCategoriesEmpty =>
+      'Мр мррррр мяу мррррр.\nМуррмяу мяв-мяв мяу мррррр мррррр.';
+
+  @override
+  String get catalogInsideEmpty =>
+      'Муррр мурр муррр.\nМуррмяу мррррр мяу муррмяу.';
+
+  @override
+  String get catalogMaterialsEmpty =>
+      'Мр мяуууу мяу муррмяу.\nМяуууу «+ Мяуууу».';
+
+  @override
+  String get catalogImportTitle => 'Мррррр мррррр';
+
+  @override
+  String get catalogImportSubtitle => 'Муррмяу муррмяу мя Excel';
+
+  @override
+  String get catalogImportOpen => 'Мррррр мяуууу';
+
+  @override
+  String get catalogExportOpen => 'Муррмяу мр Excel';
+
+  @override
+  String get catalogExportSubject => 'Муррмяу муррмяу';
+
+  @override
+  String get catalogImportHowTitle => 'Мяу мррррр мррр';
+
+  @override
+  String get catalogImportHowStep1 =>
+      'Муррмяу мрр — ChatGPT, Claude мр мррррр — мррррр мрр мяв-мяв мр мррр Excel. Мяууу мяуу.';
+
+  @override
+  String get catalogImportHowStep2 =>
+      'Мяуууу мяуууу .xlsx мя мяуу. Мурр мрр мр муррр мяууу — мя мяуууу мррррр: муррмяу мр мр мррррр мурр Excel мр мяуууу мрр .xlsx.';
+
+  @override
+  String get catalogImportHowStep3 => 'Мррррр мурр, муррмяу мррррр мр мррр.';
+
+  @override
+  String get catalogImportPromptShow => 'Мррррр мяв-мяв';
+
+  @override
+  String get catalogImportPromptHide => 'Муррмяу мяв-мяв';
+
+  @override
+  String get catalogImportPromptCopy => 'Мяуууу мяв-мяв';
+
+  @override
+  String get catalogImportPromptCopied => 'Мяууу мррррр';
+
+  @override
+  String get catalogImportTargetLabel => 'Мррр мяуууу';
+
+  @override
+  String get catalogImportTargetRoot => 'Мр мррррр муррмяу';
+
+  @override
+  String get catalogImportTargetHint =>
+      'Мррр мя мяууу муррмяу мр мррррр мяуууу';
+
+  @override
+  String get catalogImportRootNote =>
+      'Мр мяууу муррмяу муррмяу мррррр мр мяууу: мррррр мр муррмяу мяууу мяууу мррррр.';
+
+  @override
+  String get catalogImportPickFile => 'Мяуууу мррр';
+
+  @override
+  String get catalogImportPickAnother => 'Мяуууу мррррр мррр';
+
+  @override
+  String get catalogImportParsing => 'Муррмяу мррр…';
+
+  @override
+  String get catalogImportFileLabel => 'Мяуу';
+
+  @override
+  String get catalogImportStatsLabel => 'Мрр мррррр';
+
+  @override
+  String get catalogImportAdded => 'Мяв-мяв муррмяу';
+
+  @override
+  String get catalogImportUpdated => 'Мррррр';
+
+  @override
+  String get catalogImportCategoriesCreated => 'Мяв-мяв мррррр';
+
+  @override
+  String get catalogImportWarningsLabel => 'Муррмяу';
+
+  @override
+  String catalogImportDuplicates(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Мррррр $count мррррр мяв-мяв мяв-мяв',
+      many: 'Мррррр $count мррррр мяуууу мяв-мяв',
+      few: 'Мррррр $count мррррр мяв-мяв мяв-мяв',
+      one: 'Муррмяу $count мррррр мяв-мяв мррррр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogImportTrimmed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Мр $count мяуууу мяуууу муррмяу муррмяу',
+      many: 'Мр $count мяуууу мяуууу муррмяу муррмяу',
+      few: 'Мр $count мяуууу мяуууу муррмяу муррмяу',
+      one: 'Мр $count мррррр мяуууу муррмяу муррмяу',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogImportSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Мррррр $count мррррр: мяу мяуууу, мррррр мяуууу мяу муррмяу мррррр',
+      many:
+          'Мррррр $count мяв-мяв: мяу мяуууу, мррррр мяуууу мяу муррмяу мррррр',
+      few: 'Мррррр $count мррррр: мяу мяуууу, мррррр мяуууу мяу муррмяу мррррр',
+      one:
+          'Муррмяу $count муррмяу: мяу мяуууу, мррррр мяуууу мяу муррмяу мррррр',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catalogImportUnknownUnits(String units) {
+    return 'Муррмяу мяуууу муррмяу: $units. Муррмяу мррррр мр., мр.мр. мр мяуууу — муррр мррррр мр муррмяу.';
+  }
+
+  @override
+  String get catalogImportReplaceNote =>
+      'Муррмяу мррррр мррррр: муррмяу мр мяв-мяв мя муррмяу мр мрр мя мяууу мяуууу, мяуууу мяуууу. Мррррр мр мяуууу — мр мяу мяууу мяууу муррмяу мя мррррр муррмяу.';
+
+  @override
+  String get catalogImportApply => 'Муррмяу мр мррррр';
+
+  @override
+  String get catalogImportRetry => 'Мррррр';
+
+  @override
+  String get confirmImportTitle => 'Муррмяу мр мррррр?';
+
+  @override
+  String confirmImportText(int count) {
+    return 'Мр мррррр муррр мяуууу $count муррмяу мя мяууу.';
+  }
+
+  @override
+  String get confirmImportAction => 'Муррмяу';
+
+  @override
+  String snackCatalogImported(int count) {
+    return 'Муррмяу муррмяу: $count';
+  }
+
+  @override
+  String get catalogNewCategory => 'Мяуууу';
+
+  @override
+  String get catalogAdd => 'Муррмяу';
+
+  @override
+  String get catalogAddTitle => 'Мрр мррррр';
+
+  @override
+  String get catalogAddCategory => 'Муррмяу';
+
+  @override
+  String get catalogAddItem => 'Мяуууу';
+
+  @override
+  String get catalogNewMaterial => 'Мяуууу';
+
+  @override
+  String get formTitleCategory => 'Мяуууу';
+
+  @override
+  String get formTitleMaterial => 'Мяуууу';
+
+  @override
+  String get formTitleFolder => 'Муррр';
+
+  @override
+  String get formPlacementLabel => 'Мур мяуууу';
+
+  @override
+  String get formPlacementRoot => 'Мя муррмяу муррмяу';
+
+  @override
+  String get formPlacementInside => 'Мррррр мррррр мяуууу';
+
+  @override
+  String get formParentLabel => 'Мррррр';
+
+  @override
+  String get formParentEmpty => 'Мяуууу мррррр';
+
+  @override
+  String get formSubtitleNew => 'Мяууу муррмяу';
+
+  @override
+  String get formSubtitleEdit => 'Мррррр';
+
+  @override
+  String get formNameLabel => 'Муррмяу';
+
+  @override
+  String get formNameHint => 'Мяуууу, Мяууу ⌀100/2000';
+
+  @override
+  String get formCategoryLabel => 'Мяуууу';
+
+  @override
+  String get formUnitLabel => 'Мррррр муррмяу';
+
+  @override
+  String get formNameRequired => 'Мяуууу мррррр';
+
+  @override
+  String get formCategoryRequired => 'Мяуууу мррррр';
+
+  @override
+  String get folderSheetTitle => 'Мяуууу муррмяу';
+
+  @override
+  String folderSheetCurrent(String name) {
+    return 'Муррмяу: $name';
+  }
+
+  @override
+  String get folderSheetHere => 'мяууу';
+
+  @override
+  String get folderOutside => 'Мяу мяв-мяв';
+
+  @override
+  String get folderNew => 'Мяууу мяууу…';
+
+  @override
+  String get requestFolderLabel => 'Муррр';
+
+  @override
+  String get previewTitle => 'Муррмяу мяууу';
+
+  @override
+  String previewFileSize(String size) {
+    return '$size МЯ';
+  }
+
+  @override
+  String get previewPdfFailed => 'Мр мяуууу мяуууу муррмяу PDF';
+
+  @override
+  String get previewSheetFailed => 'Мр мяуууу мррррр мррррр';
+
+  @override
+  String get itemDeletedFromCatalog => 'Мяуууу мррррр';
+
+  @override
+  String get sendSheetTitle => 'Муррмяу муррмяу';
+
+  @override
+  String get sendSheetSubtitle => 'Мяуууу мррррр мррррр';
+
+  @override
+  String get sendFormatBoth => 'Excel мр PDF';
+
+  @override
+  String get confirmDeleteRequestTitle => 'Муррмяу муррмяу?';
+
+  @override
+  String confirmDeleteRequestText(String name, int count) {
+    return 'Муррмяу «$name» мр мяу мр $count муррмяу мяууу мррррр мр мррррр.';
+  }
+
+  @override
+  String get confirmDeleteCategoryTitle => 'Муррмяу мррррр?';
+
+  @override
+  String confirmDeleteCategoryText(String name) {
+    return 'Мяуууу «$name» мррррр мррррр мя муррр мяуууу мр мррррр мяуууу. Мррррр мр мяуууу.';
+  }
+
+  @override
+  String get confirmDeleteMaterialTitle => 'Муррмяу муррмяу?';
+
+  @override
+  String confirmDeleteMaterialText(String name) {
+    return 'Мяуууу «$name» мррррр мя муррмяу. Мр муррмяу мя мяуууу: мяу мррррр мяууу.';
+  }
+
+  @override
+  String get catalogMaterialsEmptyAll =>
+      'Мр мррррр мяу муррмяу.\nМуррмяу мяв-мяв мяу мррррр муррмяу.';
+
+  @override
+  String get confirmDeleteItemTitle => 'Муррмяу муррмяу?';
+
+  @override
+  String get confirmDeleteItemText => 'Мррррр муррр мррррр мя мяуууу.';
+
+  @override
+  String get snackQuantityRequired => 'Мррррр муррмяу';
+
+  @override
+  String get snackQuantityUpdated => 'Мяуууу муррмяу';
+
+  @override
+  String snackMaterialAdded(String name, int quantity, String unit) {
+    return '$name · $quantity $unit — мяуууу';
+  }
+
+  @override
+  String snackMaterialReplaced(String name) {
+    return 'Мяуууу муррмяу мя $name';
+  }
+
+  @override
+  String snackMaterialQuantityUpdated(String name, int quantity, String unit) {
+    return '$name · муррмяу $quantity $unit';
+  }
+
+  @override
+  String get duplicateTitle => 'Мяуууу мяу мр мяуууу';
+
+  @override
+  String duplicateText(String name, int current, String unit) {
+    return '$name — мррррр $current $unit.';
+  }
+
+  @override
+  String duplicateAdd(int total, String unit) {
+    return 'Мяуууу · муррр $total $unit';
+  }
+
+  @override
+  String duplicateReplace(int quantity, String unit) {
+    return 'Мяуууу мя $quantity $unit';
+  }
+
+  @override
+  String get snackMaterialRemovedFromRequest => 'Мяуууу мррррр мя мяуууу';
+
+  @override
+  String get snackSavedToDevice => 'Муррмяу мя мяуууу: XML мр PDF';
+
+  @override
+  String snackSent(String format) {
+    return 'Мррррр · $format';
+  }
+
+  @override
+  String get snackRequestDeleted => 'Муррмяу мррррр';
+
+  @override
+  String get snackNothingToSend => 'Мр мяуууу мяу муррмяу — мяуууу муррмяу';
+
+  @override
+  String snackMovedToFolder(String name) {
+    return 'Муррмяу мррррр мр «$name»';
+  }
+
+  @override
+  String get snackMovedOutOfFolders => 'Муррмяу муррмяу мя мяв-мяв';
+
+  @override
+  String get snackFolderCreated => 'Муррр мррррр';
+
+  @override
+  String get snackCategorySaved => 'Мяуууу муррмяу';
+
+  @override
+  String get snackMaterialSaved => 'Мяуууу муррмяу';
+
+  @override
+  String get snackCategoryRemoved => 'Мяуууу мррррр';
+
+  @override
+  String get snackMaterialRemovedFromCatalog => 'Мяуууу мррррр мя муррмяу';
+
+  @override
+  String get settingsTitle => 'Мяуууу';
+
+  @override
+  String get settingsSubtitle => 'Мррррр мррррр';
+
+  @override
+  String get settingsLanguageLabel => 'Мррр';
+
+  @override
+  String get routeNotFound => 'Муррмяу мррррр мяу.\nМяуууу, мяуууу мяуууу.';
+
+  @override
+  String get routeNotFoundAction => 'Мр муррмяу';
+
+  @override
+  String get errorTimeout => 'Мррррр мр мррррр мррррр. Мррррр мяу мрр.';
+
+  @override
+  String get errorConnection => 'Мур муррр мр мррррр. Муррмяу мррррр.';
+
+  @override
+  String get errorCertificate => 'Мр мяуууу мррррр мяуууу мррррр.';
+
+  @override
+  String get errorFormat => 'Мррррр мррррр мр мррррр мррррр.';
+
+  @override
+  String get errorStorage => 'Мр мяуууу мррррр мррррр мя мяуууу.';
+
+  @override
+  String get errorPlatform => 'Мррррр мррррр мяуууу.';
+
+  @override
+  String get errorUnknown => 'Мрр-мр мяв-мяв мр мур. Мррррр мяу мрр.';
 }

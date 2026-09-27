@@ -6,7 +6,6 @@ import 'core/dependencies/container/drift_dependency_factory.dart';
 import 'core/dependencies/container/mock_dependency_factory.dart';
 import 'core/env/env.dart';
 import 'core/navigation/app_router.dart';
-import 'core/presentation/app_text.dart';
 import 'core/presentation/multi_scope.dart';
 import 'core/presentation/notifier_scope.dart';
 import 'core/presentation/snack_notifier.dart';
@@ -34,6 +33,8 @@ import 'feature/requests/presentation/request_list_notifier.dart';
 import 'feature/requests/presentation/save_request_notifier.dart';
 import 'feature/requests/presentation/send_request_notifier.dart';
 import 'feature/requests/presentation/update_request_notifier.dart';
+import 'feature/settings/domain/entities/app_language.dart';
+import 'feature/settings/presentation/language_notifier.dart';
 import 'generated/app_localizations.dart';
 
 /// Единственное место сборки приложения.
@@ -50,18 +51,28 @@ Future<void> main() async {
       : DriftRootFactory();
   final container = await factory.create();
 
-  // Единственная строка, сообщающая нотифаерам язык, и она выполняется
-  // до того, как хоть один из них упадёт и захочет объясниться.
-  AppText.locale = const Locale('ru');
+  // Язык читается до первого кадра: иначе приложение на секунду открылось
+  // бы по-русски и перерисовалось. Сбой чтения — не повод не запуститься:
+  // остаётся русский, как до появления выбора.
+  final language = await container.settingsRepository.language().catchError(
+    (_) => null,
+  );
 
-  runApp(App(container: container));
+  runApp(App(container: container, language: language ?? AppLanguage.ru));
 }
 
 /// Корень приложения: нотифаеры, скоупы и `MaterialApp.router`.
 class App extends StatefulWidget {
-  const App({super.key, required this.container});
+  const App({
+    super.key,
+    required this.container,
+    this.language = AppLanguage.ru,
+  });
 
   final RootContainer container;
+
+  /// Язык на старте. Дальше им владеет [LanguageNotifier].
+  final AppLanguage language;
 
   @override
   State<App> createState() => _AppState();
@@ -98,6 +109,13 @@ class _AppState extends State<App> {
   late final _parseImport = ParseImportNotifier(_catalogRepository);
   late final _applyImport = ApplyImportNotifier(_catalogRepository);
 
+  // Сообщает язык и нотифаерам без BuildContext — `AppText` — ещё до того,
+  // как хоть один из них упадёт и захочет объясниться.
+  late final _language = LanguageNotifier(
+    widget.container.settingsRepository,
+    widget.language,
+  );
+
   RequestRepository get _requests => widget.container.requestRepository;
   CatalogRepository get _catalogRepository =>
       widget.container.catalogRepository;
@@ -105,6 +123,7 @@ class _AppState extends State<App> {
   @override
   void dispose() {
     _snack.dispose();
+    _language.dispose();
     super.dispose();
   }
 
@@ -113,6 +132,10 @@ class _AppState extends State<App> {
     // Первый в списке — самый внешний.
     wrappers: [
       (child) => NotifierScope<SnackNotifier>(controller: _snack, child: child),
+      (child) => NotifierScope<LanguageNotifier>(
+        controller: _language,
+        child: child,
+      ),
       (child) => NotifierScope<RequestListNotifier>(
         controller: _requestList,
         child: child,
@@ -196,21 +219,27 @@ class _AppState extends State<App> {
         child: child,
       ),
     ],
-    child: MaterialApp.router(
-      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
-      debugShowCheckedModeBanner: false,
-      theme: RequestTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: _router,
-      // Снек навешивается поверх всей навигации: сообщение «Материал
-      // добавлен» переживает возврат с экрана подбора на экран заявки.
-      builder: (context, child) => ValueListenableBuilder<String?>(
-        valueListenable: _snack,
-        builder: (context, message, _) => SnackOverlay(
-          message: message,
-          child: child ?? const SizedBox.shrink(),
-        ),
+    child: ValueListenableBuilder<AppLanguage>(
+      valueListenable: _language,
+      builder: (context, language, _) => _app(language.locale),
+    ),
+  );
+
+  Widget _app(Locale locale) => MaterialApp.router(
+    locale: locale,
+    onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+    debugShowCheckedModeBanner: false,
+    theme: RequestTheme.light,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    routerConfig: _router,
+    // Снек навешивается поверх всей навигации: сообщение «Материал
+    // добавлен» переживает возврат с экрана подбора на экран заявки.
+    builder: (context, child) => ValueListenableBuilder<String?>(
+      valueListenable: _snack,
+      builder: (context, message, _) => SnackOverlay(
+        message: message,
+        child: child ?? const SizedBox.shrink(),
       ),
     ),
   );

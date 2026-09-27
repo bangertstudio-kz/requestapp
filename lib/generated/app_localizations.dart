@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_en.dart';
+import 'app_localizations_kk.dart';
 import 'app_localizations_ru.dart';
 
 // ignore_for_file: type=lint
@@ -92,7 +94,12 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('ru')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('kk'),
+    Locale('ru'),
+    Locale('ru', 'CAT'),
+  ];
 
   /// Название приложения в списке задач системы
   ///
@@ -183,6 +190,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Справочник'**
   String get navCatalog;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки'**
+  String get navSettings;
 
   /// No description provided for @statusDraft.
   ///
@@ -1204,6 +1217,48 @@ abstract class AppLocalizations {
   /// **'Материал удалён из справочника'**
   String get snackMaterialRemovedFromCatalog;
 
+  /// No description provided for @settingsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры приложения'**
+  String get settingsSubtitle;
+
+  /// No description provided for @settingsLanguageLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Язык'**
+  String get settingsLanguageLabel;
+
+  /// Название языка на нём самом — одинаковое во всех переводах, чтобы свой язык находился из любого
+  ///
+  /// In ru, this message translates to:
+  /// **'Русский'**
+  String get languageRussian;
+
+  /// Название языка на нём самом — одинаковое во всех переводах
+  ///
+  /// In ru, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// Название языка на нём самом — одинаковое во всех переводах
+  ///
+  /// In ru, this message translates to:
+  /// **'Қазақша'**
+  String get languageKazakh;
+
+  /// Шуточный язык. Название одинаковое во всех переводах: из кошачьего нужно суметь вернуться
+  ///
+  /// In ru, this message translates to:
+  /// **'Кошачий 🐱'**
+  String get languageCat;
+
   /// No description provided for @routeNotFound.
   ///
   /// In ru, this message translates to:
@@ -1270,15 +1325,31 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ru'].contains(locale.languageCode);
+      <String>['en', 'kk', 'ru'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'ru':
+      {
+        switch (locale.countryCode) {
+          case 'CAT':
+            return AppLocalizationsRuCat();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'kk':
+      return AppLocalizationsKk();
     case 'ru':
       return AppLocalizationsRu();
   }

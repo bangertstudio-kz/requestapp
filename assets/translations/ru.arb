@@ -24,6 +24,7 @@
 
   "navRequests": "Заявки",
   "navCatalog": "Справочник",
+  "navSettings": "Настройки",
 
   "statusDraft": "Черновик",
   "statusSaved": "Сохранена",
@@ -369,6 +370,18 @@
   "snackMaterialSaved": "Материал сохранён",
   "snackCategoryRemoved": "Категория удалена",
   "snackMaterialRemovedFromCatalog": "Материал удалён из справочника",
+
+  "settingsTitle": "Настройки",
+  "settingsSubtitle": "Параметры приложения",
+  "settingsLanguageLabel": "Язык",
+  "languageRussian": "Русский",
+  "@languageRussian": { "description": "Название языка на нём самом — одинаковое во всех переводах, чтобы свой язык находился из любого" },
+  "languageEnglish": "English",
+  "@languageEnglish": { "description": "Название языка на нём самом — одинаковое во всех переводах" },
+  "languageKazakh": "Қазақша",
+  "@languageKazakh": { "description": "Название языка на нём самом — одинаковое во всех переводах" },
+  "languageCat": "Кошачий 🐱",
+  "@languageCat": { "description": "Шуточный язык. Название одинаковое во всех переводах: из кошачьего нужно суметь вернуться" },
 
   "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",
   "routeNotFoundAction": "К заявкам",

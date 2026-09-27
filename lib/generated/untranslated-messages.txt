@@ -1,1 +1,18 @@
-{}
+{
+  "ru_CAT": [
+    "dateFormatShort",
+    "requestFolderCount",
+    "pickCollapseMark",
+    "quantityEmpty",
+    "catalogImportPrompt",
+    "catalogMaterialMeta",
+    "pathSeparator",
+    "materialQuantity",
+    "sendFormatExcel",
+    "sendFormatPdf",
+    "languageRussian",
+    "languageEnglish",
+    "languageKazakh",
+    "languageCat"
+  ]
+}
