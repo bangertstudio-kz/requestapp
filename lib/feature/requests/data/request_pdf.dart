@@ -63,10 +63,26 @@ Future<Uint8List> requestToPdf(
       // заголовке страницы: на продолжении таблицы она занимала место
       // строк, а какая это заявка, видно по первому листу.
       build: (context) => [_header(request), _itemsTable(request)],
+      // Номер листа — на каждом, внизу: шапка есть только на первом, а
+      // «из скольких» показывает, что до кладовщика дошли все листы.
+      footer: (context) => _pageNumber(context.pageNumber, context.pagesCount),
     ),
   );
 
   return document.save();
+}
+
+pw.Widget _pageNumber(int page, int pages) {
+  // Строка до дерева — по той же причине, что и в шапке.
+  final label = 'лист $page из $pages';
+  return pw.Container(
+    alignment: pw.Alignment.centerRight,
+    margin: const pw.EdgeInsets.only(top: 12),
+    child: pw.Text(
+      label,
+      style: const pw.TextStyle(fontSize: 13.5, color: PdfColors.grey700),
+    ),
+  );
 }
 
 pw.Widget _header(MaterialRequest request) {
