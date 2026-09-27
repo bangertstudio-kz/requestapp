@@ -634,6 +634,47 @@ void main() {
     expect(find.text('КАТЕГОРИИ · 6'), findsOneWidget);
   });
 
+  testWidgets('подбор: после добавления экран остаётся, добавленное не теряется', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(412, 892) * 3;
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    final container = await const MockRootFactory().create();
+    await tester.pumpWidget(App(container: container));
+    await _settle(tester);
+    await tester.tap(find.text('ЖК Северный, стояки Б2'));
+    await _settle(tester);
+    // В заявке на моках четыре позиции.
+    expect(find.text('МАТЕРИАЛЫ · 4'), findsOneWidget);
+    await tester.tap(find.text('Добавить материал'));
+    await _settle(tester);
+
+    Future<void> add(String name, String digit) async {
+      await tester.enterText(find.byType(TextField), name);
+      await _settle(tester);
+      await tester.tap(find.text(name).last);
+      await _settle(tester);
+      await tester.tap(find.text(digit).last);
+      await tester.pump();
+      await tester.tap(find.text('Добавить в заявку'));
+      await _settle(tester);
+    }
+
+    await add('Отвод ⌀30', '2');
+    // Шторка закрылась, подбор остался открытым.
+    expect(find.text('Добавить в заявку'), findsNothing);
+    expect(find.text('Поиск по материалам'), findsOneWidget);
+    await add('Отвод ⌀40', '3');
+
+    // В заявке оба материала: второе добавление не затёрло первое.
+    // Сами строки ниже края экрана, поэтому считаем по подписи.
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new).first);
+    await _settle(tester);
+    expect(find.text('МАТЕРИАЛЫ · 6'), findsOneWidget);
+  });
+
   testWidgets('requests screen on a wide window', (tester) async {
     await _render(
       tester,

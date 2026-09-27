@@ -45,6 +45,13 @@ class _ItemPickPageState extends State<ItemPickPage> {
 
   CatalogItem? _selected;
 
+  /// Заявка после последнего добавления.
+  ///
+  /// Экран не закрывается после добавления, а нотифаер детали сам не
+  /// перечитывается: без этого поля второе добавление собиралось бы из
+  /// заявки без первого — и молча его затирало.
+  MaterialRequest? _saved;
+
   /// Пустая строка — поиска нет и рисуется дерево. Отдельное поле, потому что
   /// результат прошлого поиска живёт в нотифаере и после очистки строки
   /// подменил бы дерево собой.
@@ -71,6 +78,7 @@ class _ItemPickPageState extends State<ItemPickPage> {
     }
     // Другая заявка — другой выбор и другое количество.
     _selected = null;
+    _saved = null;
     _quantity.value = '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -144,20 +152,29 @@ class _ItemPickPageState extends State<ItemPickPage> {
             ),
           );
 
-    await notifier.run(UpdateRequestParams(updated));
+    final saved = await notifier.run(UpdateRequestParams(updated));
     if (!mounted) return;
 
-    final failure = notifier.failure;
-    if (failure != null) {
-      snack.show(failure);
+    if (saved == null) {
+      final failure = notifier.failure;
+      if (failure != null) snack.show(failure);
       return;
     }
-    snack.show(
-      replaceId == null
-          ? l10n.snackMaterialAdded(item.name, quantity, unit)
-          : l10n.snackMaterialReplaced(item.name),
-    );
-    Navigator.of(context).pop();
+
+    if (replaceId != null) {
+      snack.show(l10n.snackMaterialReplaced(item.name));
+      Navigator.of(context).pop();
+      return;
+    }
+    // Добавление не закрывает экран: заявку набирают десятком позиций
+    // подряд, и возвращаться в подбор после каждой — лишний круг.
+    // Закрывается только шторка количества.
+    snack.show(l10n.snackMaterialAdded(item.name, quantity, unit));
+    setState(() {
+      _saved = saved;
+      _selected = null;
+      _quantity.value = '';
+    });
   }
 
   @override
@@ -166,7 +183,7 @@ class _ItemPickPageState extends State<ItemPickPage> {
     final search = NotifierScope.of<ItemSearchNotifier>(context);
     final detail = NotifierScope.of<RequestDetailNotifier>(context);
 
-    final loaded = detail.data;
+    final loaded = _saved ?? detail.data;
     final request = (loaded != null && loaded.id == widget.requestId)
         ? loaded
         : null;
