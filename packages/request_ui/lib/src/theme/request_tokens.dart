@@ -51,7 +51,7 @@ class RequestTokens extends ThemeExtension<RequestTokens> {
     required this.snackShadow,
   });
 
-  /// Светлая тема из макета. Тёмной в макете нет: см. [RequestTheme].
+  /// Светлая тема из макета.
   factory RequestTokens.light() => RequestTokens(
           primary: AppColors.blue,
           primaryPressed: AppColors.blueDark,
@@ -110,6 +110,69 @@ class RequestTokens extends ThemeExtension<RequestTokens> {
           ),
         ],
       );
+
+  /// Тёмная тема. В макете её нет — роли те же, палитра [AppDarkColors].
+  factory RequestTokens.dark() => RequestTokens(
+    primary: AppDarkColors.blue,
+    primaryPressed: AppDarkColors.bluePressed,
+    primaryTint: AppDarkColors.blueTintSoft,
+    primaryTintPressed: AppDarkColors.blueTintSoftPressed,
+    primarySelected: AppDarkColors.blueTint,
+    primaryDisabled: AppDarkColors.blueMuted,
+    borderSelectedSoft: AppDarkColors.blueBorderSoft,
+    surface: AppDarkColors.surface,
+    background: AppDarkColors.background,
+    surfaceHover: AppDarkColors.grey75,
+    surfaceMuted: AppDarkColors.grey100,
+    surfaceNeutral: AppDarkColors.grey150,
+    divider: AppDarkColors.grey200,
+    hover: AppDarkColors.grey250,
+    border: AppDarkColors.grey300,
+    borderStrong: AppDarkColors.grey350,
+    borderDashed: AppDarkColors.grey400,
+    borderButton: AppDarkColors.grey450,
+    borderHover: AppDarkColors.grey500,
+    ink: AppDarkColors.ink,
+    inkChip: AppDarkColors.ink700,
+    inkSecondary: AppDarkColors.ink600,
+    inkTertiary: AppDarkColors.ink500,
+    inkMuted: AppDarkColors.ink400,
+    inkFaint: AppDarkColors.ink300,
+    inkDisabled: AppDarkColors.ink200,
+    danger: AppDarkColors.red,
+    dangerPressed: AppDarkColors.redPressed,
+    dangerBorder: AppDarkColors.redBorder,
+    dangerTint: AppDarkColors.redTint,
+    success: AppDarkColors.green,
+    successTint: AppDarkColors.greenTint,
+    snackSurface: AppDarkColors.snackSurface,
+    snackInk: AppDarkColors.snackInk,
+    // Стили текста несут цвета светлой палитры — переводим их в тёмную.
+    text: RequestTextTheme.standard().recolored({
+      AppColors.ink: AppDarkColors.ink,
+      AppColors.ink500: AppDarkColors.ink500,
+      AppColors.ink400: AppDarkColors.ink400,
+      AppColors.snackInk: AppDarkColors.snackInk,
+    }),
+    // На тёмном фоне цветная тень не видна — поднимает только чёрная.
+    fabShadow: const [
+      BoxShadow(color: Color(0x66000000), blurRadius: 20, offset: Offset(0, 6)),
+    ],
+    sheetShadow: const [
+      BoxShadow(
+        color: Color(0x80000000),
+        blurRadius: 40,
+        offset: Offset(0, -12),
+      ),
+    ],
+    snackShadow: const [
+      BoxShadow(
+        color: Color(0x80000000),
+        blurRadius: 30,
+        offset: Offset(0, 10),
+      ),
+    ],
+  );
 
   /// Единственный акцент. Всё, что им покрашено, нажимается.
   final Color primary;

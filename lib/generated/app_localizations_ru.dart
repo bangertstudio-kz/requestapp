@@ -746,6 +746,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get languageCat => 'Кошачий 🐱';
 
   @override
+  String get settingsThemeLabel => 'Тема';
+
+  @override
+  String get themeSystem => 'Как в системе';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get themeDark => 'Тёмная';
+
+  @override
   String get routeNotFound => 'Такого экрана нет.\nВозможно, ссылка устарела.';
 
   @override
@@ -1461,6 +1473,18 @@ class AppLocalizationsRuCat extends AppLocalizationsRu {
 
   @override
   String get settingsLanguageLabel => 'Мррр';
+
+  @override
+  String get settingsThemeLabel => 'Мурр';
+
+  @override
+  String get themeSystem => 'Мяу мр мяуууу';
+
+  @override
+  String get themeLight => 'Муррмяу';
+
+  @override
+  String get themeDark => 'Мяуууу';
 
   @override
   String get routeNotFound => 'Муррмяу мррррр мяу.\nМяуууу, мяуууу мяуууу.';

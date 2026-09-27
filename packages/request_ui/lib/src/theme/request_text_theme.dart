@@ -91,6 +91,58 @@ class RequestTextTheme {
           fieldHint: AppTextStyles.fieldHint,
       );
 
+  /// Те же роли с заменой цвета — для тёмной темы. Цвет зашит в стили
+  /// палитрой светлой, и [recolor] переводит его в пару из тёмной;
+  /// цвета, которых нет в замене, остаются как были.
+  RequestTextTheme recolored(Map<Color, Color> recolor) {
+    TextStyle swap(TextStyle style) {
+      final color = style.color;
+      final next = color == null ? null : recolor[color];
+      return next == null ? style : style.copyWith(color: next);
+    }
+
+    return RequestTextTheme(
+      appBarTitle: swap(appBarTitle),
+      appBarSubtitle: swap(appBarSubtitle),
+      sectionLabel: swap(sectionLabel),
+      cardTitle: swap(cardTitle),
+      itemTitle: swap(itemTitle),
+      rowTitle: swap(rowTitle),
+      treeCategoryTitle: swap(treeCategoryTitle),
+      treeSubcategoryTitle: swap(treeSubcategoryTitle),
+      treeMaterialTitle: swap(treeMaterialTitle),
+      rowTitleStrong: swap(rowTitleStrong),
+      body: swap(body),
+      bodySmall: swap(bodySmall),
+      caption: swap(caption),
+      chip: swap(chip),
+      chipLarge: swap(chipLarge),
+      statusChip: swap(statusChip),
+      buttonLarge: swap(buttonLarge),
+      buttonMedium: swap(buttonMedium),
+      buttonCompact: swap(buttonCompact),
+      buttonText: swap(buttonText),
+      fab: swap(fab),
+      quantityDisplay: swap(quantityDisplay),
+      quantityUnit: swap(quantityUnit),
+      quantityValue: swap(quantityValue),
+      quantityValueUnit: swap(quantityValueUnit),
+      keypadKey: swap(keypadKey),
+      keypadKeyCompact: swap(keypadKeyCompact),
+      meta: swap(meta),
+      sheetTitle: swap(sheetTitle),
+      sheetSubtitle: swap(sheetSubtitle),
+      materialTitle: swap(materialTitle),
+      navLabel: swap(navLabel),
+      snack: swap(snack),
+      emptyState: swap(emptyState),
+      field: swap(field),
+      fieldStrong: swap(fieldStrong),
+      fieldMedium: swap(fieldMedium),
+      fieldHint: swap(fieldHint),
+    );
+  }
+
   final TextStyle appBarTitle;
   final TextStyle appBarSubtitle;
   final TextStyle sectionLabel;

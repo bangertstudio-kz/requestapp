@@ -216,6 +216,11 @@
   "languageKazakh": "Қазақша",
   "languageCat": "Кошачий 🐱",
 
+  "settingsThemeLabel": "Theme",
+  "themeSystem": "System default",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+
   "routeNotFound": "There's no such screen.\nThe link may be outdated.",
   "routeNotFoundAction": "To requests",
 

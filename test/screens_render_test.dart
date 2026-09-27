@@ -699,7 +699,7 @@ void main() {
     expect(find.text('МАТЕРИАЛЫ · 6'), findsOneWidget);
   });
 
-  testWidgets('настройки: язык переключается и возвращается', (tester) async {
+  testWidgets('настройки: язык и тема выбираются в шторке', (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(412, 892) * 3;
     tester.view.devicePixelRatio = 3;
@@ -709,29 +709,50 @@ void main() {
     await tester.pumpWidget(App(container: container));
     await _settle(tester);
 
+    Future<void> pick(String row, String option) async {
+      await tester.tap(find.text(row));
+      await _settle(tester);
+      await tester.tap(find.text(option).last);
+      await _settle(tester);
+    }
+
     await tester.tap(find.text('Настройки'));
     await _settle(tester);
-    expect(find.text('ЯЗЫК'), findsOneWidget);
+    // Одна строка на настройку: значение видно, вариантов — нет.
+    expect(find.text('Русский'), findsOneWidget);
+    expect(find.text('English'), findsNothing);
+    expect(find.text('Светлая'), findsOneWidget);
 
-    await tester.tap(find.text('English'));
-    await _settle(tester);
-    expect(find.text('Settings'), findsWidgets);
+    await pick('Язык', 'English');
     expect(find.text('Requests'), findsOneWidget);
 
-    await tester.tap(find.text('Қазақша'));
-    await _settle(tester);
+    await pick('Language', 'Қазақша');
     expect(find.text('Өтінімдер'), findsOneWidget);
-    expect(find.text('Баптаулар'), findsWidgets);
 
     // Из кошачьего есть дорога назад: название своего языка не переводится.
+    await pick('Тіл', 'Кошачий 🐱');
+    expect(find.text('Кошачий 🐱'), findsOneWidget);
     await tester.tap(find.text('Кошачий 🐱'));
     await _settle(tester);
-    expect(find.text('Requests'), findsNothing);
-    expect(find.text('Русский'), findsOneWidget);
-
     await tester.tap(find.text('Русский'));
     await _settle(tester);
     expect(find.text('Заявки'), findsOneWidget);
+
+    // Тема: тёмная перекрашивает и фон экрана, и текст.
+    Brightness brightness() =>
+        Theme.of(tester.element(find.text('Тема'))).brightness;
+    expect(brightness(), Brightness.light);
+
+    await pick('Тема', 'Тёмная');
+    expect(brightness(), Brightness.dark);
+    final tokens = Theme.of(
+      tester.element(find.text('Тема')),
+    ).extension<RequestTokens>()!;
+    expect(tokens.background, isNot(RequestTokens.light().background));
+    expect(tester.widget<Text>(find.text('Тема')).style?.color, tokens.ink);
+
+    await pick('Тема', 'Светлая');
+    expect(brightness(), Brightness.light);
   });
 
   testWidgets('requests screen on a wide window', (tester) async {

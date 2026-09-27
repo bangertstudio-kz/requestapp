@@ -383,6 +383,11 @@
   "languageCat": "Кошачий 🐱",
   "@languageCat": { "description": "Шуточный язык. Название одинаковое во всех переводах: из кошачьего нужно суметь вернуться" },
 
+  "settingsThemeLabel": "Тема",
+  "themeSystem": "Как в системе",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+
   "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",
   "routeNotFoundAction": "К заявкам",
 

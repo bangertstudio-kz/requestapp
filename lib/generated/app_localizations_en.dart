@@ -729,6 +729,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageCat => 'Кошачий 🐱';
 
   @override
+  String get settingsThemeLabel => 'Theme';
+
+  @override
+  String get themeSystem => 'System default';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get routeNotFound =>
       'There\'s no such screen.\nThe link may be outdated.';
 

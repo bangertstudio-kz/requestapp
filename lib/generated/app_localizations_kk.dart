@@ -730,6 +730,18 @@ class AppLocalizationsKk extends AppLocalizations {
   String get languageCat => 'Кошачий 🐱';
 
   @override
+  String get settingsThemeLabel => 'Тақырып';
+
+  @override
+  String get themeSystem => 'Жүйедегідей';
+
+  @override
+  String get themeLight => 'Ашық';
+
+  @override
+  String get themeDark => 'Қараңғы';
+
+  @override
   String get routeNotFound =>
       'Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.';
 

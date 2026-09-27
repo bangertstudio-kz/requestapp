@@ -216,6 +216,11 @@
   "languageKazakh": "Қазақша",
   "languageCat": "Кошачий 🐱",
 
+  "settingsThemeLabel": "Тақырып",
+  "themeSystem": "Жүйедегідей",
+  "themeLight": "Ашық",
+  "themeDark": "Қараңғы",
+
   "routeNotFound": "Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.",
   "routeNotFoundAction": "Өтінімдерге",
 

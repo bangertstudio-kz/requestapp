@@ -1259,6 +1259,30 @@ abstract class AppLocalizations {
   /// **'Кошачий 🐱'**
   String get languageCat;
 
+  /// No description provided for @settingsThemeLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тема'**
+  String get settingsThemeLabel;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ru, this message translates to:
+  /// **'Как в системе'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлая'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная'**
+  String get themeDark;
+
   /// No description provided for @routeNotFound.
   ///
   /// In ru, this message translates to:

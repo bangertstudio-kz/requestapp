@@ -187,5 +187,9 @@
   "errorFormat": "Мррррр мррррр мр мррррр мррррр.",
   "errorStorage": "Мр мяуууу мррррр мррррр мя мяуууу.",
   "errorPlatform": "Мррррр мррррр мяуууу.",
-  "errorUnknown": "Мрр-мр мяв-мяв мр мур. Мррррр мяу мрр."
+  "errorUnknown": "Мрр-мр мяв-мяв мр мур. Мррррр мяу мрр.",
+  "settingsThemeLabel": "Мурр",
+  "themeSystem": "Мяу мр мяуууу",
+  "themeLight": "Муррмяу",
+  "themeDark": "Мяуууу"
 }

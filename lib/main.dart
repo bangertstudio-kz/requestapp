@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:request_ui/request_ui.dart';
 
 import 'core/dependencies/container/dependency_container.dart';
@@ -34,7 +35,9 @@ import 'feature/requests/presentation/save_request_notifier.dart';
 import 'feature/requests/presentation/send_request_notifier.dart';
 import 'feature/requests/presentation/update_request_notifier.dart';
 import 'feature/settings/domain/entities/app_language.dart';
+import 'feature/settings/domain/entities/app_theme_mode.dart';
 import 'feature/settings/presentation/language_notifier.dart';
+import 'feature/settings/presentation/theme_notifier.dart';
 import 'generated/app_localizations.dart';
 
 /// Единственное место сборки приложения.
@@ -51,14 +54,20 @@ Future<void> main() async {
       : DriftRootFactory();
   final container = await factory.create();
 
-  // Язык читается до первого кадра: иначе приложение на секунду открылось
-  // бы по-русски и перерисовалось. Сбой чтения — не повод не запуститься:
-  // остаётся русский, как до появления выбора.
-  final language = await container.settingsRepository.language().catchError(
-    (_) => null,
-  );
+  // Язык и тема читаются до первого кадра: иначе приложение на секунду
+  // открылось бы по-русски и светлым и перерисовалось. Сбой чтения — не
+  // повод не запуститься: остаётся то, что было до появления выбора.
+  final settings = container.settingsRepository;
+  final language = await settings.language().catchError((_) => null);
+  final theme = await settings.theme().catchError((_) => null);
 
-  runApp(App(container: container, language: language ?? AppLanguage.ru));
+  runApp(
+    App(
+      container: container,
+      language: language ?? AppLanguage.ru,
+      theme: theme ?? AppThemeMode.light,
+    ),
+  );
 }
 
 /// Корень приложения: нотифаеры, скоупы и `MaterialApp.router`.
@@ -67,12 +76,17 @@ class App extends StatefulWidget {
     super.key,
     required this.container,
     this.language = AppLanguage.ru,
+    this.theme = AppThemeMode.light,
   });
 
   final RootContainer container;
 
   /// Язык на старте. Дальше им владеет [LanguageNotifier].
   final AppLanguage language;
+
+  /// Тема на старте. Светлая, пока не выбрали другую: тёмную не рисовали
+  /// в макете, и включать её человеку, который об этом не просил, рано.
+  final AppThemeMode theme;
 
   @override
   State<App> createState() => _AppState();
@@ -115,6 +129,10 @@ class _AppState extends State<App> {
     widget.container.settingsRepository,
     widget.language,
   );
+  late final _theme = ThemeNotifier(
+    widget.container.settingsRepository,
+    widget.theme,
+  );
 
   RequestRepository get _requests => widget.container.requestRepository;
   CatalogRepository get _catalogRepository =>
@@ -124,6 +142,7 @@ class _AppState extends State<App> {
   void dispose() {
     _snack.dispose();
     _language.dispose();
+    _theme.dispose();
     super.dispose();
   }
 
@@ -136,6 +155,7 @@ class _AppState extends State<App> {
         controller: _language,
         child: child,
       ),
+      (child) => NotifierScope<ThemeNotifier>(controller: _theme, child: child),
       (child) => NotifierScope<RequestListNotifier>(
         controller: _requestList,
         child: child,
@@ -219,27 +239,36 @@ class _AppState extends State<App> {
         child: child,
       ),
     ],
-    child: ValueListenableBuilder<AppLanguage>(
-      valueListenable: _language,
-      builder: (context, language, _) => _app(language.locale),
+    child: ListenableBuilder(
+      listenable: Listenable.merge([_language, _theme]),
+      builder: (context, _) => _app(_language.value.locale, _theme.value.mode),
     ),
   );
 
-  Widget _app(Locale locale) => MaterialApp.router(
+  Widget _app(Locale locale, ThemeMode themeMode) => MaterialApp.router(
     locale: locale,
     onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
     debugShowCheckedModeBanner: false,
     theme: RequestTheme.light,
+    darkTheme: RequestTheme.dark,
+    themeMode: themeMode,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     routerConfig: _router,
     // Снек навешивается поверх всей навигации: сообщение «Материал
     // добавлен» переживает возврат с экрана подбора на экран заявки.
-    builder: (context, child) => ValueListenableBuilder<String?>(
-      valueListenable: _snack,
-      builder: (context, message, _) => SnackOverlay(
-        message: message,
-        child: child ?? const SizedBox.shrink(),
+    builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+      // Экраны без AppBar, и цвет значков строки состояния никто не задаёт:
+      // в тёмной теме тёмные часы и батарея исчезли бы на тёмном фоне.
+      value: Theme.of(context).brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+      child: ValueListenableBuilder<String?>(
+        valueListenable: _snack,
+        builder: (context, message, _) => SnackOverlay(
+          message: message,
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     ),
   );
