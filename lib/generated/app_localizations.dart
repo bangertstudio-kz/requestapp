@@ -1283,6 +1283,12 @@ abstract class AppLocalizations {
   /// **'Тёмная'**
   String get themeDark;
 
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Политика конфиденциальности'**
+  String get settingsPrivacyPolicy;
+
   /// No description provided for @routeNotFound.
   ///
   /// In ru, this message translates to:

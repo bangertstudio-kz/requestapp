@@ -220,6 +220,7 @@
   "themeSystem": "System default",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "settingsPrivacyPolicy": "Privacy policy",
 
   "routeNotFound": "There's no such screen.\nThe link may be outdated.",
   "routeNotFoundAction": "To requests",

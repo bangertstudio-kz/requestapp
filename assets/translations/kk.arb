@@ -220,6 +220,7 @@
   "themeSystem": "Жүйедегідей",
   "themeLight": "Ашық",
   "themeDark": "Қараңғы",
+  "settingsPrivacyPolicy": "Құпиялық саясаты",
 
   "routeNotFound": "Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.",
   "routeNotFoundAction": "Өтінімдерге",

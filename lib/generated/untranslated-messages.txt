@@ -13,6 +13,7 @@
     "languageRussian",
     "languageEnglish",
     "languageKazakh",
-    "languageCat"
+    "languageCat",
+    "settingsPrivacyPolicy"
   ]
 }

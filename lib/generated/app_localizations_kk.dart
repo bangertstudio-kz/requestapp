@@ -742,6 +742,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get themeDark => 'Қараңғы';
 
   @override
+  String get settingsPrivacyPolicy => 'Құпиялық саясаты';
+
+  @override
   String get routeNotFound =>
       'Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.';
 

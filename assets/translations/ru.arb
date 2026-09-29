@@ -387,6 +387,7 @@
   "themeSystem": "Как в системе",
   "themeLight": "Светлая",
   "themeDark": "Тёмная",
+  "settingsPrivacyPolicy": "Политика конфиденциальности",
 
   "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",
   "routeNotFoundAction": "К заявкам",

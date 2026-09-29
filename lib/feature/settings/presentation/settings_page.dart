@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/presentation/app_text.dart';
 import '../../../core/presentation/failure_message.dart';
@@ -66,9 +67,28 @@ class SettingsPage extends StatelessWidget {
     await _save(context, () => notifier.select(picked));
   }
 
+  /// Страница лежит рядом с веб-версией на GitHub Pages (web/privacy.html).
+  static final _privacyPolicy = Uri.parse(
+    'https://bangertstudio-kz.github.io/requestapp/privacy.html',
+  );
+
+  Future<void> _openPrivacyPolicy(BuildContext context) async {
+    final snack = NotifierScope.read<SnackNotifier>(context);
+    try {
+      if (!await launchUrl(_privacyPolicy)) {
+        snack.show(AppText.current.errorPlatform);
+      }
+    } catch (error) {
+      snack.show(failureMessage(AppText.current, error));
+    }
+  }
+
   /// Выбор применяется сразу; не записался — говорим, что после перезапуска
   /// вернётся прежний.
-  Future<void> _save(BuildContext context, Future<void> Function() select) async {
+  Future<void> _save(
+    BuildContext context,
+    Future<void> Function() select,
+  ) async {
     final snack = NotifierScope.read<SnackNotifier>(context);
     try {
       await select();
@@ -94,6 +114,7 @@ class SettingsPage extends StatelessWidget {
           NotifierScope.of<ThemeNotifier>(context).value,
         ),
         onThemeTap: () => _pickTheme(context),
+        onPrivacyTap: () => _openPrivacyPolicy(context),
       ),
     );
   }

@@ -741,6 +741,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get settingsPrivacyPolicy => 'Privacy policy';
+
+  @override
   String get routeNotFound =>
       'There\'s no such screen.\nThe link may be outdated.';
 

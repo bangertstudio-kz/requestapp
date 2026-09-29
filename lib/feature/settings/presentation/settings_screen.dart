@@ -16,12 +16,14 @@ class SettingsScreen extends StatelessWidget {
     required this.onLanguageTap,
     required this.themeName,
     required this.onThemeTap,
+    required this.onPrivacyTap,
   });
 
   final String languageName;
   final VoidCallback onLanguageTap;
   final String themeName;
   final VoidCallback onThemeTap;
+  final VoidCallback onPrivacyTap;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +74,23 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              // Отдельной карточкой: это не настройка, а ссылка наружу.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppDimens.screenPadding,
+                  AppDimens.space8,
+                  AppDimens.screenPadding,
+                  0,
+                ),
+                child: AppCard(
+                  borderRadius: AppDimens.radiusControl,
+                  child: _SettingRow(
+                    label: l10n.settingsPrivacyPolicy,
+                    borderRadius: const BorderRadius.all(radius),
+                    onTap: onPrivacyTap,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -84,13 +103,15 @@ class SettingsScreen extends StatelessWidget {
 class _SettingRow extends StatelessWidget {
   const _SettingRow({
     required this.label,
-    required this.value,
+    this.value,
     required this.borderRadius,
     required this.onTap,
   });
 
   final String label;
-  final String value;
+
+  /// Нет значения — строка просто ведёт дальше, как ссылка.
+  final String? value;
 
   /// Скругление волны нажатия: совпадает с углами карточки у крайних строк.
   final BorderRadius borderRadius;
@@ -110,7 +131,8 @@ class _SettingRow extends StatelessWidget {
           child: Row(
             children: [
               Expanded(child: Text(label, style: tokens.text.rowTitle)),
-              Text(value, style: tokens.text.caption),
+              if (value case final value?)
+                Text(value, style: tokens.text.caption),
               const SizedBox(width: AppDimens.space2),
               Icon(Icons.chevron_right, size: 20, color: tokens.inkFaint),
             ],

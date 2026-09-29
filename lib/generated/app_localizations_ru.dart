@@ -758,6 +758,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get themeDark => 'Тёмная';
 
   @override
+  String get settingsPrivacyPolicy => 'Политика конфиденциальности';
+
+  @override
   String get routeNotFound => 'Такого экрана нет.\nВозможно, ссылка устарела.';
 
   @override
