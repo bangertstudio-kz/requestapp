@@ -1,7 +1,7 @@
 name: request
 description: "Заявки на материалы: подбор материала из справочника и количество на одном экране."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.1+1
 
 environment:
   sdk: ^3.12.0
