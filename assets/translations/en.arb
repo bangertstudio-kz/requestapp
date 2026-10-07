@@ -221,6 +221,7 @@
   "themeLight": "Light",
   "themeDark": "Dark",
   "settingsPrivacyPolicy": "Privacy policy",
+  "settingsDeveloper": "Developer",
 
   "routeNotFound": "There's no such screen.\nThe link may be outdated.",
   "routeNotFoundAction": "To requests",

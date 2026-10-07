@@ -745,6 +745,9 @@ class AppLocalizationsKk extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Құпиялық саясаты';
 
   @override
+  String get settingsDeveloper => 'Әзірлеуші';
+
+  @override
   String get routeNotFound =>
       'Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.';
 

@@ -1289,6 +1289,12 @@ abstract class AppLocalizations {
   /// **'Политика конфиденциальности'**
   String get settingsPrivacyPolicy;
 
+  /// No description provided for @settingsDeveloper.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разработчик'**
+  String get settingsDeveloper;
+
   /// No description provided for @routeNotFound.
   ///
   /// In ru, this message translates to:

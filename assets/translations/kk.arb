@@ -221,6 +221,7 @@
   "themeLight": "Ашық",
   "themeDark": "Қараңғы",
   "settingsPrivacyPolicy": "Құпиялық саясаты",
+  "settingsDeveloper": "Әзірлеуші",
 
   "routeNotFound": "Мұндай экран жоқ.\nСілтеме ескірген болуы мүмкін.",
   "routeNotFoundAction": "Өтінімдерге",

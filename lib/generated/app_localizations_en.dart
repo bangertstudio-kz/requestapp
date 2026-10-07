@@ -744,6 +744,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Privacy policy';
 
   @override
+  String get settingsDeveloper => 'Developer';
+
+  @override
   String get routeNotFound =>
       'There\'s no such screen.\nThe link may be outdated.';
 

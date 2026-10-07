@@ -388,6 +388,7 @@
   "themeLight": "Светлая",
   "themeDark": "Тёмная",
   "settingsPrivacyPolicy": "Политика конфиденциальности",
+  "settingsDeveloper": "Разработчик",
 
   "routeNotFound": "Такого экрана нет.\nВозможно, ссылка устарела.",
   "routeNotFoundAction": "К заявкам",

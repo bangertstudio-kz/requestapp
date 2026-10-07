@@ -17,6 +17,7 @@ class SettingsScreen extends StatelessWidget {
     required this.themeName,
     required this.onThemeTap,
     required this.onPrivacyTap,
+    required this.onDeveloperTap,
   });
 
   final String languageName;
@@ -24,6 +25,7 @@ class SettingsScreen extends StatelessWidget {
   final String themeName;
   final VoidCallback onThemeTap;
   final VoidCallback onPrivacyTap;
+  final VoidCallback onDeveloperTap;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // Отдельной карточкой: это не настройка, а ссылка наружу.
+              // Отдельной карточкой: это не настройки, а ссылки наружу.
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppDimens.screenPadding,
@@ -84,10 +86,23 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 child: AppCard(
                   borderRadius: AppDimens.radiusControl,
-                  child: _SettingRow(
-                    label: l10n.settingsPrivacyPolicy,
-                    borderRadius: const BorderRadius.all(radius),
-                    onTap: onPrivacyTap,
+                  child: Column(
+                    children: [
+                      _SettingRow(
+                        label: l10n.settingsPrivacyPolicy,
+                        borderRadius: const BorderRadius.vertical(top: radius),
+                        onTap: onPrivacyTap,
+                      ),
+                      Divider(height: 1, thickness: 1, color: tokens.divider),
+                      _SettingRow(
+                        label: l10n.settingsDeveloper,
+                        value: 'bangertstudio.kz',
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: radius,
+                        ),
+                        onTap: onDeveloperTap,
+                      ),
+                    ],
                   ),
                 ),
               ),

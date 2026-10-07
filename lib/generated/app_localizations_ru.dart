@@ -761,6 +761,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Политика конфиденциальности';
 
   @override
+  String get settingsDeveloper => 'Разработчик';
+
+  @override
   String get routeNotFound => 'Такого экрана нет.\nВозможно, ссылка устарела.';
 
   @override

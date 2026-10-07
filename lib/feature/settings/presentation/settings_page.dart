@@ -72,10 +72,12 @@ class SettingsPage extends StatelessWidget {
     'https://bangertstudio-kz.github.io/requestapp/privacy.html',
   );
 
-  Future<void> _openPrivacyPolicy(BuildContext context) async {
+  static final _developer = Uri.parse('https://bangertstudio.kz');
+
+  Future<void> _openLink(BuildContext context, Uri url) async {
     final snack = NotifierScope.read<SnackNotifier>(context);
     try {
-      if (!await launchUrl(_privacyPolicy)) {
+      if (!await launchUrl(url)) {
         snack.show(AppText.current.errorPlatform);
       }
     } catch (error) {
@@ -114,7 +116,8 @@ class SettingsPage extends StatelessWidget {
           NotifierScope.of<ThemeNotifier>(context).value,
         ),
         onThemeTap: () => _pickTheme(context),
-        onPrivacyTap: () => _openPrivacyPolicy(context),
+        onPrivacyTap: () => _openLink(context, _privacyPolicy),
+        onDeveloperTap: () => _openLink(context, _developer),
       ),
     );
   }
